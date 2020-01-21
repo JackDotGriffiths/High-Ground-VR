@@ -13,8 +13,6 @@ public class ControllerInputs : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        InputManager.Instance.RightGripped = false;
-        InputManager.Instance.RightGripped = false;
         if (GetTeleportDown())
         {
             //print("Teleport " + handType);
@@ -22,7 +20,7 @@ public class ControllerInputs : MonoBehaviour
 
         if (GetGrab())
         {
-            print("Grab " + handType);
+            //print("Grab " + handType);
             if (handType == SteamVR_Input_Sources.LeftHand)
             {
                 InputManager.Instance.LeftGripped = true;
@@ -34,6 +32,7 @@ public class ControllerInputs : MonoBehaviour
         }
         if (GetTrigger())
         {
+            //Debug.Log("Trigger " + handType);
             if (handType == SteamVR_Input_Sources.LeftHand)
             {
                 InputManager.Instance.LeftTrigger = true;

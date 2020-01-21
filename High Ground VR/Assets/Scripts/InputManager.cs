@@ -7,8 +7,11 @@ public class InputManager : MonoBehaviour
     private static InputManager s_instance;
 
     [SerializeField] private GameObject m_vrRig, m_camera, m_leftController, m_rightController;
+
+    [Header("Player Scaling")]
     [SerializeField,Space(20)] private Vector3 m_smallestScale;
     [SerializeField] private Vector3 m_largestScale;
+    [SerializeField] private float m_scalingSpeed;
 
     private bool m_leftGripped, m_rightGripped, m_leftTrigger,m_rightTrigger;
     private Vector3 m_prevControllerMidpoint, m_controllerMidpoint;
@@ -56,7 +59,7 @@ public class InputManager : MonoBehaviour
 
        
         //If both controllers grip buttons are pressed, transform the camera by the vector difference between the controller midpoints previous and current position
-        if(m_leftGripped == true && m_rightGripped == true)
+        if(m_leftTrigger == true && m_rightTrigger == true)
         {
             Vector3 _offsetVector = -(m_controllerMidpoint - m_prevControllerMidpoint);
             Vector3 _targetRigPosition = new Vector3(m_vrRig.transform.position.x + _offsetVector.x, m_vrRig.transform.position.y, m_vrRig.transform.position.z + _offsetVector.z);
@@ -66,26 +69,53 @@ public class InputManager : MonoBehaviour
             }
         }
         m_prevControllerMidpoint = m_controllerMidpoint;
+        m_leftTrigger = false;
+        m_rightTrigger = false;
    
 
 
         m_controllerDistance = Vector3.Distance(m_leftController.transform.position, m_rightController.transform.position);
-        if(m_leftTrigger == true && m_rightTrigger == true)
+        if(m_leftGripped == true && m_rightGripped == true)
         {
             float _distanceDifference = Mathf.Abs(m_controllerDistance - m_prevControllerDistance);
-            Debug.Log(_distanceDifference);
-            if (m_controllerDistance > m_prevControllerDistance)
+            if (_distanceDifference > 0.02f)
             {
-                //ZOOM IN - SCALE UP
-            }
-            if (m_controllerDistance < m_prevControllerDistance)
-            {
-                //ZOOM OUT - SCALE DOWN
+                if (m_controllerDistance > m_prevControllerDistance)
+                {
+                    //ZOOM IN - SCALE UP
+                    Vector3 _newScale = new Vector3(m_vrRig.transform.localScale.x + m_scalingSpeed, m_vrRig.transform.localScale.y + m_scalingSpeed, m_vrRig.transform.localScale.z + m_scalingSpeed);
+                    if (_newScale.x > m_largestScale.x)
+                    {
+                        _newScale = m_largestScale;
+                    }
+                    m_vrRig.transform.localScale = Vector3.Lerp(m_vrRig.transform.localScale, _newScale, 0.99f);
+                    m_vrRig.transform.position = Vector3.Lerp(m_vrRig.transform.position, new Vector3(m_vrRig.transform.position.x, m_vrRig.transform.position.y - 1f, m_vrRig.transform.position.z), 0.99f);
+                    if (m_vrRig.transform.position.y < -25)
+                    {
+                        m_vrRig.transform.position = Vector3.Lerp(m_vrRig.transform.position, new Vector3(m_vrRig.transform.position.x, -25, m_vrRig.transform.position.z), 0.99f);
+                    }
+                }
+                if (m_controllerDistance < m_prevControllerDistance)
+                {
+                    //ZOOM OUT - SCALE DOWN
+                    Vector3 _newScale = new Vector3(m_vrRig.transform.localScale.x - m_scalingSpeed, m_vrRig.transform.localScale.y - m_scalingSpeed, m_vrRig.transform.localScale.z - m_scalingSpeed);
+                    if (_newScale.x < m_smallestScale.x)
+                    {
+                        _newScale = m_smallestScale;
+                    }
+                    m_vrRig.transform.localScale = Vector3.Lerp(m_vrRig.transform.localScale, _newScale, 0.99f);
+                    m_vrRig.transform.position = Vector3.Lerp(m_vrRig.transform.position, new Vector3(m_vrRig.transform.position.x, m_vrRig.transform.position.y + 1f, m_vrRig.transform.position.z), 0.99f);
+                    if(m_vrRig.transform.position.y > 0)
+                    {
+                        m_vrRig.transform.position = Vector3.Lerp(m_vrRig.transform.position, new Vector3(m_vrRig.transform.position.x, 0, m_vrRig.transform.position.z), 0.99f);
+                    }
+
+                }
             }
         }
-
-
         m_prevControllerDistance = m_controllerDistance;
+        m_leftGripped = false;
+        m_rightGripped = false;
 
 
 
