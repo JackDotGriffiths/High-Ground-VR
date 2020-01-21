@@ -8,6 +8,7 @@ public class ControllerInputs : MonoBehaviour
     public SteamVR_Input_Sources handType; // 1
     public SteamVR_Action_Boolean teleportAction; // 2
     public SteamVR_Action_Boolean grabAction; // 3
+    public SteamVR_Action_Boolean triggerAction;
 
     // Update is called once per frame
     void Update()
@@ -31,6 +32,17 @@ public class ControllerInputs : MonoBehaviour
                 InputManager.Instance.RightGripped = true;
             }
         }
+        if (GetTrigger())
+        {
+            if (handType == SteamVR_Input_Sources.LeftHand)
+            {
+                InputManager.Instance.LeftTrigger = true;
+            }
+            if (handType == SteamVR_Input_Sources.RightHand)
+            {
+                InputManager.Instance.RightTrigger = true;
+            }
+        }
     }
 
     public bool GetTeleportDown() // 1
@@ -41,6 +53,10 @@ public class ControllerInputs : MonoBehaviour
     public bool GetGrab() // 2
     {
         return grabAction.GetState(handType);
+    }
+    public bool GetTrigger()
+    {
+        return triggerAction.GetState(handType);
     }
 
 }
