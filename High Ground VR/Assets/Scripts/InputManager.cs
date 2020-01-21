@@ -52,13 +52,9 @@ public class InputManager : MonoBehaviour
 
         //Draw a line from the midpoint of the controllers to the camera.
         m_controllerMidpoint = (m_leftController.transform.position + m_rightController.transform.position) / 2;
-        m_controllerDistance = Vector3.Distance(m_leftController.transform.position, m_rightController.transform.position);
         Debug.DrawLine(m_controllerMidpoint, m_camera.transform.position, Color.green);
 
-
-
-
-
+       
         //If both controllers grip buttons are pressed, transform the camera by the vector difference between the controller midpoints previous and current position
         if(m_leftGripped == true && m_rightGripped == true)
         {
@@ -70,6 +66,28 @@ public class InputManager : MonoBehaviour
             }
         }
         m_prevControllerMidpoint = m_controllerMidpoint;
+   
+
+
+        m_controllerDistance = Vector3.Distance(m_leftController.transform.position, m_rightController.transform.position);
+        if(m_leftTrigger == true && m_rightTrigger == true)
+        {
+            float _distanceDifference = Mathf.Abs(m_controllerDistance - m_prevControllerDistance);
+            Debug.Log(_distanceDifference);
+            if (m_controllerDistance > m_prevControllerDistance)
+            {
+                //ZOOM IN - SCALE UP
+            }
+            if (m_controllerDistance < m_prevControllerDistance)
+            {
+                //ZOOM OUT - SCALE DOWN
+            }
+        }
+
+
         m_prevControllerDistance = m_controllerDistance;
+
+
+
     }
 }
