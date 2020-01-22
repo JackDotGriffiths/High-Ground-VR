@@ -17,8 +17,11 @@ public class InputManager : MonoBehaviour
     private float m_maxWorldHeight; //This depends on the player's height.
 
 
+
     [Header("Point & Click")]
     [SerializeField, Space(20)] private Material m_pointerMaterial;
+    [SerializeField] private Material m_grassMaterial,m_outlineMaterial;
+    private GameObject m_currentlySelected;
 
     private bool m_leftGripped, m_rightGripped, m_leftTrigger,m_rightTrigger;
     private Vector3 m_prevControllerMidpoint, m_controllerMidpoint;
@@ -26,6 +29,7 @@ public class InputManager : MonoBehaviour
 
     private GameObject m_mainController, m_offHandController;
     private LineRenderer m_mainPointer;
+    
 
     #region Accessors
     public static InputManager Instance { get => s_instance; set => s_instance = value; }
@@ -54,8 +58,6 @@ public class InputManager : MonoBehaviour
         //Adding a line renderer for the point & click functionality
         m_mainPointer = m_mainController.AddComponent<LineRenderer>();
         m_mainPointer.enabled = true;
-        m_mainPointer.SetPosition(0, m_mainController.transform.position);
-        m_mainPointer.SetPosition(1, m_mainController.transform.forward * 100);
         m_mainPointer.startWidth = 0.05f;
         m_mainPointer.endWidth = 0.00f;
         m_mainPointer.material = m_pointerMaterial;
@@ -100,8 +102,6 @@ public class InputManager : MonoBehaviour
             }
         }
         m_prevControllerMidpoint = m_controllerMidpoint;
-        m_leftTrigger = false;
-        m_rightTrigger = false;
         #endregion
 
         #region World Scaling Handling
@@ -152,27 +152,62 @@ public class InputManager : MonoBehaviour
 
 
         #region Point and Click Handling
-        //Debug.DrawRay(m_mainController.transform.position, m_mainController.transform.forward, Color.blue);
-
-
+        //Debug.DrawRay(m_mainController.transform.position, m_mainController.transform.forward * 100, Color.blue);
         m_mainPointer.SetPosition(0, m_mainController.transform.position);
-        m_mainPointer.SetPosition(1, m_mainController.transform.forward * 100);
+        m_mainPointer.SetPosition(1, m_mainController.transform.position + m_mainController.transform.forward * 100);
 
         RaycastHit _hit;
-        if (Physics.Raycast(m_mainController.transform.position, m_mainController.transform.forward, out _hit, 100))
+        if (Physics.Raycast(m_mainController.transform.position, m_mainController.transform.forward, out _hit, 1000))
         {
-            m_mainPointer.startColor = Color.green;
-            m_mainPointer.endColor = Color.green;
+            MeshRenderer _mesh;
+            List<Material> _matList = new List<Material>();
+
+            if (m_currentlySelected != _hit.collider.gameObject && m_currentlySelected != null)
+            {
+                _mesh = m_currentlySelected.GetComponent<MeshRenderer>();
+                _matList = new List<Material>();
+                _matList.Add(m_grassMaterial);
+                _mesh.materials = _matList.ToArray();
+            }
+
+            m_currentlySelected = _hit.collider.gameObject;
+            m_mainPointer.startColor = Color.blue;
+            m_mainPointer.endColor = Color.blue;
+            _mesh = _hit.collider.gameObject.GetComponent<MeshRenderer>();
+            Material[] _matArray = _mesh.materials;
+            _matList = new List<Material>();
+            _matList.Add(_matArray[0]);
+            _matList.Add(m_outlineMaterial);
+            _mesh.materials = _matList.ToArray();
+
         }
         else // 3
         {
             m_mainPointer.startColor = Color.red;
             m_mainPointer.endColor = Color.red;
+            if (m_currentlySelected != null)
+            {
+                MeshRenderer _mesh = m_currentlySelected.GetComponent<MeshRenderer>();
+                List<Material> _matList = new List<Material>();
+                _matList.Add(m_grassMaterial);
+                _mesh.materials = _matList.ToArray();
+            }
+            m_currentlySelected = null;
         }
 
 
+        if ((m_leftTrigger == true || m_rightTrigger == true) && m_currentlySelected != null)
+        {
+            Debug.Log(m_currentlySelected);
+            m_leftTrigger = false;
+            m_rightTrigger = false;
+        }
+
         #endregion
 
+
+        m_leftTrigger = false;
+        m_rightTrigger = false;
 
 
     }
