@@ -209,11 +209,11 @@ public class InputManager : MonoBehaviour
                 List<Material> _matList = new List<Material>();
                 _matList.Add(m_grassMaterial);
                 _mesh.materials = _matList.ToArray();
+                m_currentlySelected = null;
             }
             m_teleporterPrimed = false;
             m_leftTeleport = false;
             m_rightTeleport = false;
-            m_currentlySelected = null;
         }
 
 
