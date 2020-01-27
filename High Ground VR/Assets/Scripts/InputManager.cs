@@ -40,6 +40,7 @@ public class InputManager : MonoBehaviour
 
     private GameObject m_mainController, m_offHandController;
     private LineRenderer m_mainPointer;
+    List<MeshRenderer> _objectMeshes = new List<MeshRenderer>();
 
 
     #region Accessors
@@ -76,11 +77,15 @@ public class InputManager : MonoBehaviour
         m_mainPointer.endWidth = 0.00f;
         m_mainPointer.material = m_pointerMaterial;
 
-        m_maxWorldHeight = m_camera.transform.position.y * 0.6f;
-        m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, m_maxWorldHeight, m_gameEnvironment.transform.position.z);
+        //Setting the height based on the 
+        updateWorldHeight();
 
         m_currentSize = SizeMode.large;
         m_teleporterPrimed = false;
+
+        //Add all of the environment object mesh renderers.
+        updateObjectList();
+
     }
     void Awake()
     {
@@ -97,25 +102,23 @@ public class InputManager : MonoBehaviour
     }
     void Update()
     {
-        if ((m_leftTrigger == true && m_mainController == m_leftController) || (m_rightTrigger == true && m_mainController == m_rightController))
-        {
-            m_mainTrigger = true;
-        }
-        else
-        {
-            m_mainTrigger = false;
-        }
-        if ((m_leftTeleport == true && m_mainController == m_leftController) || (m_rightTeleport == true && m_mainController == m_rightController))
-        {
-            m_mainTeleport = true;
-        }
-        else
-        {
-            m_mainTeleport = false;
-        }
+     
+        //////////////////////REFACTOR////////////////////////////////////
+
+
+        //Taking Handedness into consideration.
+        if ((m_leftTrigger == true && m_mainController == m_leftController) || (m_rightTrigger == true && m_mainController == m_rightController)){m_mainTrigger = true;}
+        else{m_mainTrigger = false;}
+        if ((m_leftTeleport == true && m_mainController == m_leftController) || (m_rightTeleport == true && m_mainController == m_rightController)){m_mainTeleport = true;}
+        else{ m_mainTeleport = false;}
+
+
+
         #region Trigger Button Handling
         m_controllerDistance = Vector3.Distance(m_leftController.transform.position, m_rightController.transform.position);
         m_mainControllerPos = m_mainController.transform.position;
+
+        //Scaling Management
         if (m_rightTrigger == true && m_leftTrigger == true)
         {
             float _distanceDifference = Mathf.Abs(m_controllerDistance - m_prevControllerDistance);
@@ -147,13 +150,15 @@ public class InputManager : MonoBehaviour
                 }
             }
         }
-        if (m_mainTrigger == true && !(m_rightTrigger == true && m_leftTrigger == true) && m_currentlySelected == null)
+
+        //Rotating the Game Board
+        if (m_mainTrigger == true && !(m_rightTrigger == true && m_leftTrigger == true))
         {
             Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
             Vector3 _forceVector = m_mainControllerPos - m_mainControllerPreviousPos;
             if (_forceVector.magnitude > m_rotationSensitivity)
             {
-                _gameEnvRigid.AddForceAtPosition(_forceVector * _forceVector.magnitude * 500, m_mainControllerPreviousPos, ForceMode.Acceleration);
+                _gameEnvRigid.AddForceAtPosition(_forceVector * 300, m_mainControllerPreviousPos, ForceMode.Acceleration);
             }
             else
             {
@@ -161,63 +166,60 @@ public class InputManager : MonoBehaviour
             }
 
         }
-
         m_mainControllerPreviousPos = m_mainControllerPos;
-        m_prevControllerDistance = m_controllerDistance;
         #endregion
 
-        //Debug.DrawRay(m_mainController.transform.position, m_mainController.transform.forward * 100, Color.blue);
+        #region Pointer Handling
+
+        //Update Positions of the Line Renderer
         m_mainPointer.SetPosition(0, m_mainController.transform.position);
         m_mainPointer.SetPosition(1, m_mainController.transform.position + m_mainController.transform.forward * 100);
 
+        //Raycasting from the controllers
         RaycastHit _hit;
         if (Physics.Raycast(m_mainController.transform.position, m_mainController.transform.forward, out _hit, 1000))
         {
-            if (_hit.collider.gameObject.tag == "Environment" || _hit.collider.gameObject.tag == "ResizePlayer")
+            if (_hit.collider.gameObject.tag == "Environment")
             {
-                MeshRenderer _mesh;
-                List<Material> _matList = new List<Material>();
+                MeshRenderer _hitMesh = _hit.collider.gameObject.GetComponent<MeshRenderer>();
+                //Removes highlight from all objects not in the _objectMeshes list
+                updateObjectList(_hitMesh);
+                removeHighlight();
 
-                if (m_currentlySelected != _hit.collider.gameObject && m_currentlySelected != null && _hit.collider.gameObject.tag == "Environment")
-                {
-                    _mesh = m_currentlySelected.GetComponent<MeshRenderer>();
-                    _matList = new List<Material>();
-                    _matList.Add(m_grassMaterial);
-                    _mesh.materials = _matList.ToArray();
-                }
-
-                m_currentlySelected = _hit.collider.gameObject;
+                //Turn laser colour to blue when you correctly collide with something.
                 m_mainPointer.startColor = Color.blue;
                 m_mainPointer.endColor = Color.blue;
-                _mesh = _hit.collider.gameObject.GetComponent<MeshRenderer>();
-                Material[] _matArray = _mesh.materials;
+
+                //Apply outline material to the selected object
+                Material[] _matArray = _hitMesh.materials;
+                List<Material> _matList = new List<Material>();
                 _matList = new List<Material>();
                 _matList.Add(_matArray[0]);
                 _matList.Add(m_outlineMaterial);
-                _mesh.materials = _matList.ToArray();
-
+                _hitMesh.materials = _matList.ToArray();
             }
-
         }
         else // 3
         {
+            //Turn the laser colour red.
             m_mainPointer.startColor = Color.red;
             m_mainPointer.endColor = Color.red;
-            if (m_currentlySelected != null && m_currentlySelected.tag == "Environment")
-            {
-                MeshRenderer _mesh = m_currentlySelected.GetComponent<MeshRenderer>();
-                List<Material> _matList = new List<Material>();
-                _matList.Add(m_grassMaterial);
-                _mesh.materials = _matList.ToArray();
-                m_currentlySelected = null;
-            }
+
+            ////Removes highlight from all objects
+            updateObjectList();
+            removeHighlight();
+
+
             m_teleporterPrimed = false;
             m_leftTeleport = false;
             m_rightTeleport = false;
         }
 
+        #endregion
 
-        //Clicking on an object
+        //////////////////UNREFACTORED/////////////////////////
+        
+        /////Clicking on an object
         if ((m_leftTrigger == true || m_rightTrigger == true) && m_currentlySelected != null)
         {
             //Debug.Log(m_currentlySelected);
@@ -261,5 +263,54 @@ public class InputManager : MonoBehaviour
         m_rightTeleport = false;
         m_leftTrigger = false;
         m_rightTrigger = false;
+
+
+
+
+    }
+
+
+
+    public void updateWorldHeight()
+    {
+        m_maxWorldHeight = m_camera.transform.position.y * 0.6f;
+        m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, m_maxWorldHeight, m_gameEnvironment.transform.position.z);
+    }
+
+
+    private void updateObjectList(MeshRenderer _selectedMesh)
+    {
+        _objectMeshes = new List<MeshRenderer>();
+        //Add all of the environment object mesh renderers.
+        int _childCount = m_gameEnvironment.transform.childCount;
+        for (int i = 1; i < _childCount; i++)
+        {
+            MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(i).GetComponent<MeshRenderer>();
+            if (_mesh != _selectedMesh)
+            {
+                _objectMeshes.Add(_mesh);
+            }
+        }
+    }
+    private void updateObjectList()
+    {
+        _objectMeshes = new List<MeshRenderer>();
+        //Add all of the environment object mesh renderers.
+        int _childCount = m_gameEnvironment.transform.childCount;
+        for (int i = 1; i < _childCount; i++)
+        {
+            MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(i).GetComponent<MeshRenderer>();
+            _objectMeshes.Add(_mesh);
+        }
+    }
+
+    private void removeHighlight()
+    {
+        foreach(MeshRenderer _mesh in _objectMeshes)
+        {
+            List<Material> _matList = new List<Material>();
+            _matList.Add(m_grassMaterial);
+            _mesh.materials = _matList.ToArray();
+        }
     }
 }
