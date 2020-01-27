@@ -25,7 +25,6 @@ public class ControllerInputs : MonoBehaviour
                 InputManager.Instance.RightTeleport = true;
             }
         }
-
         if (GetGrab())
         {
             //print("Grab " + handType);

@@ -23,6 +23,7 @@ public class InputManager : MonoBehaviour
 
     [Header("World Rotation")]
     [SerializeField, Space(20)] private float m_rotationSensitivity;
+    [SerializeField] private float m_rotationMagnitude;
 
     [Header("Point & Click")]
     [SerializeField, Space(20)] private Material m_pointerMaterial;
@@ -77,7 +78,7 @@ public class InputManager : MonoBehaviour
         m_mainPointer.endWidth = 0.00f;
         m_mainPointer.material = m_pointerMaterial;
 
-        //Setting the height based on the 
+        //Setting the height based on the players height
         updateWorldHeight();
 
         m_currentSize = SizeMode.large;
@@ -122,19 +123,19 @@ public class InputManager : MonoBehaviour
         if (m_rightTrigger == true && m_leftTrigger == true)
         {
             float _distanceDifference = Mathf.Abs(m_controllerDistance - m_prevControllerDistance);
-            if (_distanceDifference > 0.02f)
+            if (_distanceDifference > 0.1f)
             {
                 if (m_controllerDistance > m_prevControllerDistance)
                 {
                     //SCALE UP
                     Vector3 _newScale = new Vector3(m_gameEnvironment.transform.localScale.x + m_scalingSpeed, m_gameEnvironment.transform.localScale.y + m_scalingSpeed, m_gameEnvironment.transform.localScale.z + m_scalingSpeed);
                     if (_newScale.x > m_largestScale.x) { _newScale = m_largestScale; }
-                    m_gameEnvironment.transform.localScale = Vector3.Lerp(m_gameEnvironment.transform.localScale, _newScale, 0.99f);
+                    m_gameEnvironment.transform.localScale = Vector3.Lerp(m_gameEnvironment.transform.localScale, _newScale, 0.3f);
 
                     //MOVE DOWNWARDS
                     Vector3 _newPosition = new Vector3(m_gameEnvironment.transform.position.x, m_gameEnvironment.transform.position.y - m_scalingSpeed, m_gameEnvironment.transform.position.z);
-                    if (_newPosition.y < -(m_largestScale.x / 2)) { _newPosition = new Vector3(m_gameEnvironment.transform.position.x, -(m_largestScale.x / 2), m_gameEnvironment.transform.position.z); }
-                    m_gameEnvironment.transform.position = Vector3.Lerp(m_gameEnvironment.transform.position, _newPosition, 0.99f);
+                    if (_newPosition.y < m_largestScale.x / 2) { _newPosition = new Vector3(m_gameEnvironment.transform.position.x, m_largestScale.x / 2, m_gameEnvironment.transform.position.z);}
+                    m_gameEnvironment.transform.position = Vector3.Lerp(m_gameEnvironment.transform.position, _newPosition, 0.3f);
                 }
                 if (m_controllerDistance < m_prevControllerDistance)
                 {
@@ -151,6 +152,8 @@ public class InputManager : MonoBehaviour
             }
         }
 
+        m_prevControllerDistance = m_controllerDistance;
+
         //Rotating the Game Board
         if (m_mainTrigger == true && !(m_rightTrigger == true && m_leftTrigger == true))
         {
@@ -158,7 +161,7 @@ public class InputManager : MonoBehaviour
             Vector3 _forceVector = m_mainControllerPos - m_mainControllerPreviousPos;
             if (_forceVector.magnitude > m_rotationSensitivity)
             {
-                _gameEnvRigid.AddForceAtPosition(_forceVector * 300, m_mainControllerPreviousPos, ForceMode.Acceleration);
+                _gameEnvRigid.AddForceAtPosition(_forceVector * m_rotationMagnitude, m_mainControllerPreviousPos, ForceMode.Acceleration);
             }
             else
             {
@@ -184,7 +187,6 @@ public class InputManager : MonoBehaviour
                 MeshRenderer _hitMesh = _hit.collider.gameObject.GetComponent<MeshRenderer>();
                 //Removes highlight from all objects not in the _objectMeshes list
                 updateObjectList(_hitMesh);
-                removeHighlight();
 
                 //Turn laser colour to blue when you correctly collide with something.
                 m_mainPointer.startColor = Color.blue;
@@ -207,7 +209,6 @@ public class InputManager : MonoBehaviour
 
             ////Removes highlight from all objects
             updateObjectList();
-            removeHighlight();
 
 
             m_teleporterPrimed = false;
@@ -215,10 +216,14 @@ public class InputManager : MonoBehaviour
             m_rightTeleport = false;
         }
 
+
+        removeHighlight();
+
+
         #endregion
 
         //////////////////UNREFACTORED/////////////////////////
-        
+
         /////Clicking on an object
         if ((m_leftTrigger == true || m_rightTrigger == true) && m_currentlySelected != null)
         {
@@ -266,9 +271,7 @@ public class InputManager : MonoBehaviour
 
 
 
-
     }
-
 
 
     public void updateWorldHeight()
@@ -276,14 +279,12 @@ public class InputManager : MonoBehaviour
         m_maxWorldHeight = m_camera.transform.position.y * 0.6f;
         m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, m_maxWorldHeight, m_gameEnvironment.transform.position.z);
     }
-
-
     private void updateObjectList(MeshRenderer _selectedMesh)
     {
         _objectMeshes = new List<MeshRenderer>();
         //Add all of the environment object mesh renderers.
         int _childCount = m_gameEnvironment.transform.childCount;
-        for (int i = 1; i < _childCount; i++)
+        for (int i = 0; i < _childCount; i++)
         {
             MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(i).GetComponent<MeshRenderer>();
             if (_mesh != _selectedMesh)
@@ -297,13 +298,12 @@ public class InputManager : MonoBehaviour
         _objectMeshes = new List<MeshRenderer>();
         //Add all of the environment object mesh renderers.
         int _childCount = m_gameEnvironment.transform.childCount;
-        for (int i = 1; i < _childCount; i++)
+        for (int i = 0; i < _childCount; i++)
         {
             MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(i).GetComponent<MeshRenderer>();
             _objectMeshes.Add(_mesh);
         }
     }
-
     private void removeHighlight()
     {
         foreach(MeshRenderer _mesh in _objectMeshes)
