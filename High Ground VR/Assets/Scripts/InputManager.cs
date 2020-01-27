@@ -14,9 +14,6 @@ public class InputManager : MonoBehaviour
     [SerializeField] private GameObject m_camera, m_leftController, m_rightController, m_gameEnvironment;
 
     [Header("Player Scaling")]
-    [SerializeField, Space(20)] private Vector3 m_smallestScale;
-    [SerializeField] private Vector3 m_largestScale;
-    [SerializeField] private float m_scalingSpeed;
     private float m_maxWorldHeight; //This depends on the player's height.
     private SizeMode m_currentSize;
 
@@ -31,8 +28,10 @@ public class InputManager : MonoBehaviour
     private GameObject m_currentlySelectedNode;
 
     [Header("Teleportation")]
+    [SerializeField] private float m_rigTeleportationSpeed;
     private bool m_teleporterPrimed;
     private bool m_enlargePlayer;
+    private Vector3 m_newPosition;
 
     private bool m_leftGripped, m_rightGripped, m_leftTrigger, m_rightTrigger, m_leftTeleport, m_rightTeleport, m_mainTrigger, m_mainTeleport;
     private Vector3 m_prevControllerMidpoint, m_controllerMidpoint;
@@ -78,6 +77,7 @@ public class InputManager : MonoBehaviour
         m_mainPointer.startWidth = 0.05f;
         m_mainPointer.endWidth = 0.00f;
         m_mainPointer.material = m_pointerMaterial;
+        m_mainPointer.sortingOrder = 1;
 
         //Setting the height based on the players height
         updateWorldHeight();
@@ -113,44 +113,8 @@ public class InputManager : MonoBehaviour
 
 
         #region Trigger Button Handling
-        m_controllerDistance = Vector3.Distance(m_leftController.transform.position, m_rightController.transform.position);
+
         m_mainControllerPos = m_mainController.transform.position;
-
-        //Scaling Management
-        if (m_rightTrigger == true && m_leftTrigger == true)
-        {
-            float _distanceDifference = Mathf.Abs(m_controllerDistance - m_prevControllerDistance);
-            if (_distanceDifference > 0.1f)
-            {
-                if (m_controllerDistance > m_prevControllerDistance)
-                {
-                    //SCALE UP
-                    Vector3 _newScale = new Vector3(m_gameEnvironment.transform.localScale.x + m_scalingSpeed, m_gameEnvironment.transform.localScale.y + m_scalingSpeed, m_gameEnvironment.transform.localScale.z + m_scalingSpeed);
-                    if (_newScale.x > m_largestScale.x) { _newScale = m_largestScale; }
-                    m_gameEnvironment.transform.localScale = Vector3.Lerp(m_gameEnvironment.transform.localScale, _newScale, 0.45f);
-
-                    //MOVE DOWNWARDS
-                    Vector3 _newPosition = new Vector3(m_gameEnvironment.transform.position.x, m_gameEnvironment.transform.position.y - m_scalingSpeed, m_gameEnvironment.transform.position.z);
-                    if (_newPosition.y < m_largestScale.x / 2) { _newPosition = new Vector3(m_gameEnvironment.transform.position.x, m_largestScale.x / 2, m_gameEnvironment.transform.position.z);}
-                    m_gameEnvironment.transform.position = Vector3.Lerp(m_gameEnvironment.transform.position, _newPosition, 0.45f);
-                }
-                if (m_controllerDistance < m_prevControllerDistance)
-                {
-                    //SCALE DOWN
-                    Vector3 _newScale = new Vector3(m_gameEnvironment.transform.localScale.x - (m_scalingSpeed * 1.5f), m_gameEnvironment.transform.localScale.y - (m_scalingSpeed * 1.5f), m_gameEnvironment.transform.localScale.z - (m_scalingSpeed * 1.5f));
-                    if (_newScale.x < m_smallestScale.x) { _newScale = m_smallestScale; }
-                    m_gameEnvironment.transform.localScale = Vector3.Lerp(m_gameEnvironment.transform.localScale, _newScale, 0.99f);
-
-                    //MOVE UPWARDS
-                    Vector3 _newPosition = new Vector3(m_gameEnvironment.transform.position.x, m_gameEnvironment.transform.position.y + m_scalingSpeed, m_gameEnvironment.transform.position.z);
-                    if (_newPosition.y > m_maxWorldHeight) { _newPosition = new Vector3(m_gameEnvironment.transform.position.x, m_maxWorldHeight, m_gameEnvironment.transform.position.z); }
-                    m_gameEnvironment.transform.position = Vector3.Lerp(m_gameEnvironment.transform.position, _newPosition, 0.99f);
-                }
-            }
-        }
-
-        m_prevControllerDistance = m_controllerDistance;
-
         //Rotating the Game Board
         if (m_mainTrigger == true && !(m_rightTrigger == true && m_leftTrigger == true))
         {
@@ -158,7 +122,7 @@ public class InputManager : MonoBehaviour
             Vector3 _forceVector = m_mainControllerPos - m_mainControllerPreviousPos;
             if (_forceVector.magnitude > m_rotationSensitivity)
             {
-                _gameEnvRigid.AddForceAtPosition(_forceVector * m_rotationMagnitude, m_mainControllerPreviousPos, ForceMode.Acceleration);
+                _gameEnvRigid.AddForceAtPosition(_forceVector * m_rotationMagnitude, m_mainControllerPreviousPos, ForceMode.Impulse);
             }
             else
             {
@@ -171,9 +135,6 @@ public class InputManager : MonoBehaviour
 
         #region Pointer Handling
 
-        //Update Positions of the Line Renderer
-        m_mainPointer.SetPosition(0, m_mainController.transform.position);
-        m_mainPointer.SetPosition(1, m_mainController.transform.position + m_mainController.transform.forward * 100);
 
         //Raycasting from the controllers
         RaycastHit _hit;
@@ -181,6 +142,8 @@ public class InputManager : MonoBehaviour
         {
             if (_hit.collider.gameObject.tag == "Environment")
             {
+                m_mainPointer.SetPosition(0, m_mainController.transform.position);
+                m_mainPointer.SetPosition(1, _hit.point);
                 m_enlargePlayer = false;
                 MeshRenderer _hitMesh = _hit.collider.gameObject.GetComponent<MeshRenderer>();
                 m_currentlySelectedNode = _hit.collider.gameObject;
@@ -202,6 +165,8 @@ public class InputManager : MonoBehaviour
         }
         else
         {
+            m_mainPointer.SetPosition(0, m_mainController.transform.position);
+            m_mainPointer.SetPosition(1, m_mainController.transform.position + m_mainController.transform.forward * 100);
             m_currentlySelectedNode = null;
             m_enlargePlayer = true;
             //Turn the laser colour red.
@@ -235,13 +200,17 @@ public class InputManager : MonoBehaviour
             m_teleporterPrimed = true;
         }
 
+
+ 
         if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelectedNode != null && m_enlargePlayer == false)
         {
             Debug.Log("Teleported");
             m_teleporterPrimed = false;
             m_vrRig.transform.localScale = Vector3.one;
-            Vector3 _newPosition = new Vector3(m_currentlySelectedNode.transform.position.x, m_currentlySelectedNode.transform.position.y + 0.5f, m_currentlySelectedNode.transform.position.z);
-            m_vrRig.transform.position = _newPosition;
+            m_newPosition = new Vector3(m_currentlySelectedNode.transform.position.x, m_currentlySelectedNode.transform.position.y + 0.5f, m_currentlySelectedNode.transform.position.z);
+
+
+
             Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
             _gameEnvRigid.angularVelocity = Vector3.zero;
             m_gameEnvironment.transform.localScale = Vector3.one;
@@ -254,13 +223,15 @@ public class InputManager : MonoBehaviour
             Debug.Log("Teleported");
             m_teleporterPrimed = false;
             m_vrRig.transform.localScale = new Vector3(20, 20, 20);
-            Vector3 _newPosition = new Vector3(0, 0, 0);
-            m_vrRig.transform.position = _newPosition;
+            m_newPosition = new Vector3(0, 0, 0);
+
             m_currentSize = SizeMode.large;
             m_mainPointer.startWidth = 0.05f;
             m_mainPointer.endWidth = 0.00f;
         }
         #endregion
+
+        m_vrRig.transform.position = Vector3.Lerp(m_vrRig.transform.position, m_newPosition, m_rigTeleportationSpeed);
 
         m_leftTeleport = false;
         m_rightTeleport = false;
