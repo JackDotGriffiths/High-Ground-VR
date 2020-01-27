@@ -28,10 +28,11 @@ public class InputManager : MonoBehaviour
     [Header("Point & Click")]
     [SerializeField, Space(20)] private Material m_pointerMaterial;
     [SerializeField] private Material m_grassMaterial, m_outlineMaterial;
-    private GameObject m_currentlySelected;
+    private GameObject m_currentlySelectedNode;
 
     [Header("Teleportation")]
     private bool m_teleporterPrimed;
+    private bool m_enlargePlayer;
 
     private bool m_leftGripped, m_rightGripped, m_leftTrigger, m_rightTrigger, m_leftTeleport, m_rightTeleport, m_mainTrigger, m_mainTeleport;
     private Vector3 m_prevControllerMidpoint, m_controllerMidpoint;
@@ -103,10 +104,6 @@ public class InputManager : MonoBehaviour
     }
     void Update()
     {
-     
-        //////////////////////REFACTOR////////////////////////////////////
-
-
         //Taking Handedness into consideration.
         if ((m_leftTrigger == true && m_mainController == m_leftController) || (m_rightTrigger == true && m_mainController == m_rightController)){m_mainTrigger = true;}
         else{m_mainTrigger = false;}
@@ -130,12 +127,12 @@ public class InputManager : MonoBehaviour
                     //SCALE UP
                     Vector3 _newScale = new Vector3(m_gameEnvironment.transform.localScale.x + m_scalingSpeed, m_gameEnvironment.transform.localScale.y + m_scalingSpeed, m_gameEnvironment.transform.localScale.z + m_scalingSpeed);
                     if (_newScale.x > m_largestScale.x) { _newScale = m_largestScale; }
-                    m_gameEnvironment.transform.localScale = Vector3.Lerp(m_gameEnvironment.transform.localScale, _newScale, 0.3f);
+                    m_gameEnvironment.transform.localScale = Vector3.Lerp(m_gameEnvironment.transform.localScale, _newScale, 0.45f);
 
                     //MOVE DOWNWARDS
                     Vector3 _newPosition = new Vector3(m_gameEnvironment.transform.position.x, m_gameEnvironment.transform.position.y - m_scalingSpeed, m_gameEnvironment.transform.position.z);
                     if (_newPosition.y < m_largestScale.x / 2) { _newPosition = new Vector3(m_gameEnvironment.transform.position.x, m_largestScale.x / 2, m_gameEnvironment.transform.position.z);}
-                    m_gameEnvironment.transform.position = Vector3.Lerp(m_gameEnvironment.transform.position, _newPosition, 0.3f);
+                    m_gameEnvironment.transform.position = Vector3.Lerp(m_gameEnvironment.transform.position, _newPosition, 0.45f);
                 }
                 if (m_controllerDistance < m_prevControllerDistance)
                 {
@@ -184,11 +181,13 @@ public class InputManager : MonoBehaviour
         {
             if (_hit.collider.gameObject.tag == "Environment")
             {
+                m_enlargePlayer = false;
                 MeshRenderer _hitMesh = _hit.collider.gameObject.GetComponent<MeshRenderer>();
+                m_currentlySelectedNode = _hit.collider.gameObject;
                 //Removes highlight from all objects not in the _objectMeshes list
                 updateObjectList(_hitMesh);
 
-                //Turn laser colour to blue when you correctly collide with something.
+                //Turn laser colour to blue when you correctly collided with environment.
                 m_mainPointer.startColor = Color.blue;
                 m_mainPointer.endColor = Color.blue;
 
@@ -201,8 +200,10 @@ public class InputManager : MonoBehaviour
                 _hitMesh.materials = _matList.ToArray();
             }
         }
-        else // 3
+        else
         {
+            m_currentlySelectedNode = null;
+            m_enlargePlayer = true;
             //Turn the laser colour red.
             m_mainPointer.startColor = Color.red;
             m_mainPointer.endColor = Color.red;
@@ -210,75 +211,76 @@ public class InputManager : MonoBehaviour
             ////Removes highlight from all objects
             updateObjectList();
 
-
-            m_teleporterPrimed = false;
-            m_leftTeleport = false;
-            m_rightTeleport = false;
         }
-
 
         removeHighlight();
 
 
-        #endregion
-
-        //////////////////UNREFACTORED/////////////////////////
-
-        /////Clicking on an object
-        if ((m_leftTrigger == true || m_rightTrigger == true) && m_currentlySelected != null)
+        /////Clicking on an node, will be used alongside the UI to place buildings
+        if ((m_leftTrigger == true || m_rightTrigger == true) && m_currentlySelectedNode != null)
         {
-            //Debug.Log(m_currentlySelected);
+            Debug.Log(m_currentlySelectedNode);
             m_leftTrigger = false;
             m_rightTrigger = false;
         }
 
+        #endregion
 
+        #region Teleporting
         //Teleporting down to tiny size
-        if (m_mainTeleport == true && m_teleporterPrimed == false && m_currentlySelected != null)
+        if (m_mainTeleport == true && m_teleporterPrimed == false)
         {
+            //Make the line RED or GREEN depending on whether teleport is allowed?
             Debug.Log("Teleporter Primed");
             m_teleporterPrimed = true;
         }
-        if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelected != null)
+
+        if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelectedNode != null && m_enlargePlayer == false)
         {
             Debug.Log("Teleported");
             m_teleporterPrimed = false;
-            m_leftTeleport = false;
-            m_rightTeleport = false;
-
-            if (m_currentlySelected.tag == "Environment")
-            {
-                m_vrRig.transform.localScale = Vector3.one;
-                Vector3 _newPosition = new Vector3(m_currentlySelected.transform.position.x, m_currentlySelected.transform.position.y + 0.5f, m_currentlySelected.transform.position.z);
-                m_vrRig.transform.position = _newPosition;
-                Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
-                _gameEnvRigid.angularVelocity = Vector3.zero;
-                m_gameEnvironment.transform.localScale = Vector3.one;
-                m_currentSize = SizeMode.small;
-            }
-            else if (m_currentlySelected.tag == "ResizePlayer" && m_currentSize == SizeMode.small)
-            {
-                m_vrRig.transform.localScale = new Vector3(20, 20, 20);
-                Vector3 _newPosition = new Vector3(0, 0, 0);
-                m_vrRig.transform.position = _newPosition;
-                m_currentSize = SizeMode.large;
-            }
+            m_vrRig.transform.localScale = Vector3.one;
+            Vector3 _newPosition = new Vector3(m_currentlySelectedNode.transform.position.x, m_currentlySelectedNode.transform.position.y + 0.5f, m_currentlySelectedNode.transform.position.z);
+            m_vrRig.transform.position = _newPosition;
+            Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
+            _gameEnvRigid.angularVelocity = Vector3.zero;
+            m_gameEnvironment.transform.localScale = Vector3.one;
+            m_currentSize = SizeMode.small;
+            m_mainPointer.startWidth = 0.0025f;
+            m_mainPointer.endWidth = 0.00f;
         }
+        if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelectedNode == null && m_enlargePlayer == true)
+        {
+            Debug.Log("Teleported");
+            m_teleporterPrimed = false;
+            m_vrRig.transform.localScale = new Vector3(20, 20, 20);
+            Vector3 _newPosition = new Vector3(0, 0, 0);
+            m_vrRig.transform.position = _newPosition;
+            m_currentSize = SizeMode.large;
+            m_mainPointer.startWidth = 0.05f;
+            m_mainPointer.endWidth = 0.00f;
+        }
+        #endregion
+
         m_leftTeleport = false;
         m_rightTeleport = false;
         m_leftTrigger = false;
         m_rightTrigger = false;
-
-
-
     }
 
-
+    /// <summary>
+    /// Updates the maximum height of the terrain
+    /// </summary>
     public void updateWorldHeight()
     {
         m_maxWorldHeight = m_camera.transform.position.y * 0.6f;
         m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, m_maxWorldHeight, m_gameEnvironment.transform.position.z);
     }
+
+    /// <summary>
+    /// Updates the list, ensuring it doesn't contain _selectedMesh
+    /// </summary>
+    /// <param name="_selectedMesh">The mesh to not include in the Object List.</param>
     private void updateObjectList(MeshRenderer _selectedMesh)
     {
         _objectMeshes = new List<MeshRenderer>();
@@ -293,6 +295,10 @@ public class InputManager : MonoBehaviour
             }
         }
     }
+
+    /// <summary>
+    /// Updates the environment mesh list to contain all objects.
+    /// </summary>
     private void updateObjectList()
     {
         _objectMeshes = new List<MeshRenderer>();
@@ -304,6 +310,10 @@ public class InputManager : MonoBehaviour
             _objectMeshes.Add(_mesh);
         }
     }
+
+    /// <summary>
+    /// Clears the outline material on all objects within the environment mesh list.
+    /// </summary>
     private void removeHighlight()
     {
         foreach(MeshRenderer _mesh in _objectMeshes)

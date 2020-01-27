@@ -15,7 +15,7 @@ public class ControllerInputs : MonoBehaviour
     {
         if (GetTeleportDown())
         {
-            print("Teleport " + handType);
+            //print("Teleport " + handType);
             if (handType == SteamVR_Input_Sources.LeftHand)
             {
                 InputManager.Instance.LeftTeleport = true;
@@ -53,7 +53,7 @@ public class ControllerInputs : MonoBehaviour
 
     public bool GetTeleportDown() // 1
     {
-        return teleportAction.GetStateDown(handType);
+        return teleportAction.GetState(handType);
     }
 
     public bool GetGrab() // 2
