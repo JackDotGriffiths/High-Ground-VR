@@ -24,8 +24,8 @@ Material:
     m_TexEnvs: []
     m_Floats:
     - Vector1_141CC474: 0.02
-    - Vector1_1D54AF1D: 1481.2
-    - Vector1_368027EA: 20
+    - Vector1_1D54AF1D: 1500
+    - Vector1_368027EA: 7
     - Vector1_54E11225: 30
     - Vector1_552725C: 0.01
     - Vector1_7B28F5E2: -1
@@ -33,7 +33,7 @@ Material:
     - Vector1_969DD36C: 2
     - Vector1_A044D20: 2
     - Vector1_A66CD36F: 0.01
-    - Vector1_C804B677: 1
+    - Vector1_C804B677: 0.5
     - Vector1_C96A1AF0: 2
     - Vector1_E49A5A2C: 42.08
     m_Colors:
