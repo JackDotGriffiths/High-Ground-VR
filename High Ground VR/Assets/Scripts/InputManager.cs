@@ -213,7 +213,7 @@ public class InputManager : MonoBehaviour
 
             Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
             _gameEnvRigid.angularVelocity = Vector3.zero;
-            m_gameEnvironment.transform.localScale = Vector3.one;
+            m_gameEnvironment.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
             m_currentSize = SizeMode.small;
             m_mainPointer.startWidth = 0.0025f;
             m_mainPointer.endWidth = 0.00f;
