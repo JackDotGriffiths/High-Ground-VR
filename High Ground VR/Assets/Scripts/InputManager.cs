@@ -19,16 +19,17 @@ public class InputManager : MonoBehaviour
 
 
     [Header("World Rotation")]
-    [SerializeField, Space(20)] private float m_rotationSensitivity;
+    [SerializeField, Space(10)] private float m_rotationSensitivity;
     [SerializeField] private float m_rotationMagnitude;
 
     [Header("Point & Click")]
-    [SerializeField, Space(20)] private Material m_pointerMaterial;
+    [SerializeField, Space(10)] private Material m_pointerMaterial;
     [SerializeField] private Material m_grassMaterial, m_outlineMaterial;
     private GameObject m_currentlySelectedNode;
 
     [Header("Teleportation")]
-    [SerializeField] private float m_rigTeleportationSpeed;
+    [SerializeField, Space(10)] private float m_rigTeleportationSpeed;
+    [SerializeField] private Vector3 m_smallestScale, m_largestScale;
     private bool m_teleporterPrimed;
     private bool m_enlargePlayer;
     private Vector3 m_newPosition;
@@ -83,6 +84,7 @@ public class InputManager : MonoBehaviour
         updateWorldHeight();
 
         m_currentSize = SizeMode.large;
+        m_gameEnvironment.transform.localScale = m_smallestScale;
         m_teleporterPrimed = false;
 
         //Add all of the environment object mesh renderers.
@@ -105,10 +107,10 @@ public class InputManager : MonoBehaviour
     void Update()
     {
         //Taking Handedness into consideration.
-        if ((m_leftTrigger == true && m_mainController == m_leftController) || (m_rightTrigger == true && m_mainController == m_rightController)){m_mainTrigger = true;}
-        else{m_mainTrigger = false;}
-        if ((m_leftTeleport == true && m_mainController == m_leftController) || (m_rightTeleport == true && m_mainController == m_rightController)){m_mainTeleport = true;}
-        else{ m_mainTeleport = false;}
+        if ((m_leftTrigger == true && m_mainController == m_leftController) || (m_rightTrigger == true && m_mainController == m_rightController)) { m_mainTrigger = true; }
+        else { m_mainTrigger = false; }
+        if ((m_leftTeleport == true && m_mainController == m_leftController) || (m_rightTeleport == true && m_mainController == m_rightController)) { m_mainTeleport = true; }
+        else { m_mainTeleport = false; }
 
 
 
@@ -116,7 +118,7 @@ public class InputManager : MonoBehaviour
 
         m_mainControllerPos = m_mainController.transform.position;
         //Rotating the Game Board
-        if (m_mainTrigger == true && !(m_rightTrigger == true && m_leftTrigger == true))
+        if (m_mainTrigger == true && !(m_rightTrigger == true && m_leftTrigger == true) && m_currentSize == SizeMode.large)
         {
             Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
             Vector3 _forceVector = m_mainControllerPos - m_mainControllerPreviousPos;
@@ -201,29 +203,38 @@ public class InputManager : MonoBehaviour
         }
 
 
- 
+
         if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelectedNode != null && m_enlargePlayer == false)
         {
+            //Teleport onto the game board
             Debug.Log("Teleported");
             m_teleporterPrimed = false;
-            m_vrRig.transform.localScale = Vector3.one;
-            m_newPosition = new Vector3(m_currentlySelectedNode.transform.position.x, m_currentlySelectedNode.transform.position.y + 0.5f, m_currentlySelectedNode.transform.position.z);
-
+            //Scale the game environment
+            m_gameEnvironment.transform.localScale = m_largestScale;
+            if (m_gameEnvironment.transform.position.y != 1)
+            {
+                m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, 1, m_gameEnvironment.transform.position.z);
+            }
+            m_newPosition = new Vector3(m_currentlySelectedNode.transform.position.x, 1 + m_largestScale.x, m_currentlySelectedNode.transform.position.z);
 
 
             Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
             _gameEnvRigid.angularVelocity = Vector3.zero;
-            m_gameEnvironment.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+            _gameEnvRigid.velocity = Vector3.zero;
             m_currentSize = SizeMode.small;
-            m_mainPointer.startWidth = 0.0025f;
+            m_mainPointer.startWidth = 0.05f / m_largestScale.x;
             m_mainPointer.endWidth = 0.00f;
         }
         if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelectedNode == null && m_enlargePlayer == true)
         {
+            //Teleport off the game board.
             Debug.Log("Teleported");
             m_teleporterPrimed = false;
-            m_vrRig.transform.localScale = new Vector3(20, 20, 20);
+
             m_newPosition = new Vector3(0, 0, 0);
+            m_gameEnvironment.transform.localScale = m_smallestScale;
+            m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 0);
+
 
             m_currentSize = SizeMode.large;
             m_mainPointer.startWidth = 0.05f;
@@ -239,19 +250,12 @@ public class InputManager : MonoBehaviour
         m_rightTrigger = false;
     }
 
-    /// <summary>
-    /// Updates the maximum height of the terrain
-    /// </summary>
+    [ContextMenu("Update Player Height")]
     public void updateWorldHeight()
     {
         m_maxWorldHeight = m_camera.transform.position.y * 0.6f;
-        m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, m_maxWorldHeight, m_gameEnvironment.transform.position.z);
+        m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 0);
     }
-
-    /// <summary>
-    /// Updates the list, ensuring it doesn't contain _selectedMesh
-    /// </summary>
-    /// <param name="_selectedMesh">The mesh to not include in the Object List.</param>
     private void updateObjectList(MeshRenderer _selectedMesh)
     {
         _objectMeshes = new List<MeshRenderer>();
@@ -259,17 +263,16 @@ public class InputManager : MonoBehaviour
         int _childCount = m_gameEnvironment.transform.childCount;
         for (int i = 0; i < _childCount; i++)
         {
-            MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(i).GetComponent<MeshRenderer>();
-            if (_mesh != _selectedMesh)
+            if (m_gameEnvironment.transform.GetChild(i).tag == "Environment")
             {
-                _objectMeshes.Add(_mesh);
+                MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(i).GetComponent<MeshRenderer>();
+                if (_mesh != _selectedMesh)
+                {
+                    _objectMeshes.Add(_mesh);
+                }
             }
         }
     }
-
-    /// <summary>
-    /// Updates the environment mesh list to contain all objects.
-    /// </summary>
     private void updateObjectList()
     {
         _objectMeshes = new List<MeshRenderer>();
@@ -277,17 +280,16 @@ public class InputManager : MonoBehaviour
         int _childCount = m_gameEnvironment.transform.childCount;
         for (int i = 0; i < _childCount; i++)
         {
-            MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(i).GetComponent<MeshRenderer>();
-            _objectMeshes.Add(_mesh);
+            if(m_gameEnvironment.transform.GetChild(i).tag == "Environment")
+            {
+                MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(i).GetComponent<MeshRenderer>();
+                _objectMeshes.Add(_mesh);
+            }
         }
     }
-
-    /// <summary>
-    /// Clears the outline material on all objects within the environment mesh list.
-    /// </summary>
     private void removeHighlight()
     {
-        foreach(MeshRenderer _mesh in _objectMeshes)
+        foreach (MeshRenderer _mesh in _objectMeshes)
         {
             List<Material> _matList = new List<Material>();
             _matList.Add(m_grassMaterial);
