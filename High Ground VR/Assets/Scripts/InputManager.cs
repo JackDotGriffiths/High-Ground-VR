@@ -42,7 +42,7 @@ public class InputManager : MonoBehaviour
 
     private GameObject m_mainController, m_offHandController;
     private LineRenderer m_mainPointer;
-    List<MeshRenderer> _objectMeshes = new List<MeshRenderer>();
+    private List<MeshRenderer> m_objectMeshes = new List<MeshRenderer>();
 
 
     #region Accessors
@@ -150,12 +150,10 @@ public class InputManager : MonoBehaviour
             if (_hit.collider.gameObject.tag == "Environment")
             {
                 Debug.Log("Hit : " + _hit);
-                m_mainPointer.SetPosition(0, m_mainController.transform.position);
-                m_mainPointer.SetPosition(1, _hit.point);
                 m_enlargePlayer = false;
                 MeshRenderer _hitMesh = _hit.collider.gameObject.GetComponent<MeshRenderer>();
                 m_currentlySelectedNode = _hit.collider.gameObject;
-                //Removes highlight from all objects not in the _objectMeshes list
+                //Removes highlight from all objects not in the m_objectMeshes list
                 updateObjectList(_hitMesh);
 
                 //Turn laser colour to blue when you correctly collided with environment.
@@ -170,6 +168,8 @@ public class InputManager : MonoBehaviour
                 _matList.Add(m_outlineMaterial);
                 _hitMesh.materials = _matList.ToArray();
             }
+            m_mainPointer.SetPosition(0, m_mainController.transform.position);
+            m_mainPointer.SetPosition(1, _hit.point);
         }
         else
         {
@@ -263,7 +263,7 @@ public class InputManager : MonoBehaviour
     }
     private void updateObjectList(MeshRenderer _selectedMesh)
     {
-        _objectMeshes = new List<MeshRenderer>();
+        m_objectMeshes = new List<MeshRenderer>();
         //Add all of the environment object mesh renderers.
         int _childCount = m_gameEnvironment.transform.childCount;
         for (int i = 0; i < _childCount; i++)
@@ -273,14 +273,14 @@ public class InputManager : MonoBehaviour
                 MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(i).GetComponent<MeshRenderer>();
                 if (_mesh != _selectedMesh)
                 {
-                    _objectMeshes.Add(_mesh);
+                    m_objectMeshes.Add(_mesh);
                 }
             }
         }
     }
     private void updateObjectList()
     {
-        _objectMeshes = new List<MeshRenderer>();
+        m_objectMeshes = new List<MeshRenderer>();
         //Add all of the environment object mesh renderers.
         int _childCount = m_gameEnvironment.transform.childCount;
         for (int i = 0; i < _childCount; i++)
@@ -288,13 +288,13 @@ public class InputManager : MonoBehaviour
             if(m_gameEnvironment.transform.GetChild(i).tag == "Environment")
             {
                 MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(i).GetComponent<MeshRenderer>();
-                _objectMeshes.Add(_mesh);
+                m_objectMeshes.Add(_mesh);
             }
         }
     }
     private void removeHighlight()
     {
-        foreach (MeshRenderer _mesh in _objectMeshes)
+        foreach (MeshRenderer _mesh in m_objectMeshes)
         {
             List<Material> _matList = new List<Material>();
             _matList.Add(m_grassMaterial);
