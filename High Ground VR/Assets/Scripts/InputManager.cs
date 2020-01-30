@@ -80,6 +80,8 @@ public class InputManager : MonoBehaviour
         m_mainPointer.material = m_pointerMaterial;
         m_mainPointer.sortingOrder = 1;
 
+        m_gameEnvironment.GetComponent<Rigidbody>().inertiaTensor = new Vector3(0.1f, 0.1f, 0.1f);
+
         //Setting the height based on the players height
         updateWorldHeight();
 
