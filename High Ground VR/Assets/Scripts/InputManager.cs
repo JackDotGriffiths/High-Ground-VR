@@ -137,13 +137,17 @@ public class InputManager : MonoBehaviour
 
         #region Pointer Handling
 
-
         //Raycasting from the controllers
         RaycastHit _hit;
+
+        Debug.DrawRay(m_mainController.transform.position, m_mainController.transform.forward * 1000);
         if (Physics.Raycast(m_mainController.transform.position, m_mainController.transform.forward, out _hit, 1000))
         {
+            Debug.Log("Hit : " + _hit);
+            Debug.Log("Hit : " + _hit.collider.gameObject.name);
             if (_hit.collider.gameObject.tag == "Environment")
             {
+                Debug.Log("Hit : " + _hit);
                 m_mainPointer.SetPosition(0, m_mainController.transform.position);
                 m_mainPointer.SetPosition(1, _hit.point);
                 m_enlargePlayer = false;
@@ -181,7 +185,6 @@ public class InputManager : MonoBehaviour
         }
 
         removeHighlight();
-
 
         /////Clicking on an node, will be used alongside the UI to place buildings
         if ((m_leftTrigger == true || m_rightTrigger == true) && m_currentlySelectedNode != null)
@@ -222,7 +225,7 @@ public class InputManager : MonoBehaviour
             _gameEnvRigid.angularVelocity = Vector3.zero;
             _gameEnvRigid.velocity = Vector3.zero;
             m_currentSize = SizeMode.small;
-            m_mainPointer.startWidth = 0.05f / m_largestScale.x;
+            m_mainPointer.startWidth = 0.03f;
             m_mainPointer.endWidth = 0.00f;
         }
         if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelectedNode == null && m_enlargePlayer == true)

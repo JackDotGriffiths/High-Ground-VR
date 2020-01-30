@@ -3,7 +3,7 @@
 # Get latest from https://github.com/github/gitignore/blob/master/Unity.gitignore
 #
 /[Ll]ibrary/
-PRCO304-High-Ground/[Tt]emp/
+High Ground VR/[Tt]emp/
 /[Oo]bj/
 /[Bb]uild/
 /[Bb]uilds/
