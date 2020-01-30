@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/Visual Assets/Materials&Shaders/Materials/Scenes/Prototyping/HexTerrain.unity
+- path: Assets/Scenes/Prototyping/HexTerrain.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0
