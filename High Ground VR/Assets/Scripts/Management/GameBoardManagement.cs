@@ -16,7 +16,7 @@ public class GameBoardManagement : MonoBehaviour
     public int width;
     public int length;
     private List<GameObject> nodes;
-    public Node[,] graph;
+    private Node[,] graph;
 
 
     [Header("Randomisation")]
@@ -38,6 +38,7 @@ public class GameBoardManagement : MonoBehaviour
     private GameObject _randomAbove;
 
     public static GameBoardManagement Instance { get => s_instance; set => s_instance = value; }
+    public Node[,] Graph { get => graph; set => graph = value; }
 
     void Start()
     {
@@ -129,7 +130,6 @@ public class GameBoardManagement : MonoBehaviour
 
                 NodeComponent _nodeComp =  nodes[hexCount].AddComponent<NodeComponent>();
                 _nodeComp.node = node;
-                Debug.Log(_nodeComp.node);
                 graph[i, j] = node;
                 hexCount++;
             }
