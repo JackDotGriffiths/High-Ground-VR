@@ -24,6 +24,7 @@ public class Search
         goalNode = goal;
 
         explored = new List<Node>();
+        path = new List<Node>();
         iterations = 0;
 
 

@@ -115,13 +115,23 @@ public class GameBoardManagement : MonoBehaviour
     {
         //Creating the 2D array of Nodes.
         graph = new Node[length,width];
+
+        int hexCount = 0;
+
         for (int i = 0; i < length; i++)
         {
             for (int j = 0; j < width; j++)
             {
                 var node = new Node();
                 node.label = i + "," + j;
+                node.hex = nodes[hexCount];
+
+
+                NodeComponent _nodeComp =  nodes[hexCount].AddComponent<NodeComponent>();
+                _nodeComp.node = node;
+                Debug.Log(_nodeComp.node);
                 graph[i, j] = node;
+                hexCount++;
             }
         }
 

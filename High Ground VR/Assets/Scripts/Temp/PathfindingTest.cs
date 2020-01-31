@@ -21,7 +21,7 @@ public class PathfindingTest : MonoBehaviour
         {
             search.Step();
         }
-        Debug.Log("Search done. Path length " + search.path.Count + "iterations " + search.iterations);
+        Debug.Log("Search done. Path length : " + search.path.Count + ". Iterations : " + search.iterations);
     }
 
     // Update is called once per frame

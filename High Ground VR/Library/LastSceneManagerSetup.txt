@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/Scenes/Prototyping/HexTerrain.unity
+- path: Assets/Scenes/Prototyping/Pathfinding.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0
