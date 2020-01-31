@@ -81,11 +81,6 @@ public class GameBoardManagement : MonoBehaviour
         {
             currentZ = 0;
             currentX = i * hexagonalWidth;
-            //Extra nodes at the bottom
-            differenceFromHalfWay = Mathf.Abs(i - halfWay);
-            percentageFromEdge = differenceFromHalfWay / halfWay;
-            percentageFromEdge = 1 - percentageFromEdge;
-            if (chanceRoll(percentageFromEdge) && randomExpansion == true) { currentZ -= hexagonalHeight; currentX += hexagonalWidth / 2; placeHex(i.ToString(), "Extra Gen"); }
 
             currentX = i * hexagonalWidth;
             for (int j = 0; j < width; j++)
@@ -97,8 +92,7 @@ public class GameBoardManagement : MonoBehaviour
                 offsetColumn = !offsetColumn;
             }
             offsetColumn = false;
-            //Extra nodes at the top
-            if (chanceRoll(percentageFromEdge) && randomExpansion == true) { currentZ += hexagonalHeight; currentX += hexagonalWidth / 2; placeHex(i.ToString(), "Extra Gen"); }
+
         }
     }
 
@@ -137,56 +131,32 @@ public class GameBoardManagement : MonoBehaviour
         {
             for (int y = 0; y < graph.GetLength(1); y++)
             {
-                Debug.Log("Checking Node " + x + "," + y );
+
+                //Adding relevant adjacent nodes to all positions
+                //Debug.Log("Checking Node " + x + "," + y );
+
                 //LEFT
-                if (x!= 0)
-                {
-                    graph[x, y].adjecant.Add(graph[x - 1, y]);
-                }
+                if (x!= 0) {graph[x, y].adjecant.Add(graph[x - 1, y]);}
                 //RIGHT
-                if(x!= graph.GetLength(0)-1)
-                {
-                    graph[x, y].adjecant.Add(graph[x + 1, y]);
-                }
+                if(x!= graph.GetLength(0)-1){graph[x, y].adjecant.Add(graph[x + 1, y]);}
 
 
                 //UPPER AND LOWER LEFT AND RIGHT
                 if (y % 2 != 0)
                 {
-                    //EVEN
-                    Debug.Log("Even");
-                    if (y != graph.GetLength(1) - 1)
-                    {
-                        graph[x, y].adjecant.Add(graph[x, y + 1]);
-                        graph[x, y].adjecant.Add(graph[x + 1, y + 1]);
-                    }
-
-                    //LOWER LEFT AND LOWER RIGHT
-                    if (y != 0)
-                    {
-                        graph[x, y].adjecant.Add(graph[x, y - 1]);
-                        graph[x, y].adjecant.Add(graph[x + 1, y - 1]);
-                    }
-
-
-
+                    //ODD
+                    if((y!= graph.GetLength(1)-1) && (x!= graph.GetLength(0) - 1)) { graph[x, y].adjecant.Add(graph[x + 1, y+1]); } //Upper Right
+                    if((y != graph.GetLength(1) - 1) && x!= 0) { graph[x, y].adjecant.Add(graph[x , y + 1]); } //Upper Left
+                    if(x != graph.GetLength(0) - 1) { graph[x, y].adjecant.Add(graph[x + 1, y - 1]); } //Downwards Right
+                    graph[x, y].adjecant.Add(graph[x, y - 1]); //Downwards Left
                 }
                 else
                 {
-                    Debug.Log("Odd");
-                    if (y != graph.GetLength(1) - 1)
-                    {
-                        graph[x, y].adjecant.Add(graph[x, y + 1]);
-                    }
-                    if (x!= 0)
-                    {
-                        graph[x, y].adjecant.Add(graph[x - 1, y + 1]);
-                    }
-                    if (y != 0)
-                    {
-                        graph[x, y].adjecant.Add(graph[x- 1, y-1]);
-                        graph[x, y].adjecant.Add(graph[x, y-1]);
-                    }
+                   //EVEN
+                   if(y != graph.GetLength(1) - 1) { graph[x, y].adjecant.Add(graph[x, y + 1]); } //Upper Right
+                   if((y != graph.GetLength(1) - 1) && (x != graph.GetLength(0) - 1) && x != 0) { graph[x, y].adjecant.Add(graph[x - 1, y + 1]); } //Upper Left
+                   if(y != 0) { graph[x, y].adjecant.Add(graph[x, y - 1]); } //Downwards Right
+                   if(x!= 0 && y!= 0) { graph[x, y].adjecant.Add(graph[x-1, y - 1]); } //Downwards Left
                 }
             }
         }
@@ -204,23 +174,8 @@ public class GameBoardManagement : MonoBehaviour
         }
 
         nodes = new List<GameObject>();
-}
-
-    private bool chanceRoll(float _percentage)
-    {
-        bool _result = false;
-        if (_percentage > 1 || _percentage < 0)
-        {
-            Debug.LogWarning("chanceRoll failed. Ratio was invalid.");
-            
-        }
-        float _random = Random.Range(0f, 1f);
-        if (_random < _percentage)
-        {
-            _result = true;
-        }
-        return _result;
     }
+
     #endregion
 
     #region Gizmos
