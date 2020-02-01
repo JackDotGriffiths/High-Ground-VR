@@ -4,24 +4,19 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
 
-public class GameBoardManagement : MonoBehaviour
+public class GameBoardGeneration : MonoBehaviour
 {
 
-    private static GameBoardManagement s_instance;
+    private static GameBoardGeneration s_instance;
     public GameObject hexBlock;
     public float hexGapSize = 0.86f;
 
 
-    [Header("Rec Terrain Values"), Space(10)]
+    [Header("Game Board Size"), Space(10)]
     public int width;
     public int length;
     private List<GameObject> nodes;
     private Node[,] graph;
-
-
-    [Header("Randomisation")]
-    public bool randomExpansion;
-
 
 
     private float hexagonalWidth;
@@ -37,7 +32,7 @@ public class GameBoardManagement : MonoBehaviour
     private GameObject _randomBelow;
     private GameObject _randomAbove;
 
-    public static GameBoardManagement Instance { get => s_instance; set => s_instance = value; }
+    public static GameBoardGeneration Instance { get => s_instance; set => s_instance = value; }
     public Node[,] Graph { get => graph; set => graph = value; }
 
     void Start()
@@ -76,8 +71,6 @@ public class GameBoardManagement : MonoBehaviour
     {
         bool offsetColumn = false;
         float halfWay = width / 2;
-        float differenceFromHalfWay;
-        float percentageFromEdge;
         for (int i = 0; i < length; i++)
         {
             currentZ = 0;
@@ -126,6 +119,9 @@ public class GameBoardManagement : MonoBehaviour
                 var node = new Node();
                 node.label = i + "," + j;
                 node.hex = nodes[hexCount];
+                node.navigability = Node.navigabilityStates.navigable;
+                node.x = i;
+                node.y = j;
 
 
                 NodeComponent _nodeComp =  nodes[hexCount].AddComponent<NodeComponent>();

@@ -19,8 +19,8 @@ public class PathfindingTest : MonoBehaviour
     void RunPathfinding()
     {
         path = new List<Transform>();
-        var graph = GameBoardManagement.Instance.Graph;
-        var search = new Search(GameBoardManagement.Instance.Graph);
+        var graph = GameBoardGeneration.Instance.Graph;
+        var search = new Search(GameBoardGeneration.Instance.Graph);
         search.Start(graph[startPosX, startPosY], graph[endPosX, endPosY]);
 
         while (!search.finished)

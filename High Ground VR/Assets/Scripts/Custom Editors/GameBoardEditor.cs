@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(GameBoardManagement))]
+[CustomEditor(typeof(GameBoardGeneration))]
 public class GameBoardEditor : Editor
 {
 
@@ -11,7 +11,7 @@ public class GameBoardEditor : Editor
     {
         DrawDefaultInspector();
 
-        GameBoardManagement genTerrain = (GameBoardManagement)target;
+        GameBoardGeneration genTerrain = (GameBoardGeneration)target;
         if(GUILayout.Button("Gen Terrain"))
         {
             genTerrain.generate();

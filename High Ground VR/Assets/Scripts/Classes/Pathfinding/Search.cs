@@ -84,7 +84,10 @@ public class Search
         }
 
         adjacent.previous = node;
-        reachable.Add(adjacent);
+        if(adjacent.navigability == Node.navigabilityStates.navigable || adjacent.navigability == Node.navigabilityStates.destructable)
+        {
+            reachable.Add(adjacent);
+        }
     }
 
     public bool FindNode(Node node, List<Node> list)
@@ -107,8 +110,47 @@ public class Search
 
     public Node ChoseNode()
     {
-        //This is where I could implement weighting
+        //Ask about the efficiency/alternatives to this.
+
+
+        int _nodeCount = reachable.Count; //Equal to the amount of reachable nodes around the current Node.
+        List<Node> _weightedReachable = new List<Node>(); //Used to store weighted node decisions.
+
+        if (explored.Count > 0)
+        {
+            Node _currentNode = explored[explored.Count - 1];
+            //FOR each node in reachable, add it a certain amount of times based on
+            foreach (Node _node in reachable)
+            {
+                //Add all nodes to the weighted list
+                _weightedReachable.Add(_node);
+
+                //Add duplicates of nodes that would promote movement in the correct direction.
+                if (_node.x > _currentNode.x && goalNode.x > _currentNode.x)//IF the goal is right and the searching node is right, add it twice.
+                {
+                    _weightedReachable.Add(_node);
+                    _weightedReachable.Add(_node);
+                }
+                if (_node.x < _currentNode.x && goalNode.x < _currentNode.x)//IF the goal is left and the searching node is left, add it twice.
+                {
+                    _weightedReachable.Add(_node);
+                    _weightedReachable.Add(_node);
+                }
+                if (_node.y > _currentNode.y && goalNode.y > _currentNode.y)//IF the goal is up and the searching node is up
+                { 
+                    _weightedReachable.Add(_node);
+                }
+                if (_node.y < _currentNode.y && goalNode.y < _currentNode.y)//IF the goal is down and the searching node is down
+                {
+                    _weightedReachable.Add(_node);
+                }
+            }
+            return _weightedReachable[Random.Range(0, _weightedReachable.Count)];
+        }
+        
+
         return reachable[Random.Range(0, reachable.Count)];
+
     }
 
 }
