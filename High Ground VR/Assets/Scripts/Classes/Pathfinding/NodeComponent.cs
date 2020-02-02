@@ -13,7 +13,7 @@ public class NodeComponent : MonoBehaviour
     {
         if(node.navigability != navigability)
         {
-            node.navigability = navigability;
+            navigability = node.navigability;
         }
     }
     private void OnDrawGizmos()
