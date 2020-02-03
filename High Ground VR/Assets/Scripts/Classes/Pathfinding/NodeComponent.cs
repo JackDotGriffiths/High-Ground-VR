@@ -33,4 +33,11 @@ public class NodeComponent : MonoBehaviour
 
         }
     }
+
+
+    [ContextMenu("Expose Node Data")]
+    void PrintNodeInfo()
+    {
+        Debug.Log(node.adjecant);
+    }
 }

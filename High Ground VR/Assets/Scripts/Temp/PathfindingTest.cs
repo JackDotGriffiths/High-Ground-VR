@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class PathfindingTest : MonoBehaviour
 {
@@ -21,7 +22,7 @@ public class PathfindingTest : MonoBehaviour
     private int m_testingCountIndex = 0;
     private int m_failedCount = 0;
 
-    private List<Transform> path = new List<Transform>();
+    private List<Transform> m_path = new List<Transform>();
     private List<Node> exploredPositions = new List<Node>();
 
     private float m_optimalDistance;
@@ -29,7 +30,7 @@ public class PathfindingTest : MonoBehaviour
 
     void Update()
     {
-        DrawPath(path.ToArray());
+        DrawPath(m_path.ToArray());
     }
 
     [ContextMenu("Start Pathfinding Testing")]
@@ -88,7 +89,7 @@ public class PathfindingTest : MonoBehaviour
     }
     void RunPathfinding()
     {
-        path = new List<Transform>();
+        m_path = new List<Transform>();
         var graph = GameBoardGeneration.Instance.Graph;
         var search = new Search(GameBoardGeneration.Instance.Graph);
         search.Start(graph[startPosX, startPosY], graph[endPosX, endPosY]);
@@ -100,7 +101,7 @@ public class PathfindingTest : MonoBehaviour
         Transform[] _pathPositions = new Transform[search.path.Count];
         for (int i = 0; i < search.path.Count; i++)
         {
-            path.Add(search.path[i].hex.transform);
+            m_path.Add(search.path[i].hex.transform);
         }
         exploredPositions = search.explored;
 
@@ -110,9 +111,9 @@ public class PathfindingTest : MonoBehaviour
             return;
         }
 
-        m_optimalDistance = Vector3.Distance(path[0].position,path[path.Count-1].position);
+        m_optimalDistance = Vector3.Distance(m_path[0].position, m_path[m_path.Count-1].position);
         m_pathDistance = 0;
-        CalculatePathDistance(path.ToArray());
+        CalculatePathDistance(m_path.ToArray());
 
 
         string _distancePercentage = ((m_optimalDistance / m_pathDistance) * 100f).ToString();
@@ -163,8 +164,22 @@ public class PathfindingTest : MonoBehaviour
     {
         foreach(Node _node in exploredPositions)
         {
-            Gizmos.color = Color.grey;
+            Gizmos.color = Color.green;
             Gizmos.DrawSphere(_node.hex.transform.position, 0.4f);
         }
+        try
+        {
+            foreach (Node _node in exploredPositions)
+            {
+
+                Vector3 _labelPos = new Vector3(_node.hex.transform.position.x, _node.hex.transform.position.y + 1.3f, _node.hex.transform.position.z -0.3f);
+                GUIStyle _labels = new GUIStyle();
+                _labels.fontSize = 200000;
+                _labels.fontStyle = FontStyle.Bold;
+                Handles.Label(_labelPos, _node.weighting.ToString());
+            }
+        }
+
+        catch { }
     }
 }

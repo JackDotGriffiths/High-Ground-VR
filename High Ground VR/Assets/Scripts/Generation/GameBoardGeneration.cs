@@ -120,6 +120,7 @@ public class GameBoardGeneration : MonoBehaviour
                 node.label = i + "," + j;
                 node.hex = nodes[hexCount];
                 node.navigability = Node.navigabilityStates.navigable;
+                node.weighting = 0;
                 node.x = i;
                 node.y = j;
 
@@ -195,7 +196,7 @@ public class GameBoardGeneration : MonoBehaviour
                 Vector3 _labelPos = new Vector3(_go.transform.position.x, _go.transform.position.y + 1.3f, _go.transform.position.z);
                 GUIStyle _labels = new GUIStyle();
                 _labels.fontSize = 200000;
-                Handles.Label(_labelPos, _go.transform.name);
+                //Handles.Label(_labelPos, _go.transform.name);
             }
         }
      
