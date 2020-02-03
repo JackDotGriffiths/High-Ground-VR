@@ -7,6 +7,7 @@ public class Node
     public enum navigabilityStates { navigable, nonNavigable, destructable };
 
     public List<Node> adjecant = new List<Node>();
+    public Node previous;
     public string label = "";
     public int weighting;
     public int x;
@@ -14,4 +15,9 @@ public class Node
 
     public GameObject hex;
     public navigabilityStates navigability;
+
+    public void Clear()
+    {
+        previous = null;
+    }
 }

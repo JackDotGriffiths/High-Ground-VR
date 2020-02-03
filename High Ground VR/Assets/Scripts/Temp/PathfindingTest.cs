@@ -111,13 +111,7 @@ public class PathfindingTest : MonoBehaviour
             return;
         }
 
-        m_optimalDistance = Vector3.Distance(m_path[0].position, m_path[m_path.Count-1].position);
-        m_pathDistance = 0;
-        CalculatePathDistance(m_path.ToArray());
-
-
-        string _distancePercentage = ((m_optimalDistance / m_pathDistance) * 100f).ToString();
-        Debug.Log("Search " + m_testingCountIndex + " done. Path length : " + search.path.Count + ". Iterations : " + search.iterations + " Distance Percentage : " + _distancePercentage);
+        Debug.Log("Search " + m_testingCountIndex + " done. Path length : " + search.path.Count + ". Iterations : " + search.iterations);
     }
     void DrawPath(Transform[] _positions)
     {
@@ -143,21 +137,6 @@ public class PathfindingTest : MonoBehaviour
 
         }
 
-    }
-    void CalculatePathDistance(Transform[] _positions)
-    {
-        Vector3 _startingPoint = new Vector3(_positions[0].position.x, _positions[0].position.y + 1.5f, _positions[0].position.z);
-        Vector3 _finishingPoint = new Vector3(_positions[_positions.Length - 1].position.x, _positions[_positions.Length - 1].position.y + 1.5f, _positions[_positions.Length - 1].position.z);
-
-        m_pathDistance += Vector3.Distance(_startingPoint, _finishingPoint);
-
-        for (int i = 1; i < _positions.Length; i++)
-        {
-            _startingPoint = new Vector3(_positions[i - 1].position.x, _positions[i - 1].position.y + 1.5f, _positions[i - 1].position.z);
-            _finishingPoint = new Vector3(_positions[i].position.x, _positions[i].position.y + 1.5f, _positions[i].position.z);
-
-            m_pathDistance += Vector3.Distance(_startingPoint, _finishingPoint);
-        }
     }
 
     private void OnDrawGizmos()
