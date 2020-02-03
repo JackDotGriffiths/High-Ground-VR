@@ -24,6 +24,9 @@ public class PathfindingTest : MonoBehaviour
     private List<Transform> path = new List<Transform>();
     private List<Node> exploredPositions = new List<Node>();
 
+    private float m_optimalDistance;
+    private float m_pathDistance;
+
     void Update()
     {
         DrawPath(path.ToArray());
@@ -32,7 +35,14 @@ public class PathfindingTest : MonoBehaviour
     [ContextMenu("Start Pathfinding Testing")]
     void StartTests()
     {
-        StartCoroutine(RunAutomatedTesting());
+        if(m_runAutomatedTesting == true)
+        {
+            StartCoroutine(RunAutomatedTesting());
+        }
+        else
+        {
+            Debug.LogError("Automated Testing not enabled");
+        }
     }
 
     [ContextMenu("Stop Pathfinding Testing")]
@@ -94,19 +104,19 @@ public class PathfindingTest : MonoBehaviour
         }
         exploredPositions = search.explored;
 
-        if(path.Count == 0 )
+        if (search.path.Count == 0)
         {
-            Debug.Log("Search Failed. Retrying");
-            m_testingCountIndex--;
+            Debug.Log("Search Failed");
+            return;
         }
-        else
-        {
-            Debug.Log("Search " + m_testingCountIndex + " done. Path length : " + search.path.Count + ". Iterations : " + search.iterations);
-            if(search.path.Count == 0)
-            {
 
-            }
-        }
+        m_optimalDistance = Vector3.Distance(path[0].position,path[path.Count-1].position);
+        m_pathDistance = 0;
+        CalculatePathDistance(path.ToArray());
+
+
+        string _distancePercentage = ((m_optimalDistance / m_pathDistance) * 100f).ToString();
+        Debug.Log("Search " + m_testingCountIndex + " done. Path length : " + search.path.Count + ". Iterations : " + search.iterations + " Distance Percentage : " + _distancePercentage);
     }
     void DrawPath(Transform[] _positions)
     {
@@ -132,6 +142,21 @@ public class PathfindingTest : MonoBehaviour
 
         }
 
+    }
+    void CalculatePathDistance(Transform[] _positions)
+    {
+        Vector3 _startingPoint = new Vector3(_positions[0].position.x, _positions[0].position.y + 1.5f, _positions[0].position.z);
+        Vector3 _finishingPoint = new Vector3(_positions[_positions.Length - 1].position.x, _positions[_positions.Length - 1].position.y + 1.5f, _positions[_positions.Length - 1].position.z);
+
+        m_pathDistance += Vector3.Distance(_startingPoint, _finishingPoint);
+
+        for (int i = 1; i < _positions.Length; i++)
+        {
+            _startingPoint = new Vector3(_positions[i - 1].position.x, _positions[i - 1].position.y + 1.5f, _positions[i - 1].position.z);
+            _finishingPoint = new Vector3(_positions[i].position.x, _positions[i].position.y + 1.5f, _positions[i].position.z);
+
+            m_pathDistance += Vector3.Distance(_startingPoint, _finishingPoint);
+        }
     }
 
     private void OnDrawGizmos()

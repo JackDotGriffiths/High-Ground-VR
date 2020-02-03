@@ -115,43 +115,6 @@ public class Search
 
 
         ///////// TEST 2 - WEIGHTED TOWARDS CORRECT DIRECTION
-        int _nodeCount = reachable.Count; //Equal to the amount of reachable nodes around the current Node.
-        List<Node> _weightedReachable = new List<Node>(); //Used to store weighted node decisions.
-
-        if (explored.Count > 0)
-        {
-            Node _currentNode = explored[explored.Count - 1];
-            //FOR each node in reachable, add it a certain amount of times based on
-            foreach (Node _node in reachable)
-            {
-                //Add all nodes to the weighted list
-                _weightedReachable.Add(_node);
-
-                //Add duplicates of nodes that would promote movement in the correct direction.
-                if (_node.x > _currentNode.x && goalNode.x > _currentNode.x)//IF the goal is right and the searching node is right, add it twice.
-                {
-                    _weightedReachable.Add(_node);
-                }
-                if (_node.x < _currentNode.x && goalNode.x < _currentNode.x)//IF the goal is left and the searching node is left, add it twice.
-                {
-                    _weightedReachable.Add(_node);
-                }
-                if (_node.y > _currentNode.y && goalNode.y > _currentNode.y)//IF the goal is up and the searching node is up
-                {
-                    _weightedReachable.Add(_node);
-                }
-                if (_node.y < _currentNode.y && goalNode.y < _currentNode.y)//IF the goal is down and the searching node is down
-                {
-                    _weightedReachable.Add(_node);
-                }
-            }
-            return _weightedReachable[Random.Range(0, _weightedReachable.Count)];
-        }
-        return reachable[Random.Range(0, reachable.Count)];
-
-
-        ///////// TEST 3 - WEIGHTED TOWARDS CORRECT DIRECTION AND PREFERRING LEFT/RIGHT MOVEMENT
-
         //int _nodeCount = reachable.Count; //Equal to the amount of reachable nodes around the current Node.
         //List<Node> _weightedReachable = new List<Node>(); //Used to store weighted node decisions.
 
@@ -168,15 +131,13 @@ public class Search
         //        if (_node.x > _currentNode.x && goalNode.x > _currentNode.x)//IF the goal is right and the searching node is right, add it twice.
         //        {
         //            _weightedReachable.Add(_node);
-        //            _weightedReachable.Add(_node);
         //        }
         //        if (_node.x < _currentNode.x && goalNode.x < _currentNode.x)//IF the goal is left and the searching node is left, add it twice.
         //        {
         //            _weightedReachable.Add(_node);
-        //            _weightedReachable.Add(_node);
         //        }
         //        if (_node.y > _currentNode.y && goalNode.y > _currentNode.y)//IF the goal is up and the searching node is up
-        //        { 
+        //        {
         //            _weightedReachable.Add(_node);
         //        }
         //        if (_node.y < _currentNode.y && goalNode.y < _currentNode.y)//IF the goal is down and the searching node is down
@@ -187,6 +148,45 @@ public class Search
         //    return _weightedReachable[Random.Range(0, _weightedReachable.Count)];
         //}
         //return reachable[Random.Range(0, reachable.Count)];
+
+
+        ///////// TEST 3 - WEIGHTED TOWARDS CORRECT DIRECTION AND PREFERRING LEFT/RIGHT MOVEMENT
+
+        int _nodeCount = reachable.Count; //Equal to the amount of reachable nodes around the current Node.
+        List<Node> _weightedReachable = new List<Node>(); //Used to store weighted node decisions.
+
+        if (explored.Count > 0)
+        {
+            Node _currentNode = explored[explored.Count - 1];
+            //FOR each node in reachable, add it a certain amount of times based on
+            foreach (Node _node in reachable)
+            {
+                //Add all nodes to the weighted list
+                _weightedReachable.Add(_node);
+
+                //Add duplicates of nodes that would promote movement in the correct direction.
+                if (_node.x > _currentNode.x && goalNode.x > _currentNode.x)//IF the goal is right and the searching node is right, add it twice.
+                {
+                    _weightedReachable.Add(_node);
+                    _weightedReachable.Add(_node);
+                }
+                if (_node.x < _currentNode.x && goalNode.x < _currentNode.x)//IF the goal is left and the searching node is left, add it twice.
+                {
+                    _weightedReachable.Add(_node);
+                    _weightedReachable.Add(_node);
+                }
+                if (_node.y > _currentNode.y && goalNode.y > _currentNode.y)//IF the goal is up and the searching node is up
+                {
+                    _weightedReachable.Add(_node);
+                }
+                if (_node.y < _currentNode.y && goalNode.y < _currentNode.y)//IF the goal is down and the searching node is down
+                {
+                    _weightedReachable.Add(_node);
+                }
+            }
+            return _weightedReachable[Random.Range(0, _weightedReachable.Count)];
+        }
+        return reachable[Random.Range(0, reachable.Count)];
 
     }
 
