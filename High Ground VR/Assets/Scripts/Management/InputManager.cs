@@ -5,11 +5,11 @@ using UnityEngine;
 public class InputManager : MonoBehaviour
 {
     private static InputManager s_instance;
-    private enum HandTypes { left, right };
+    public enum HandTypes { left, right };
     private enum SizeMode { small, large };
 
 
-    [SerializeField] private HandTypes m_handedness;
+    public HandTypes m_handedness;
     [SerializeField, Space(20)] private GameObject m_vrRig;
     [SerializeField] private GameObject m_camera, m_leftController, m_rightController, m_gameEnvironment;
 
@@ -34,6 +34,13 @@ public class InputManager : MonoBehaviour
     private bool m_enlargePlayer;
     private Vector3 m_newPosition;
 
+
+    [Header("User Interface")]
+    [SerializeField] private GameObject m_bookPrefab;
+    [SerializeField] private float m_bookHandOffset;
+    private GameObject m_bookObject = null;
+
+        
     private bool m_leftGripped, m_rightGripped, m_leftTrigger, m_rightTrigger, m_leftTeleport, m_rightTeleport, m_mainTrigger, m_mainTeleport;
     private Vector3 m_prevControllerMidpoint, m_controllerMidpoint;
     private Vector3 m_mainControllerPos, m_mainControllerPreviousPos;
@@ -92,6 +99,7 @@ public class InputManager : MonoBehaviour
         //Add all of the environment object mesh renderers.
         updateObjectList();
 
+  
     }
     void Awake()
     {
@@ -145,8 +153,6 @@ public class InputManager : MonoBehaviour
         Debug.DrawRay(m_mainController.transform.position, m_mainController.transform.forward * 1000);
         if (Physics.Raycast(m_mainController.transform.position, m_mainController.transform.forward, out _hit, 1000))
         {
-            Debug.Log("Hit : " + _hit);
-            Debug.Log("Hit : " + _hit.collider.gameObject.name);
             if (_hit.collider.gameObject.tag == "Environment")
             {
                 Debug.Log("Hit : " + _hit);
@@ -167,6 +173,21 @@ public class InputManager : MonoBehaviour
                 _matList.Add(_matArray[0]);
                 _matList.Add(m_outlineMaterial);
                 _hitMesh.materials = _matList.ToArray();
+            }
+            if (_hit.collider.gameObject.tag == "UIButton")
+            {
+                Debug.Log("Hit : " + _hit);
+                
+                //Turn laser colour to blue when you correctly collided with environment.
+                m_mainPointer.startColor = Color.blue;
+                m_mainPointer.endColor = Color.blue;
+                try
+                {
+                    string _buttonChoice = _hit.collider.gameObject.GetComponent<bookButtonOptions>().m_thisButton.ToString();
+                    Debug.Log(_buttonChoice);
+                }
+                catch { Debug.LogError("Does the UIButton have a bookButtonOptions component?"); }
+
             }
             m_mainPointer.SetPosition(0, m_mainController.transform.position);
             m_mainPointer.SetPosition(1, _hit.point);
@@ -246,6 +267,27 @@ public class InputManager : MonoBehaviour
             m_mainPointer.endWidth = 0.00f;
         }
         #endregion
+
+        #region Book UI
+        if(m_bookObject == null)
+        {
+            //Place the book in the Player's hand
+
+            m_bookObject = Instantiate(m_bookPrefab, OffHandController.transform.position, OffHandController.transform.rotation, OffHandController.transform);
+            float _zOffset;
+            if (m_handedness == HandTypes.right)
+            {
+                _zOffset = 90;
+            }
+            else
+            {
+                _zOffset = -90;
+            }
+            m_bookObject.transform.localEulerAngles = new Vector3(90, 0, _zOffset);
+            m_bookObject.transform.position =new Vector3(m_bookObject.transform.position.x, m_bookHandOffset, m_bookObject.transform.position.z);
+        }
+        #endregion
+
 
         m_vrRig.transform.position = Vector3.Lerp(m_vrRig.transform.position, m_newPosition, m_rigTeleportationSpeed);
 
