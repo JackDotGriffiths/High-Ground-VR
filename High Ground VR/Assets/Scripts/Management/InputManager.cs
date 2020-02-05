@@ -34,11 +34,11 @@ public class InputManager : MonoBehaviour
     private bool m_enlargePlayer;
     private Vector3 m_newPosition;
 
-
-    [Header("User Interface")]
+    [Header("User Interface & Building")]
     [SerializeField] private GameObject m_bookPrefab;
     [SerializeField] private float m_bookHandOffset;
     private GameObject m_bookObject = null;
+    private BuildingOption m_currentlySelectedBuilding = null;
 
         
     private bool m_leftGripped, m_rightGripped, m_leftTrigger, m_rightTrigger, m_leftTeleport, m_rightTeleport, m_mainTrigger, m_mainTeleport;
@@ -128,8 +128,9 @@ public class InputManager : MonoBehaviour
 
         m_mainControllerPos = m_mainController.transform.position;
         //Rotating the Game Board
-        if (m_mainTrigger == true && !(m_rightTrigger == true && m_leftTrigger == true) && m_currentSize == SizeMode.large)
+        if (m_mainTrigger == true && m_currentlySelectedNode == null && !(m_rightTrigger == true && m_leftTrigger == true) && m_currentSize == SizeMode.large)
         {
+            m_currentlySelectedBuilding = null;
             Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
             Vector3 _forceVector = m_mainControllerPos - m_mainControllerPreviousPos;
             if (_forceVector.magnitude > m_rotationSensitivity)
@@ -155,7 +156,6 @@ public class InputManager : MonoBehaviour
         {
             if (_hit.collider.gameObject.tag == "Environment")
             {
-                Debug.Log("Hit : " + _hit);
                 m_enlargePlayer = false;
                 MeshRenderer _hitMesh = _hit.collider.gameObject.GetComponent<MeshRenderer>();
                 m_currentlySelectedNode = _hit.collider.gameObject;
@@ -173,20 +173,29 @@ public class InputManager : MonoBehaviour
                 _matList.Add(_matArray[0]);
                 _matList.Add(m_outlineMaterial);
                 _hitMesh.materials = _matList.ToArray();
+                if (m_mainTrigger == true && m_currentlySelectedBuilding != null && m_currentlySelectedNode.GetComponent<NodeComponent>().node.navigability == Node.navigabilityStates.navigable)
+                {
+                    Debug.Log("Placed " + m_currentlySelectedBuilding.type);
+                    Vector3 _objectPos = new Vector3(m_currentlySelectedNode.transform.position.x, m_currentlySelectedNode.transform.position.y + 1.5f, m_currentlySelectedNode.transform.position.z);
+                    Instantiate(m_currentlySelectedBuilding.prefab, _objectPos, m_currentlySelectedNode.transform.rotation,m_currentlySelectedNode.transform);
+                    m_currentlySelectedNode.GetComponent<NodeComponent>().node.navigability = Node.navigabilityStates.destructable;
+                }
             }
             if (_hit.collider.gameObject.tag == "UIButton")
             {
-                Debug.Log("Hit : " + _hit);
                 
                 //Turn laser colour to blue when you correctly collided with environment.
                 m_mainPointer.startColor = Color.blue;
                 m_mainPointer.endColor = Color.blue;
                 try
                 {
-                    string _buttonChoice = _hit.collider.gameObject.GetComponent<bookButtonOptions>().m_thisButton.ToString();
-                    Debug.Log(_buttonChoice);
+                    if(m_mainTrigger == true)
+                    {
+                        m_currentlySelectedBuilding = BuildingManager.Instance.GetBuilding(_hit.collider);
+                        Debug.Log("Selected " + m_currentlySelectedBuilding.type);
+                    }
                 }
-                catch { Debug.LogError("Does the UIButton have a bookButtonOptions component?"); }
+                catch { Debug.LogError("Does the button have an option available in BuildingManager on BookUI?"); }
 
             }
             m_mainPointer.SetPosition(0, m_mainController.transform.position);
@@ -212,7 +221,7 @@ public class InputManager : MonoBehaviour
         /////Clicking on an node, will be used alongside the UI to place buildings
         if ((m_leftTrigger == true || m_rightTrigger == true) && m_currentlySelectedNode != null)
         {
-            Debug.Log(m_currentlySelectedNode);
+            //Debug.Log(m_currentlySelectedNode);
             m_leftTrigger = false;
             m_rightTrigger = false;
         }
@@ -224,7 +233,7 @@ public class InputManager : MonoBehaviour
         if (m_mainTeleport == true && m_teleporterPrimed == false)
         {
             //Make the line RED or GREEN depending on whether teleport is allowed?
-            Debug.Log("Teleporter Primed");
+            //Debug.Log("Teleporter Primed");
             m_teleporterPrimed = true;
         }
 
@@ -233,7 +242,7 @@ public class InputManager : MonoBehaviour
         if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelectedNode != null && m_enlargePlayer == false)
         {
             //Teleport onto the game board
-            Debug.Log("Teleported");
+            //Debug.Log("Teleported");
             m_teleporterPrimed = false;
             //Scale the game environment
             m_gameEnvironment.transform.localScale = m_largestScale;
@@ -254,7 +263,7 @@ public class InputManager : MonoBehaviour
         if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelectedNode == null && m_enlargePlayer == true)
         {
             //Teleport off the game board.
-            Debug.Log("Teleported");
+            //Debug.Log("Teleported");
             m_teleporterPrimed = false;
 
             m_newPosition = new Vector3(0, 0, 0);

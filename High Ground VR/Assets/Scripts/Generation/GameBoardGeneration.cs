@@ -97,7 +97,7 @@ public class GameBoardGeneration : MonoBehaviour
 
         _point.name = x + "," + z;
         _point.transform.SetParent(this.transform);
-        _point.tag = "location";
+        _point.transform.tag = "Environment";
         _point.transform.position = new Vector3(currentX, currentY, currentZ);
         nodes.Add(_point);
     }
@@ -175,7 +175,7 @@ public class GameBoardGeneration : MonoBehaviour
     #region Functional Methods
     public void destroyAll()
     {
-        GameObject[] _points = GameObject.FindGameObjectsWithTag("location");
+        GameObject[] _points = GameObject.FindGameObjectsWithTag("Environment");
         foreach(GameObject gameObj in _points){
             DestroyImmediate(gameObj);
         }
