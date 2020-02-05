@@ -130,35 +130,10 @@ public class PathfindingTest : MonoBehaviour
 
                 Debug.DrawLine(_startingPoint, _finishingPoint, Color.blue);
             }
-
-
         }
         catch{
 
         }
 
-    }
-
-    private void OnDrawGizmos()
-    {
-        foreach(Node _node in exploredPositions)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawSphere(_node.hex.transform.position, 0.4f);
-        }
-        try
-        {
-            foreach (Node _node in exploredPositions)
-            {
-
-                Vector3 _labelPos = new Vector3(_node.hex.transform.position.x, _node.hex.transform.position.y + 1.3f, _node.hex.transform.position.z -0.3f);
-                GUIStyle _labels = new GUIStyle();
-                _labels.fontSize = 200000;
-                _labels.fontStyle = FontStyle.Bold;
-                Handles.Label(_labelPos, _node.weighting.ToString());
-            }
-        }
-
-        catch { }
     }
 }

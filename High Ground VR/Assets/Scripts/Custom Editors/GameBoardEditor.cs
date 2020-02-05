@@ -10,12 +10,13 @@ public class GameBoardEditor : Editor
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
-
         GameBoardGeneration genTerrain = (GameBoardGeneration)target;
-        if(GUILayout.Button("Gen Terrain"))
+        GUILayout.Space(10);
+        if (GUILayout.Button("Gen Terrain"))
         {
             genTerrain.generate();
         }
+        GUILayout.Space(3);
         if (GUILayout.Button("Clear Terrain"))
         {
             genTerrain.destroyAll();

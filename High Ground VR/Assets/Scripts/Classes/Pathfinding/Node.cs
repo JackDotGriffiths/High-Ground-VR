@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Node
 {
@@ -9,7 +10,6 @@ public class Node
     public List<Node> adjecant = new List<Node>();
     public Node previous;
     public string label = "";
-    public int weighting;
     public int x;
     public int y;
 

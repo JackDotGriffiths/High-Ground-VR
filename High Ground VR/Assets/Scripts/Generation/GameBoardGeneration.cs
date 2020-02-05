@@ -64,6 +64,10 @@ public class GameBoardGeneration : MonoBehaviour
         destroyAll();
         generateRec();
         populateGraph();
+        centralizeGameBoard();
+        InputManager.Instance.updateWorldHeight();
+
+        
     }
 
     #region Game Board Generation
@@ -89,7 +93,6 @@ public class GameBoardGeneration : MonoBehaviour
 
         }
     }
-
     private void placeHex(string x, string z)
     {
         GameObject _point = Instantiate(hexBlock);
@@ -100,6 +103,14 @@ public class GameBoardGeneration : MonoBehaviour
         _point.transform.tag = "Environment";
         _point.transform.position = new Vector3(currentX, currentY, currentZ);
         nodes.Add(_point);
+    }
+    private void centralizeGameBoard()
+    {
+        Vector3 _offset = (nodes[nodes.Count - 1].transform.position - nodes[0].transform.position)/2;
+        for (int i = 0; i < this.transform.childCount; i++)
+        {
+            this.transform.GetChild(i).transform.position -= _offset;
+        }
     }
 
     #endregion
@@ -120,7 +131,6 @@ public class GameBoardGeneration : MonoBehaviour
                 node.label = i + "," + j;
                 node.hex = nodes[hexCount];
                 node.navigability = Node.navigabilityStates.navigable;
-                node.weighting = 0;
                 node.x = i;
                 node.y = j;
 
@@ -170,7 +180,6 @@ public class GameBoardGeneration : MonoBehaviour
 
     }
     #endregion
-
 
     #region Functional Methods
     public void destroyAll()

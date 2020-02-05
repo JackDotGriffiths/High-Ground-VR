@@ -65,7 +65,7 @@ GameObject:
   - component: {fileID: 4103311456260718030}
   - component: {fileID: 581518607667172439}
   m_Layer: 0
-  m_Name: WhiteblockBarracks
+  m_Name: Hex
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -342,7 +342,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7879904052964687138}
   m_LocalRotation: {x: -0.70710677, y: -0, z: -0, w: 0.7071069}
-  m_LocalPosition: {x: 0.008379004, y: -0.008435758, z: 0.00065965595}
+  m_LocalPosition: {x: 0.00838, y: -0.00142, z: 0.00065965595}
   m_LocalScale: {x: 0.002, y: 0.00562017, z: 0.009819721}
   m_Children: []
   m_Father: {fileID: 2891801558545738532}

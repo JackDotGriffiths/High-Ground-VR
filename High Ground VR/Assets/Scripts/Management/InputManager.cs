@@ -246,11 +246,11 @@ public class InputManager : MonoBehaviour
             m_teleporterPrimed = false;
             //Scale the game environment
             m_gameEnvironment.transform.localScale = m_largestScale;
-            if (m_gameEnvironment.transform.position.y != 1)
+            if (m_gameEnvironment.transform.position.y != -m_largestScale.y)
             {
-                m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, 1, m_gameEnvironment.transform.position.z);
+                m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, -m_largestScale.y - 20, m_gameEnvironment.transform.position.z);
             }
-            m_newPosition = new Vector3(m_currentlySelectedNode.transform.position.x, 1 + m_largestScale.x, m_currentlySelectedNode.transform.position.z);
+            m_newPosition = new Vector3(m_currentlySelectedNode.transform.position.x, 0 , m_currentlySelectedNode.transform.position.z);
 
 
             Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
@@ -311,6 +311,11 @@ public class InputManager : MonoBehaviour
     {
         m_maxWorldHeight = m_camera.transform.position.y * 0.6f;
         m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 0);
+        for (int i = 0; i < m_gameEnvironment.transform.childCount; i++)
+        {
+            Transform _targetHex = m_gameEnvironment.transform.GetChild(i).transform;
+            _targetHex.position = new Vector3(_targetHex.position.x, m_maxWorldHeight, _targetHex.position.z);
+        }
     }
     private void updateObjectList(MeshRenderer _selectedMesh)
     {
