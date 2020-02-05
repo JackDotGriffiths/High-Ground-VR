@@ -5,6 +5,7 @@ using UnityEngine;
 public class NodeComponent : MonoBehaviour
 {
     public Node node;
+    public ValidateBuildingLocation buildingPlacementValidation;
 
     [ContextMenu("Expose Node Data")]
     void PrintNodeInfo()
@@ -14,14 +15,38 @@ public class NodeComponent : MonoBehaviour
 
     public void PlaceBarracks()
     {
-        Debug.Log("Barracks Placed at " + node.label);
+        if (buildingPlacementValidation.verifyBarracks(node))
+        {
+            buildingPlacementValidation.placeBarracks(node);
+            Debug.Log("Barracks Placed at " + node.label);
+        }
+        else
+        {
+            Debug.Log("Node Occupied");
+        }
     }
     public void PlaceMine()
     {
-        Debug.Log("Mine Placed at " + node.label);
+        if (buildingPlacementValidation.verifyMine(node))
+        {
+            buildingPlacementValidation.placeMine(node);
+            Debug.Log("Mine Placed at " + node.label);
+        }
+        else
+        {
+            Debug.Log("Node Occupied");
+        }
     }
     public void PlaceWalls()
     {
-        Debug.Log("Walls Placed at " + node.label);
+        if (buildingPlacementValidation.verifyWall(node))
+        {
+            buildingPlacementValidation.placeWall(node);
+            Debug.Log("Walls Placed at " + node.label);
+        }
+        else
+        {
+            Debug.Log("Node Occupied");
+        }
     }
 }

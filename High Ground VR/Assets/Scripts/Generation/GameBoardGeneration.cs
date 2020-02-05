@@ -38,6 +38,7 @@ public class GameBoardGeneration : MonoBehaviour
     void Start()
     {
         generate();
+        InputManager.Instance.updateWorldHeight();
     }
 
     void Awake()
@@ -65,9 +66,6 @@ public class GameBoardGeneration : MonoBehaviour
         generateRec();
         populateGraph();
         centralizeGameBoard();
-        InputManager.Instance.updateWorldHeight();
-
-        
     }
 
     #region Game Board Generation
@@ -137,6 +135,8 @@ public class GameBoardGeneration : MonoBehaviour
 
                 NodeComponent _nodeComp =  nodes[hexCount].AddComponent<NodeComponent>();
                 _nodeComp.node = node;
+                try { _nodeComp.buildingPlacementValidation = this.GetComponent<ValidateBuildingLocation>(); }
+                catch { Debug.LogError("Does GameBoardGeneration contain a ValidateBuildingLocation Component?"); }
                 graph[i, j] = node;
                 hexCount++;
             }

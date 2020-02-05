@@ -6,7 +6,7 @@ public class InputManager : MonoBehaviour
 {
     private static InputManager s_instance;
     public enum HandTypes { left, right };
-    private enum SizeMode { small, large };
+    public enum SizeOptions { small, large };
 
 
     public HandTypes m_handedness;
@@ -15,7 +15,7 @@ public class InputManager : MonoBehaviour
 
     [Header("Player Scaling")]
     private float m_maxWorldHeight; //This depends on the player's height.
-    private SizeMode m_currentSize;
+    public SizeOptions m_currentSize;
 
 
     [Header("World Rotation")]
@@ -49,6 +49,7 @@ public class InputManager : MonoBehaviour
 
     private GameObject m_mainController, m_offHandController;
     private LineRenderer m_mainPointer;
+    private ValidateBuildingLocation m_buildingValidation;
     private List<MeshRenderer> m_objectMeshes = new List<MeshRenderer>();
 
 
@@ -60,13 +61,14 @@ public class InputManager : MonoBehaviour
     public bool RightTrigger { get => m_rightTrigger; set => m_rightTrigger = value; }
     public GameObject OffHandController { get => m_offHandController; set => m_offHandController = value; }
     public GameObject MainController { get => m_mainController; set => m_mainController = value; }
-    private SizeMode CurrentSize { get => m_currentSize; set => m_currentSize = value; }
     public bool LeftTeleport { get => m_leftTeleport; set => m_leftTeleport = value; }
     public bool RightTeleport { get => m_rightTeleport; set => m_rightTeleport = value; }
+    public Vector3 LargestScale { get => m_largestScale; set => m_largestScale = value; }
     #endregion
 
     void Start()
     {
+        updateWorldHeight();
         //Handles whether the player is left or right handed.
         if (m_handedness == HandTypes.left)
         {
@@ -92,14 +94,15 @@ public class InputManager : MonoBehaviour
         //Setting the height based on the players height
         updateWorldHeight();
 
-        m_currentSize = SizeMode.large;
+        m_currentSize = SizeOptions.large;
         m_gameEnvironment.transform.localScale = m_smallestScale;
         m_teleporterPrimed = false;
 
         //Add all of the environment object mesh renderers.
         updateObjectList();
 
-  
+
+        try { m_buildingValidation = m_gameEnvironment.GetComponent<ValidateBuildingLocation>(); } catch { }
     }
     void Awake()
     {
@@ -128,7 +131,7 @@ public class InputManager : MonoBehaviour
 
         m_mainControllerPos = m_mainController.transform.position;
         //Rotating the Game Board
-        if (m_mainTrigger == true && m_currentlySelectedNode == null && !(m_rightTrigger == true && m_leftTrigger == true) && m_currentSize == SizeMode.large)
+        if (m_mainTrigger == true && m_currentlySelectedNode == null && !(m_rightTrigger == true && m_leftTrigger == true) && m_currentSize == SizeOptions.large)
         {
             m_currentlySelectedBuilding = null;
             Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
@@ -173,12 +176,12 @@ public class InputManager : MonoBehaviour
                 _matList.Add(_matArray[0]);
                 _matList.Add(m_outlineMaterial);
                 _hitMesh.materials = _matList.ToArray();
-                if (m_mainTrigger == true && m_currentlySelectedBuilding != null && m_currentlySelectedNode.GetComponent<NodeComponent>().node.navigability == Node.navigabilityStates.navigable)
+                if (m_mainTrigger == true && m_currentlySelectedBuilding != null)
                 {
-                    Debug.Log("Placed " + m_currentlySelectedBuilding.type);
-                    Vector3 _objectPos = new Vector3(m_currentlySelectedNode.transform.position.x, m_currentlySelectedNode.transform.position.y + 1.5f, m_currentlySelectedNode.transform.position.z);
-                    Instantiate(m_currentlySelectedBuilding.prefab, _objectPos, m_currentlySelectedNode.transform.rotation,m_currentlySelectedNode.transform);
-                    m_currentlySelectedNode.GetComponent<NodeComponent>().node.navigability = Node.navigabilityStates.destructable;
+                    if (m_buildingValidation.verifyBuilding(m_currentlySelectedBuilding, m_currentlySelectedNode.GetComponent<NodeComponent>().node))
+                    {
+                        m_buildingValidation.placeBuilding(m_currentlySelectedBuilding, m_currentlySelectedNode.GetComponent<NodeComponent>().node);
+                    }
                 }
             }
             if (_hit.collider.gameObject.tag == "UIButton")
@@ -256,7 +259,7 @@ public class InputManager : MonoBehaviour
             Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
             _gameEnvRigid.angularVelocity = Vector3.zero;
             _gameEnvRigid.velocity = Vector3.zero;
-            m_currentSize = SizeMode.small;
+            m_currentSize = SizeOptions.small;
             m_mainPointer.startWidth = 0.03f;
             m_mainPointer.endWidth = 0.00f;
         }
@@ -271,7 +274,7 @@ public class InputManager : MonoBehaviour
             m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 0);
 
 
-            m_currentSize = SizeMode.large;
+            m_currentSize = SizeOptions.large;
             m_mainPointer.startWidth = 0.05f;
             m_mainPointer.endWidth = 0.00f;
         }
