@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ValidateBuildingLocation : MonoBehaviour
 {
-    [SerializeField]private float m_buildingHeightOffset;
+    public float buildingHeightOffset;
     [SerializeField, Space(10)] private GameObject m_barracks;
     [SerializeField,Space(1)]private GameObject m_mine, m_walls,m_enemySpawn;
 
@@ -104,12 +104,12 @@ public class ValidateBuildingLocation : MonoBehaviour
         _targetNode.navigability = Node.navigabilityStates.destructable;
         //Instantiate Relevant Prefab & Position Accordingly.
         GameObject _building = Instantiate(m_barracks, _targetNode.hex.transform);
-        float _yOffset = m_buildingHeightOffset;
+        float _yOffset = buildingHeightOffset;
         try
         {
             if (InputManager.Instance.m_currentSize == InputManager.SizeOptions.small)
             {
-                _yOffset = m_buildingHeightOffset * InputManager.Instance.LargestScale.y;
+                _yOffset = buildingHeightOffset * InputManager.Instance.LargestScale.y;
             }
         }
         catch
@@ -124,12 +124,12 @@ public class ValidateBuildingLocation : MonoBehaviour
         _targetNode.navigability = Node.navigabilityStates.destructable;
         //Instantiate Relevant Prefab
         GameObject _building = Instantiate(m_mine, _targetNode.hex.transform);
-        float _yOffset = m_buildingHeightOffset;
+        float _yOffset = buildingHeightOffset;
         try
         {
             if (InputManager.Instance.m_currentSize == InputManager.SizeOptions.small)
             {
-                _yOffset = m_buildingHeightOffset * InputManager.Instance.LargestScale.y;
+                _yOffset = buildingHeightOffset * InputManager.Instance.LargestScale.y;
             }
         }
         catch
@@ -144,12 +144,12 @@ public class ValidateBuildingLocation : MonoBehaviour
         _targetNode.navigability = Node.navigabilityStates.destructable;
         //Instantiate Relevant Prefab
         GameObject _building = Instantiate(m_walls, _targetNode.hex.transform);
-        float _yOffset = m_buildingHeightOffset;
+        float _yOffset = buildingHeightOffset;
         try
         {
             if (InputManager.Instance.m_currentSize == InputManager.SizeOptions.small)
             {
-                _yOffset = m_buildingHeightOffset * InputManager.Instance.LargestScale.y;
+                _yOffset = buildingHeightOffset * InputManager.Instance.LargestScale.y;
             }
         }
         catch

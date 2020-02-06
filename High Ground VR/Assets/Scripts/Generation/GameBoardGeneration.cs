@@ -10,6 +10,7 @@ public class GameBoardGeneration : MonoBehaviour
     private static GameBoardGeneration s_instance;
     public GameObject hexBlock;
     public float hexGapSize = 0.86f;
+    public ValidateBuildingLocation BuildingValidation;
 
 
     [Header("Game Board Size"), Space(10)]
@@ -21,24 +22,26 @@ public class GameBoardGeneration : MonoBehaviour
 
     private float hexagonalWidth;
     private float hexagonalHeight;
-    private int lengthOfRowCount;
-    private int resetCount;
-
-    private int count;
     private float currentX;
     private float currentY;
     private float currentZ;
-    private float resetPointY;
-    private GameObject _randomBelow;
-    private GameObject _randomAbove;
+    private GameObject parentObject;
+
 
     public static GameBoardGeneration Instance { get => s_instance; set => s_instance = value; }
     public Node[,] Graph { get => graph; set => graph = value; }
 
     void Start()
     {
+        try
+        {
+            BuildingValidation = this.GetComponent<ValidateBuildingLocation>();
+        }
+        catch
+        {
+            Debug.LogWarning("ValidateBuildingLocation not found on GameBoard object.");
+        }
         generate();
-        InputManager.Instance.updateWorldHeight();
     }
 
     void Awake()
@@ -57,6 +60,16 @@ public class GameBoardGeneration : MonoBehaviour
 
     public void generate()
     {
+        try
+        {
+            InputManager.Instance.updateWorldHeight();
+        }
+        catch
+        {
+            //Game not currently in Play mode. This doesn't need to be caught.
+        }
+
+
         hexagonalWidth = 2 * hexGapSize;
         hexagonalHeight = Mathf.Sqrt(3) * hexGapSize;
         currentX = 0;
@@ -66,6 +79,7 @@ public class GameBoardGeneration : MonoBehaviour
         generateRec();
         populateGraph();
         centralizeGameBoard();
+        setParent();
     }
 
     #region Game Board Generation
@@ -95,7 +109,6 @@ public class GameBoardGeneration : MonoBehaviour
     {
         GameObject _point = Instantiate(hexBlock);
 
-
         _point.name = x + "," + z;
         _point.transform.SetParent(this.transform);
         _point.transform.tag = "Environment";
@@ -104,10 +117,21 @@ public class GameBoardGeneration : MonoBehaviour
     }
     private void centralizeGameBoard()
     {
-        Vector3 _offset = (nodes[nodes.Count - 1].transform.position - nodes[0].transform.position)/2;
+        Vector3 _offset = (nodes[nodes.Count -1 ].transform.position - nodes[0].transform.position)/2;
         for (int i = 0; i < this.transform.childCount; i++)
         {
             this.transform.GetChild(i).transform.position -= _offset;
+        }
+    }
+    private void setParent()
+    {
+        parentObject = new GameObject("nodesScalingParent");
+        parentObject.transform.SetParent(this.transform);
+
+        for (int i = 0; i < this.transform.childCount; i++)
+        {
+            this.transform.GetChild(i).transform.SetParent(parentObject.transform);
+            DestroyImmediate(this.transform.GetChild(i).gameObject);
         }
     }
 
@@ -189,6 +213,7 @@ public class GameBoardGeneration : MonoBehaviour
             DestroyImmediate(gameObj);
         }
 
+        DestroyImmediate(GameObject.Find("nodesScalingParent"));
         nodes = new List<GameObject>();
     }
 
