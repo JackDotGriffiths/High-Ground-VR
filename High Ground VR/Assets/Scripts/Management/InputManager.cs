@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class InputManager : MonoBehaviour
 {
     private static InputManager s_instance;
@@ -68,7 +69,6 @@ public class InputManager : MonoBehaviour
 
     void Start()
     {
-        updateWorldHeight();
         //Handles whether the player is left or right handed.
         if (m_handedness == HandTypes.left)
         {

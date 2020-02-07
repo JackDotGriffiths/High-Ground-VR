@@ -55,7 +55,7 @@ public class ValidateBuildingLocation : MonoBehaviour
 
     public bool verifyBarracks(Node _targetNode)
     {
-        if(_targetNode.navigability == Node.navigabilityStates.navigable)
+        if(_targetNode.navigability == navigabilityStates.navigable)
         {
             return true;
         }
@@ -66,7 +66,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     }
     public bool verifyMine(Node _targetNode)
     {
-        if (_targetNode.navigability == Node.navigabilityStates.navigable)
+        if (_targetNode.navigability == navigabilityStates.navigable)
         {
             return true;
         }
@@ -77,7 +77,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     }
     public bool verifyWall(Node _targetNode)
     {
-        if (_targetNode.navigability == Node.navigabilityStates.navigable)
+        if (_targetNode.navigability == navigabilityStates.navigable)
         {
             return true;
         }
@@ -88,7 +88,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     }
     public bool verifyEnemySpawn(Node _targetNode)
     {
-        if (_targetNode.navigability == Node.navigabilityStates.navigable)
+        if (_targetNode.navigability == navigabilityStates.navigable)
         {
             return true;
         }
@@ -101,7 +101,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     public void placeBarracks(Node _targetNode)
     {
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = Node.navigabilityStates.destructable;
+        _targetNode.navigability = navigabilityStates.destructable;
         //Instantiate Relevant Prefab & Position Accordingly.
         GameObject _building = Instantiate(m_barracks, _targetNode.hex.transform);
         float _yOffset = buildingHeightOffset;
@@ -121,7 +121,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     public void placeMine(Node _targetNode)
     {
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = Node.navigabilityStates.destructable;
+        _targetNode.navigability = navigabilityStates.destructable;
         //Instantiate Relevant Prefab
         GameObject _building = Instantiate(m_mine, _targetNode.hex.transform);
         float _yOffset = buildingHeightOffset;
@@ -141,7 +141,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     public void placeWall(Node _targetNode)
     {
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = Node.navigabilityStates.destructable;
+        _targetNode.navigability = navigabilityStates.destructable;
         //Instantiate Relevant Prefab
         GameObject _building = Instantiate(m_walls, _targetNode.hex.transform);
         float _yOffset = buildingHeightOffset;

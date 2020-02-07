@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-
+public enum navigabilityStates { navigable, nonNavigable, destructable, playerUnit, enemyUnit };
 public class Node
 {
-    public enum navigabilityStates { navigable, nonNavigable, destructable };
 
     public List<Node> adjecant = new List<Node>();
     public Node previous;
