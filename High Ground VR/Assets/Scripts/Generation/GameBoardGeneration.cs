@@ -43,6 +43,7 @@ public class GameBoardGeneration : MonoBehaviour
             Debug.LogWarning("ValidateBuildingLocation not found on GameBoard object.");
         }
         generate();
+        InputManager.Instance.updateWorldHeight();
     }
 
     void Awake()

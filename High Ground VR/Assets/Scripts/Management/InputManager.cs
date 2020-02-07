@@ -91,8 +91,6 @@ public class InputManager : MonoBehaviour
 
         m_gameEnvironment.GetComponent<Rigidbody>().inertiaTensor = new Vector3(0.1f, 0.1f, 0.1f);
 
-        //Setting the height based on the players height
-        updateWorldHeight();
 
         m_currentSize = SizeOptions.large;
         m_gameEnvironment.transform.localScale = m_smallestScale;
@@ -324,12 +322,12 @@ public class InputManager : MonoBehaviour
     {
         m_objectMeshes = new List<MeshRenderer>();
         //Add all of the environment object mesh renderers.
-        int _childCount = m_gameEnvironment.transform.childCount;
+        int _childCount = m_gameEnvironment.transform.GetChild(0).transform.childCount;
         for (int i = 0; i < _childCount; i++)
         {
-            if (m_gameEnvironment.transform.GetChild(i).tag == "Environment")
+            if (m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).tag == "Environment")
             {
-                MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(i).GetComponent<MeshRenderer>();
+                MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).GetComponent<MeshRenderer>();
                 if (_mesh != _selectedMesh)
                 {
                     m_objectMeshes.Add(_mesh);
@@ -341,12 +339,12 @@ public class InputManager : MonoBehaviour
     {
         m_objectMeshes = new List<MeshRenderer>();
         //Add all of the environment object mesh renderers.
-        int _childCount = m_gameEnvironment.transform.childCount;
+        int _childCount = m_gameEnvironment.transform.GetChild(0).transform.childCount;
         for (int i = 0; i < _childCount; i++)
         {
-            if(m_gameEnvironment.transform.GetChild(i).tag == "Environment")
+            if(m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).tag == "Environment")
             {
-                MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(i).GetComponent<MeshRenderer>();
+                MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).GetComponent<MeshRenderer>();
                 m_objectMeshes.Add(_mesh);
             }
         }

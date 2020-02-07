@@ -105,16 +105,9 @@ public class ValidateBuildingLocation : MonoBehaviour
         //Instantiate Relevant Prefab & Position Accordingly.
         GameObject _building = Instantiate(m_barracks, _targetNode.hex.transform);
         float _yOffset = buildingHeightOffset;
-        try
+        if (InputManager.Instance.m_currentSize == InputManager.SizeOptions.small)
         {
-            if (InputManager.Instance.m_currentSize == InputManager.SizeOptions.small)
-            {
-                _yOffset = buildingHeightOffset * InputManager.Instance.LargestScale.y;
-            }
-        }
-        catch
-        {
-        
+            _yOffset = buildingHeightOffset * InputManager.Instance.LargestScale.y + 20;
         }
         _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + _yOffset, _targetNode.hex.transform.position.z);
     }
@@ -125,16 +118,9 @@ public class ValidateBuildingLocation : MonoBehaviour
         //Instantiate Relevant Prefab
         GameObject _building = Instantiate(m_mine, _targetNode.hex.transform);
         float _yOffset = buildingHeightOffset;
-        try
+        if (InputManager.Instance.m_currentSize == InputManager.SizeOptions.small)
         {
-            if (InputManager.Instance.m_currentSize == InputManager.SizeOptions.small)
-            {
-                _yOffset = buildingHeightOffset * InputManager.Instance.LargestScale.y;
-            }
-        }
-        catch
-        {
-
+            _yOffset = buildingHeightOffset * InputManager.Instance.LargestScale.y + 20;
         }
         _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + _yOffset, _targetNode.hex.transform.position.z);
     }
@@ -145,16 +131,9 @@ public class ValidateBuildingLocation : MonoBehaviour
         //Instantiate Relevant Prefab
         GameObject _building = Instantiate(m_walls, _targetNode.hex.transform);
         float _yOffset = buildingHeightOffset;
-        try
+        if (InputManager.Instance.m_currentSize == InputManager.SizeOptions.small)
         {
-            if (InputManager.Instance.m_currentSize == InputManager.SizeOptions.small)
-            {
-                _yOffset = buildingHeightOffset * InputManager.Instance.LargestScale.y;
-            }
-        }
-        catch
-        {
-
+            _yOffset = buildingHeightOffset * InputManager.Instance.LargestScale.y + 20;
         }
         _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + _yOffset, _targetNode.hex.transform.position.z);
     }

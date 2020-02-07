@@ -33,12 +33,13 @@ public class BarracksBehaviour : MonoBehaviour
         if (InputManager.Instance.m_currentSize == InputManager.SizeOptions.large)
         {
             _raycastPos = new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z);
+            _raycastDir = (transform.right - transform.up) * 100;
         }
         else
         {
-            _raycastPos = new Vector3(transform.position.x, transform.position.y + InputManager.Instance.LargestScale.y, transform.position.z);
+            _raycastPos = new Vector3(transform.position.x, transform.position.y + InputManager.Instance.LargestScale.y + 20, transform.position.z);
+            _raycastDir = (transform.right - transform.up) * 100 ;
         }
-        _raycastDir = (transform.right - transform.up) * 100;
         Debug.DrawRay(_raycastPos, _raycastDir, Color.green);
         if (Physics.Raycast(_raycastPos, _raycastDir, out _hit))
         {
@@ -72,13 +73,18 @@ public class BarracksBehaviour : MonoBehaviour
     void EvaluateUnitPositions()
     {
         //Based on amount of current units, split the hex into angles
-        Vector3 _hexPosition = new Vector3(m_barracksUnitNode.hex.transform.position.x, m_barracksUnitNode.hex.transform.position.y + m_buildingValidation.buildingHeightOffset, m_barracksUnitNode.hex.transform.position.z);
+        float _multiplier = 1;
+        if (InputManager.Instance.m_currentSize == InputManager.SizeOptions.small)
+        {
+            _multiplier = InputManager.Instance.LargestScale.y + 20;
+        }
+        Vector3 _hexPosition = new Vector3(m_barracksUnitNode.hex.transform.position.x, m_barracksUnitNode.hex.transform.position.y + m_buildingValidation.buildingHeightOffset * _multiplier, m_barracksUnitNode.hex.transform.position.z);
         float _angleDifference = 360 / (m_currentUnits + 1);
         int _index = 0;
         foreach(GameObject _gameObj in m_units)
         {
             Quaternion _angle = Quaternion.Euler(0, _angleDifference * (_index+1), 0);
-            Vector3 _unitPostion = _hexPosition + (_angle * (Vector3.forward * 0.4f));
+            Vector3 _unitPostion = _hexPosition + (_angle * (Vector3.forward * 0.4f) * _multiplier);
             _gameObj.transform.position = _unitPostion;
             _index++;
         }
