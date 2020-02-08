@@ -4,28 +4,27 @@ using UnityEngine;
 
 public class UnitComponent : MonoBehaviour
 {
-    [SerializeField] private MeshRenderer m_unitBody;
-    [SerializeField] private Material m_unitMaterial;
+    [SerializeField, Tooltip("Body object of the unit. Used to change material")] private MeshRenderer m_unitBody;
 
 
-    [SerializeField,Space(20)] private float m_lowestHealth;
-    [SerializeField] private float m_highestHealth;
-    [SerializeField,Space(7)] private float m_lowestDamage;
-    [SerializeField] private float m_highestDamage;
-    [SerializeField, Space(7)] private float m_lowestIntelligence;
-    [SerializeField] private float m_highestIntelligence;
-    [SerializeField,Space(10)] private List<Material> m_playerMaterials;
-    [SerializeField] private List<Material> m_enemyMaterials;
-    [SerializeField,Space(10)] private List<GameObject> m_helmets;
-    [SerializeField] private List<GameObject> m_weapons;
+    [SerializeField,Space(20), Tooltip("The lowest possible health of the unit.")] private float m_lowestHealth;
+    [SerializeField, Tooltip("The highest possible health of the unit.")] private float m_highestHealth;
+    [SerializeField,Space(7), Tooltip("The lowest possible damage of the unit.")] private float m_lowestDamage;
+    [SerializeField, Tooltip("The highest possible damage of the unit.")] private float m_highestDamage;
+    [SerializeField, Space(7), Tooltip("The lowest possible intelligence of the unit.")] private float m_lowestIntelligence;
+    [SerializeField, Tooltip("The highest possible intelligence of the unit.")] private float m_highestIntelligence;
+    [SerializeField,Space(10), Tooltip("All possible materials for the player units.")] private List<Material> m_playerMaterials;
+    [SerializeField, Tooltip("All possible materials for the enemy units.")] private List<Material> m_enemyMaterials;
+    [SerializeField,Space(10), Tooltip("All possible helmets for the units to spawn with.")] private List<GameObject> m_helmets;
+    [SerializeField, Tooltip("All possible weapons for the units to spawn with.")] private List<GameObject> m_weapons;
 
     public Unit unit;
     // Start is called before the first frame update
     public void playerUnitConstructor()
     {
         unitTypes _unitType = unitTypes.player;
-        float _health = Random.Range(m_lowestHealth, m_highestHealth);
-        float _damage = Random.Range(m_lowestDamage, m_highestDamage);
+        int _health = (int)Random.Range(m_lowestHealth, m_highestHealth);
+        int _damage = (int)Random.Range(m_lowestDamage, m_highestDamage);
         float _intelligence = m_highestIntelligence; //Player Units are always 100% intelligent
         GameObject _helmet = m_helmets[Random.Range(0, m_helmets.Count)];
         GameObject _weapon = m_weapons[Random.Range(0, m_weapons.Count)];

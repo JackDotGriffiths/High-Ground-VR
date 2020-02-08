@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class Search
 {
-    public Node[,] graph;
-    public List<Node> reachable;
-    public List<Node> explored;
-    public List<Node> path;
-    public Node goalNode;
-    public int iterations;
-    public bool finished;
+    public Node[,] graph; //Graph of all nodes
+    public List<Node> reachable; //Complete list of reachable nodes
+    public List<Node> explored; //Complete list of explored nodes within the search
+    public List<Node> path; //The Chosen path after the search has occured
+    public Node goalNode; //The end goal of the search
+    public int iterations; //Amount of Iterations taken to find the path
+    public bool finished; //Whether the search is finished
 
     public Search(Node[,] _graph)
     {
@@ -22,12 +22,11 @@ public class Search
         reachable = new List<Node>();
         explored = new List<Node>();
         path = new List<Node>();
-
         reachable.Add(start);
         goalNode = goal;
         iterations = 0;
 
-
+        //Clear all previously associated nodes
         for (int i = 0; i < graph.GetLength(0); i++)
         {
             for (int j = 0; j < graph.GetLength(1); j++)
@@ -39,6 +38,7 @@ public class Search
 
     public void Step()
     {
+        //If either of these conditions are met, the search is over and it has either failed or completed.
         if (path.Count > 0){return;}
         if (reachable.Count == 0)
         {
@@ -48,6 +48,7 @@ public class Search
 
         iterations++;
 
+        //If the search has completed and was successfull, rebuild the path from the list of previous nodes from each node.
         var node = ChooseNode();
         if (node == goalNode)
         {
@@ -60,6 +61,7 @@ public class Search
             return;
         }
 
+        //If not, remove the current node from reachable, add it to explored and then continue to search for the goal.
         reachable.Remove(node);
         explored.Add(node);
 
@@ -68,6 +70,12 @@ public class Search
             AddAdjacent(node, node.adjecant[i]);
         }
     }
+
+    /// <summary>
+    /// Add adjecent nodes to search and also define reachable nodes.
+    /// </summary>
+    /// <param name="node">Current node</param>
+    /// <param name="adjacent">Adjecent nodes of current Node</param>
     public void AddAdjacent(Node node, Node adjacent)
     {
         if (FindNode(adjacent, explored) || FindNode(adjacent, reachable))
@@ -82,10 +90,25 @@ public class Search
             reachable.Add(adjacent);
         }
     }
+
+    /// <summary>
+    /// Returns true if the node is found within the passed in list.
+    /// </summary>
+    /// <param name="node">Search Node</param>
+    /// <param name="list">List to Search through</param>
+    /// <returns></returns>
     public bool FindNode(Node node, List<Node> list)
     {
         return GetNodeIndex(node, list) >= 0;
     }
+
+
+    /// <summary>
+    /// Get the Index of a node in the chosen list 
+    /// </summary>
+    /// <param name="node">Search Node</param>
+    /// <param name="list">List to search through</param>
+    /// <returns></returns>
     public int GetNodeIndex(Node node, List<Node> list)
     {
         for (int i = 0; i < list.Count; i++)
@@ -97,18 +120,22 @@ public class Search
         }
         return -1;
     }
+
+    /// <summary>
+    /// Chooses a node from associated adjecent nodes, and always picks the one that reduces the distance between the current node and the goal node the most.
+    /// </summary>
+    /// <returns></returns>
     public Node ChooseNode()
     {
-        //This is where I could implement weighting
-        //return reachable[Random.Range(0, reachable.Count)];
-
 
         Node _closestNode = reachable[Random.Range(0, reachable.Count)];
         Vector3 _goalNodePos = goalNode.hex.transform.position;
         float _minDistance = Mathf.Infinity;
 
+        //Find the smallest distance from the goal node.
         for (int i = 0; i < reachable.Count-1; i++)
         {
+            explored.Add(reachable[i]);
             Vector3 _nodePos = reachable[i].hex.transform.position;
             if (Vector3.Distance(_nodePos, _goalNodePos) < _minDistance)
             {

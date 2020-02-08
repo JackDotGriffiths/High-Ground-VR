@@ -136,4 +136,16 @@ public class PathfindingTest : MonoBehaviour
         }
 
     }
+
+    private void OnDrawGizmos()
+    {
+        foreach(Node _node in GameBoardGeneration.Instance.Graph)
+        {
+            if(_node.navigability == navigabilityStates.nonNavigable)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawCube(_node.hex.transform.position, Vector3.one);
+            }
+        }
+    }
 }
