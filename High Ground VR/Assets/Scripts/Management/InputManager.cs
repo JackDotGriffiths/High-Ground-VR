@@ -9,8 +9,11 @@ public class InputManager : MonoBehaviour
     public enum HandTypes { left, right }; // Handedness
     public enum SizeOptions { small, large }; //Whether the player is currently Large or Small.
 
-    [Header ("Input Config"),Space(5)]
+    [Header ("Player Config"),Space(5)]
     public HandTypes m_handedness; //The handedness of the player, used to place the book and the laser pointer in the correct hand
+    [SerializeField, Tooltip("The height at which the game board should sit relative to the player's height."),Range(0f,1f)] private float m_playerHeightMultiplier = 0.5f;
+
+    [Header("Input Config"), Space(5)]
     [SerializeField, Tooltip("The GameObject of the entire Rig. Used for scaling and positioning.")] private GameObject m_vrRig; 
     [SerializeField, Tooltip("The Gameobject of the players camera.")] private GameObject m_camera;
     [SerializeField, Tooltip("The Gameobject of the players left controller.")] private GameObject m_leftController;
@@ -328,9 +331,11 @@ public class InputManager : MonoBehaviour
     /// <summary>
     /// Updates the m_maxWorldHeight based on the current Y position of the headset. This adjusts the game world to work with any height.
     /// </summary>
+    /// 
+    [ContextMenu("Update Game Board Height")] //Allows me to press a button within the editor to execute this method.
     public void updateWorldHeight()
     {
-        m_maxWorldHeight = m_camera.transform.position.y * 0.6f;
+        m_maxWorldHeight = m_camera.transform.position.y * m_playerHeightMultiplier;
         m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 0);
         for (int i = 0; i < m_gameEnvironment.transform.childCount; i++)
         {
