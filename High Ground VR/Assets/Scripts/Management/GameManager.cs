@@ -8,11 +8,9 @@ public class GameManager : MonoBehaviour
     private static GameManager s_instance;
     [Header("Game Config")]
     [SerializeField, Range(0, 1), Tooltip("The speed of objects in the game on a scale of 0-1")] private float m_gameSpeed = 1.0f; //Game speed multiplier used across the game for allowing for slowmo/pausing etc.
-    [SerializeField] private GameBoardGeneration m_gameEnvironment;
-    [SerializeField] private ValidateBuildingLocation m_buildingValidation;
-    public GameObject gameGem;
+    [SerializeField, Tooltip("How long in seconds the building phase should be")] private float m_buildingPhaseTime; //Length of time the player should be allowed to build.
 
-    [Header("Round Management"),Space(10)]
+    [Header("Enemy Spawn Management"),Space(10)]
     [Tooltip("Amount of spawns the game rounds should start with")]public int m_enemyStartingSpawns;
     private List<Node> m_outerEdgeNodes; //Set to the nodes on the outer edge of the map, used when spawning enemies.
 
@@ -26,22 +24,21 @@ public class GameManager : MonoBehaviour
 
     [Header ("Debug Wall Displays"), Space(10)]
     [SerializeField] private TextMeshProUGUI m_goldValue; //Debug Wall Text object that temporarily displays money
-
+    [SerializeField] private TextMeshProUGUI m_timerLeft; //Debug Wall Text object that temporarily displays money
 
     private int m_currentGold; //The current gold of the player.
-
-
-
-
+    private float m_buildingPhaseTimer; //Track the current value of the countdown timer.
+    private Node m_gameGemNode; // The Gem Gameobject, set by GameBoardGeneration.
 
     #region Accessors
     public static GameManager Instance { get => s_instance; set => s_instance = value; }
     public float GameSpeed { get => m_gameSpeed; set => m_gameSpeed = value; }
     public int Money { get => m_currentGold;}
     public float TickInterval { get => m_tickInterval; set => m_tickInterval = value; }
+    public Node GameGemNode { get => m_gameGemNode; set => m_gameGemNode = value; }
     #endregion
 
-  
+
     void Awake()
     {
         //Singleton Implementation
@@ -54,22 +51,28 @@ public class GameManager : MonoBehaviour
         }
     }
    
-
-
     void Start()
     {
         m_currentGold = m_startingGold;
-
+        m_buildingPhaseTimer = m_buildingPhaseTime;
 
         //Invoke on a delay so GameBoard Graph has been created.
         Invoke("instantiateSpawns",0.1f);
     }
 
-
-
     void Update()
     {
-        try { m_goldValue.text = m_currentGold.ToString(); } catch { Debug.LogWarning("Debug Wall Gold text not set in GameManager."); }
+        m_buildingPhaseTimer -= Time.deltaTime * m_gameSpeed;
+        if (m_buildingPhaseTimer <= 0.0f)
+        {
+            Debug.Log("Phase Over");
+            m_buildingPhaseTimer = m_buildingPhaseTime;
+        }
+        //Updating Debug Displays
+        m_goldValue.text = m_currentGold.ToString();
+        m_timerLeft.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString() + "s";
+
+
     }
 
 
@@ -123,9 +126,9 @@ public class GameManager : MonoBehaviour
             Node _chosenNode = m_outerEdgeNodes[Random.Range(0, m_outerEdgeNodes.Count)];
             
             //Verify and place the enemy spawn at this hex
-            if (m_buildingValidation.verifyEnemySpawn(_chosenNode) == true)
+            if (GameBoardGeneration.Instance.BuildingValidation.verifyEnemySpawn(_chosenNode) == true)
             {
-                m_buildingValidation.placeEnemySpawn(_chosenNode);
+                    GameBoardGeneration.Instance.BuildingValidation.placeEnemySpawn(_chosenNode);
             }
             else { 
                 i--; 

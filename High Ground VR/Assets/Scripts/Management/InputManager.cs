@@ -94,7 +94,7 @@ public class InputManager : MonoBehaviour
         m_mainPointer.sortingOrder = 1;
 
         //Sets the inertiaTensor so that the rotation of the board isn't effected by the amount of collider children within the board.
-        m_gameEnvironment.GetComponent<Rigidbody>().inertiaTensor = new Vector3(0.1f, 0.1f, 0.1f);
+        //m_gameEnvironment.GetComponent<Rigidbody>().inertiaTensor = new Vector3(0.1f, 0.1f, 0.1f);
 
         //Current size of the player always starts as Large
         CurrentSize = SizeOptions.large;
@@ -136,24 +136,24 @@ public class InputManager : MonoBehaviour
 
         #region Trigger Button Handling
 
-        m_mainControllerPos = MainController.transform.position;
-        //Rotating the Game Board
-        if (m_mainTrigger == true && m_currentlySelectedHex == null && !(RightTrigger == true && LeftTrigger == true) && CurrentSize == SizeOptions.large)
-        {
-            m_currentlySelectedBuilding = null;
-            Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
-            Vector3 _forceVector = m_mainControllerPos - m_mainControllerPreviousPos;
-            if (_forceVector.magnitude > m_rotationSensitivity)
-            {
-                _gameEnvRigid.AddForceAtPosition(_forceVector * m_rotationMagnitude, m_mainControllerPreviousPos, ForceMode.Impulse);
-            }
-            else
-            {
-                _gameEnvRigid.angularVelocity = Vector3.Lerp(_gameEnvRigid.angularVelocity, Vector3.zero, 0.5f);
-            }
+        //m_mainControllerPos = MainController.transform.position;
+        ////Rotating the Game Board
+        //if (m_mainTrigger == true && m_currentlySelectedHex == null && !(RightTrigger == true && LeftTrigger == true) && CurrentSize == SizeOptions.large)
+        //{
+        //    m_currentlySelectedBuilding = null;
+        //    Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
+        //    Vector3 _forceVector = m_mainControllerPos - m_mainControllerPreviousPos;
+        //    if (_forceVector.magnitude > m_rotationSensitivity)
+        //    {
+        //        _gameEnvRigid.AddForceAtPosition(_forceVector * m_rotationMagnitude, m_mainControllerPreviousPos, ForceMode.Impulse);
+        //    }
+        //    else
+        //    {
+        //        _gameEnvRigid.angularVelocity = Vector3.Lerp(_gameEnvRigid.angularVelocity, Vector3.zero, 0.5f);
+        //    }
 
-        }
-        m_mainControllerPreviousPos = m_mainControllerPos;
+        //}
+        //m_mainControllerPreviousPos = m_mainControllerPos;
         #endregion
 
         #region Pointer Handling

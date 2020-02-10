@@ -54,6 +54,7 @@ public class BarracksBehaviour : MonoBehaviour
             if (_hit.collider.tag == "Environment")
             {
                 m_barracksUnitNode = _hit.collider.gameObject.GetComponent<NodeComponent>().node;
+                m_barracksUnitNode.navigability = navigabilityStates.playerUnit;
             }
         }
 

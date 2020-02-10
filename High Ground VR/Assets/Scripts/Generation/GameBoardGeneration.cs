@@ -170,8 +170,10 @@ public class GameBoardGeneration : MonoBehaviour
     private void placeGem()
     {
         Node _gemNode = Graph[ Mathf.RoundToInt(m_length / 2f), Mathf.RoundToInt(m_width / 2f)];
+        _gemNode.navigability = navigabilityStates.destructable;
         Vector3 _gemPosition = new Vector3(_gemNode.hex.transform.position.x, _gemNode.hex.transform.position.y + BuildingValidation.buildingHeightOffset, _gemNode.hex.transform.position.z);
-        GameManager.Instance.gameGem = Instantiate(m_gem,_gemPosition,Quaternion.identity,_gemNode.hex.transform);
+        Instantiate(m_gem, _gemPosition, Quaternion.identity, _gemNode.hex.transform);
+        GameManager.Instance.GameGemNode = _gemNode;
     }
 
     #endregion

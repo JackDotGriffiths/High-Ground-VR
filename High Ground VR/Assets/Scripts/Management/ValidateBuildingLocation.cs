@@ -137,10 +137,10 @@ public class ValidateBuildingLocation : MonoBehaviour
             _validLocation = false;
         }
 
-        //Checks for any nonNavigable adjecent nodes. This helps with ensuring spawns are spread out.
+        //Checks for any nonPlaceable adjecent nodes. This helps with ensuring spawns are spread out.
         foreach(Node _adjNode in _targetNode.adjecant)
         {
-            if(_adjNode.navigability == navigabilityStates.nonNavigable)
+            if(_adjNode.navigability == navigabilityStates.nonPlaceable)
             {
                 _validLocation = false;
             }
@@ -217,10 +217,10 @@ public class ValidateBuildingLocation : MonoBehaviour
     public void placeEnemySpawn(Node _targetNode)
     {
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = navigabilityStates.nonNavigable;
+        _targetNode.navigability = navigabilityStates.nonPlaceable;
         foreach(Node _adjNode in _targetNode.adjecant)
         {
-            _adjNode.navigability = navigabilityStates.nonNavigable;
+            _adjNode.navigability = navigabilityStates.nonPlaceable;
         }
         //Instantiate Relevant Prefab. Position + Scale Based on size of the environment.
         GameObject _spawn = Instantiate(m_enemySpawn, _targetNode.hex.transform);

@@ -84,8 +84,8 @@ public class Search
         }
 
         adjacent.previous = node;
-        
-        if(adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.destructable)
+
+        if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.nonPlaceable)
         {
             reachable.Add(adjacent);
         }
