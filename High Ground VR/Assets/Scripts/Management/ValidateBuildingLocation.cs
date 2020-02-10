@@ -127,14 +127,26 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <returns>True or false based on whether the targetNode can accept a enemySpawn.</returns>
     public bool verifyEnemySpawn(Node _targetNode)
     {
+        bool _validLocation = true;
         if (_targetNode.navigability == navigabilityStates.navigable)
         {
-            return true;
+            _validLocation = true;
         }
         else
         {
-            return false;
+            _validLocation = false;
         }
+
+        //Checks for any nonNavigable adjecent nodes. This helps with ensuring spawns are spread out.
+        foreach(Node _adjNode in _targetNode.adjecant)
+        {
+            if(_adjNode.navigability == navigabilityStates.nonNavigable)
+            {
+                _validLocation = false;
+            }
+        }
+
+        return _validLocation;
     }
     #endregion
 
@@ -205,8 +217,19 @@ public class ValidateBuildingLocation : MonoBehaviour
     public void placeEnemySpawn(Node _targetNode)
     {
         //Update Node navigability and surrounding nodes
-        //Instantiate Relevant Prefab
-        //Position + Scale Based on size of the environment.
+        _targetNode.navigability = navigabilityStates.nonNavigable;
+        foreach(Node _adjNode in _targetNode.adjecant)
+        {
+            _adjNode.navigability = navigabilityStates.nonNavigable;
+        }
+        //Instantiate Relevant Prefab. Position + Scale Based on size of the environment.
+        GameObject _spawn = Instantiate(m_enemySpawn, _targetNode.hex.transform);
+        float _yOffset = buildingHeightOffset;
+        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
+        {
+            _yOffset = buildingHeightOffset * InputManager.Instance.LargestScale.y + 20;
+        }
+        _spawn.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + _yOffset, _targetNode.hex.transform.position.z);
     }
     #endregion
 }

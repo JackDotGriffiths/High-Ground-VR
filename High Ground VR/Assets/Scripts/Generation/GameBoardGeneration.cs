@@ -10,7 +10,8 @@ public class GameBoardGeneration : MonoBehaviour
     private static GameBoardGeneration s_instance;
     [Header("Game Board Configuration")]
     [SerializeField,Tooltip("The Hex GameObject to Use")] private GameObject m_hexBlock;
-    [SerializeField, Tooltip("Distance between Hexes. Tested to be around 0.86")] private float m_hexGapSize = 0.86f;
+    [SerializeField, Tooltip("The Gem GameObject to Use")] private GameObject m_gem;
+    [SerializeField, Tooltip("Distance between Hexes. Tested to be around 0.86"),Space(5)] private float m_hexGapSize = 0.86f;
     [SerializeField, Space(10),Tooltip("Amount of hexes wide the terrain will be. Usual game board is 17x17"),Range(1,100)] private int m_width = 1;
     [SerializeField, Tooltip("Amount of hexes long the terrain will be. Usual game board is 17x17"), Range(1, 100)] private int m_length = 1;
 
@@ -78,6 +79,7 @@ public class GameBoardGeneration : MonoBehaviour
         generateRec(); //Generate a rectangle out of hexagons
         populateGraph(); //Populate the Node Graph
         centralizeGameBoard(); //Centralise the Game Board on the object's point by moving all of the children.
+        placeGem();
     }
 
     #region Game Board Generation
@@ -160,6 +162,16 @@ public class GameBoardGeneration : MonoBehaviour
         {
             _hex.transform.SetParent(m_parentObject.transform);
         }
+    }
+
+    /// <summary>
+    /// Places the Gem in the center of the board. If there is not a center it will pick a random node that's towards the center.
+    /// </summary>
+    private void placeGem()
+    {
+        Node _gemNode = Graph[ Mathf.RoundToInt(m_length / 2f), Mathf.RoundToInt(m_width / 2f)];
+        Vector3 _gemPosition = new Vector3(_gemNode.hex.transform.position.x, _gemNode.hex.transform.position.y + BuildingValidation.buildingHeightOffset, _gemNode.hex.transform.position.z);
+        GameManager.Instance.gameGem = Instantiate(m_gem,_gemPosition,Quaternion.identity,_gemNode.hex.transform);
     }
 
     #endregion
