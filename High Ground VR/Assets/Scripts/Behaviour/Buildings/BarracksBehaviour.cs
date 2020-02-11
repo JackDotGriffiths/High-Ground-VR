@@ -29,7 +29,7 @@ public class BarracksBehaviour : MonoBehaviour
         }
 
         
-        /// Finding the node on which the units should be placed.
+        // Finding the node on which the units should be placed.
         Vector3 _raycastPos;
         Vector3 _raycastDir;
 

@@ -7,11 +7,12 @@ public class EnemyGroupBehaviour : MonoBehaviour
     [SerializeField,Tooltip("Time between each tick of the enemy group.")] private float m_tickTimer = 3.0f;
     [SerializeField, Tooltip("Movement Speed Between Nodes")] private float m_movementSpeed = 0.4f;
 
-    public int m_currentX;
-    public int m_currentY;
-    public int m_goalX;
-    public int m_goalY;
+    public int currentX;
+    public int currentY;
+    public int goalX;
+    public int goalY;
 
+    private bool m_unitInstantiated;
     private float m_currentTimer;
     private List<Node> m_groupPath;
     private int m_currentStepIndex;
@@ -19,31 +20,52 @@ public class EnemyGroupBehaviour : MonoBehaviour
 
     void Start()
     {
-        m_currentTimer = m_tickTimer;
-        m_currentStepIndex = 0;
-        m_goalX = GameManager.Instance.GameGemNode.x;
-        m_goalY = GameManager.Instance.GameGemNode.y;
-        Invoke("RunPathfinding", 0.1f);
+        m_unitInstantiated = false;
+        Invoke("InstantiateUnit", 0.1f);
     }
+
 
 
     void Update()
     {
-        m_currentTimer -= Time.deltaTime * GameManager.Instance.GameSpeed;
-        if(m_currentTimer < 0)
+        if(m_unitInstantiated == true)
         {
-            m_currentStepIndex++;
-            if(m_currentStepIndex == m_groupPath.Count-1)
+            m_currentTimer -= Time.deltaTime * GameManager.Instance.GameSpeed;
+            if (m_currentTimer < 0)
             {
-                m_currentStepIndex = 0;
+                m_currentStepIndex++;
+                if (m_currentStepIndex == m_groupPath.Count - 1)
+                {
+                    m_currentStepIndex = 0;
+                }
+                m_targetPosition = new Vector3(m_groupPath[m_currentStepIndex].hex.transform.position.x, m_groupPath[m_currentStepIndex].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.buildingHeightOffset, m_groupPath[m_currentStepIndex].hex.transform.position.z);
+                currentX = m_groupPath[m_currentStepIndex].x;
+                currentY = m_groupPath[m_currentStepIndex].y;
+
+                Debug.Log("Tick");
+                m_currentTimer = m_tickTimer;
             }
-            m_targetPosition = new Vector3(m_groupPath[m_currentStepIndex].hex.transform.position.x, m_groupPath[m_currentStepIndex].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.buildingHeightOffset, m_groupPath[m_currentStepIndex].hex.transform.position.z);
-            Debug.Log("Tick");
-            m_currentTimer = m_tickTimer;
+            MoveEnemy();
+            if(m_groupPath[m_currentStepIndex].navigability == navigabilityStates.destructable)
+            {
+                m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;
+                Destroy(m_groupPath[m_currentStepIndex].hex.transform.GetChild(0).gameObject);
+                Destroy(this.gameObject);
+            }
         }
-        MoveEnemy();
     }
 
+
+    void InstantiateUnit()
+    {
+        m_groupPath = new List<Node>();
+        m_currentTimer = m_tickTimer;
+        m_currentStepIndex = 0;
+        goalX = GameManager.Instance.GameGemNode.x;
+        goalY = GameManager.Instance.GameGemNode.y;
+        RunPathfinding();
+        m_unitInstantiated = true;
+    }
 
     /// <summary>
     /// Run the A* pathfinding
@@ -53,7 +75,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
         m_groupPath = new List<Node>();
         var graph = GameBoardGeneration.Instance.Graph;
         var search = new Search(GameBoardGeneration.Instance.Graph);
-        search.Start(graph[m_currentX, m_currentY], graph[m_goalX, m_goalY]);
+        search.Start(graph[currentX, currentY], graph[goalX, goalY]);
         while (!search.finished)
         {
             search.Step();
@@ -90,6 +112,8 @@ public class EnemyGroupBehaviour : MonoBehaviour
         Vector3 _hopPosition = new Vector3(m_targetPosition.x, m_targetPosition.y + _yOffset, m_targetPosition.z);
         transform.position = Vector3.Lerp(transform.position, _hopPosition, m_movementSpeed);
     }
+
+    
 
 
 }

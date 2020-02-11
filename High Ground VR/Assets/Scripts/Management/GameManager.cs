@@ -11,7 +11,9 @@ public class GameManager : MonoBehaviour
     [SerializeField, Tooltip("How long in seconds the building phase should be")] private float m_buildingPhaseTime; //Length of time the player should be allowed to build.
 
     [Header("Enemy Spawn Management"),Space(10)]
-    [Tooltip("Amount of spawns the game rounds should start with")]public int m_enemyStartingSpawns;
+    [Tooltip("Amount of spawns the game rounds should start with")]public int m_enemyStartingSpawns = 1;
+    [Tooltip("Amount of enemies to spawn per phase")] public int m_enemyAmount;
+    public List<EnemySpawnBehaviour> enemySpawns;
     private List<Node> m_outerEdgeNodes; //Set to the nodes on the outer edge of the map, used when spawning enemies.
 
 
@@ -24,16 +26,17 @@ public class GameManager : MonoBehaviour
 
     [Header ("Debug Wall Displays"), Space(10)]
     [SerializeField] private TextMeshProUGUI m_goldValue; //Debug Wall Text object that temporarily displays money
-    [SerializeField] private TextMeshProUGUI m_timerLeft; //Debug Wall Text object that temporarily displays money
+    [SerializeField] private TextMeshProUGUI m_round; //Debug Wall Text object that temporarily displays round no.
+    [SerializeField] private TextMeshProUGUI m_timerLeft; //Debug Wall Text object that temporarily displays time
 
-    private int m_currentGold; //The current gold of the player.
+    public int currentGold; //The current gold of the player.
+    private int m_roundCounter;
     private float m_buildingPhaseTimer; //Track the current value of the countdown timer.
     private Node m_gameGemNode; // The Gem Gameobject, set by GameBoardGeneration.
 
     #region Accessors
     public static GameManager Instance { get => s_instance; set => s_instance = value; }
     public float GameSpeed { get => m_gameSpeed; set => m_gameSpeed = value; }
-    public int Money { get => m_currentGold;}
     public float TickInterval { get => m_tickInterval; set => m_tickInterval = value; }
     public Node GameGemNode { get => m_gameGemNode; set => m_gameGemNode = value; }
     #endregion
@@ -53,8 +56,9 @@ public class GameManager : MonoBehaviour
    
     void Start()
     {
-        m_currentGold = m_startingGold;
-        m_buildingPhaseTimer = m_buildingPhaseTime;
+        m_roundCounter = 1;
+        currentGold = m_startingGold;
+        m_buildingPhaseTimer = 20;
 
         //Invoke on a delay so GameBoard Graph has been created.
         Invoke("instantiateSpawns",0.1f);
@@ -65,11 +69,12 @@ public class GameManager : MonoBehaviour
         m_buildingPhaseTimer -= Time.deltaTime * m_gameSpeed;
         if (m_buildingPhaseTimer <= 0.0f)
         {
-            Debug.Log("Phase Over");
+            Debug.Log("Spawning Enemies");
+            spawnEnemies();
             m_buildingPhaseTimer = m_buildingPhaseTime;
         }
         //Updating Debug Displays
-        m_goldValue.text = m_currentGold.ToString();
+        m_goldValue.text = currentGold.ToString();
         m_timerLeft.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString() + "s";
 
 
@@ -82,7 +87,20 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void IncrementGold()
     {
-        m_currentGold += m_goldPerTick;
+        currentGold += m_goldPerTick;
+    }
+
+    public bool spendGold(int _cost)
+    {
+        if(_cost< currentGold)
+        {
+            currentGold -= _cost;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     #endregion
 
@@ -134,6 +152,23 @@ public class GameManager : MonoBehaviour
                 i--; 
             }
         }
+    }
+
+    /// <summary>
+    /// Ran at the end of the timer to spawn enemies.
+    /// </summary>
+    void spawnEnemies()
+    {
+        //Increase the count of enemies based on Enemy Counter;
+        m_enemyAmount = m_roundCounter;
+        m_round.text = "Round " + m_roundCounter;
+
+        //For each enemy to spawn, randomly choose a spawn and run spawnEnemy
+        for (int i = 0; i < m_enemyAmount; i++)
+        {
+            enemySpawns[Random.Range(0, enemySpawns.Count - 1)].spawnEnemy();
+        }
+        m_roundCounter++;
     }
 
     #endregion
