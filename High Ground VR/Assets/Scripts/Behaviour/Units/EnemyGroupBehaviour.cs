@@ -6,6 +6,8 @@ public class EnemyGroupBehaviour : MonoBehaviour
 {
     [SerializeField,Tooltip("Time between each tick of the enemy group.")] private float m_tickTimer = 3.0f;
     [SerializeField, Tooltip("Movement Speed Between Nodes")] private float m_movementSpeed = 0.4f;
+    [Range(0f,1f)]public float timePerception = 1.0f; //Timeperception is a value that is changed to impact either slowness or speedyness on a player or enemy unit.
+
 
     public int currentX;
     public int currentY;
@@ -30,7 +32,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
     {
         if(m_unitInstantiated == true)
         {
-            m_currentTimer -= Time.deltaTime * GameManager.Instance.GameSpeed;
+            m_currentTimer -= Time.deltaTime * GameManager.Instance.GameSpeed * timePerception;
             if (m_currentTimer < 0)
             {
                 m_currentStepIndex++;
@@ -64,6 +66,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
         goalX = GameManager.Instance.GameGemNode.x;
         goalY = GameManager.Instance.GameGemNode.y;
         RunPathfinding();
+        m_targetPosition = new Vector3(m_groupPath[0].hex.transform.position.x, m_groupPath[0].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.buildingHeightOffset, m_groupPath[0].hex.transform.position.z);
         m_unitInstantiated = true;
     }
 
@@ -110,7 +113,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
             _yOffset = Mathf.Sin(_percentage);
         }
         Vector3 _hopPosition = new Vector3(m_targetPosition.x, m_targetPosition.y + _yOffset, m_targetPosition.z);
-        transform.position = Vector3.Lerp(transform.position, _hopPosition, m_movementSpeed);
+        transform.position = Vector3.Lerp(transform.position, _hopPosition, m_movementSpeed * timePerception);
     }
 
     

@@ -71,6 +71,10 @@
     {
       "controller_type": "vive_tracker_camera",
       "binding_url": "binding_vive_tracker_camera.json"
+    },
+    {
+      "controller_type": "vive_tracker_handed",
+      "binding_url": "application_generated_unity_highground_exe_binding_vive_tracker_handed.json"
     }
   ],
   "localization": [

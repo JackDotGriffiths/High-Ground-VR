@@ -58,7 +58,7 @@ public class GameManager : MonoBehaviour
     {
         m_roundCounter = 1;
         currentGold = m_startingGold;
-        m_buildingPhaseTimer = 20;
+        m_buildingPhaseTimer = 4;
 
         //Invoke on a delay so GameBoard Graph has been created.
         Invoke("instantiateSpawns",0.1f);

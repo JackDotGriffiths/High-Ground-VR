@@ -9,7 +9,6 @@ public class Unit
     public int health;
     public int damage;
     public float intelligence;
-    public float timePerception = 1.0f; //Timeperception is a value that is changed to impact either slowness or speedyness on a player or enemy unit.
     public GameObject helmet;
     public GameObject weapon;
 
