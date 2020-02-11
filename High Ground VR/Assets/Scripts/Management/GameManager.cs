@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Enemy Spawn Management"),Space(10)]
     [Tooltip("Amount of spawns the game rounds should start with")]public int m_enemyStartingSpawns = 1;
-    [Tooltip("Amount of enemies to spawn per phase")] public int m_enemyAmount;
+    [Tooltip("Amount of enemies to spawn at the start")] public int m_enemyAmount;
     public List<EnemySpawnBehaviour> enemySpawns;
     private List<Node> m_outerEdgeNodes; //Set to the nodes on the outer edge of the map, used when spawning enemies.
 
@@ -92,7 +92,7 @@ public class GameManager : MonoBehaviour
 
     public bool spendGold(int _cost)
     {
-        if(_cost< currentGold)
+        if(_cost <= currentGold)
         {
             currentGold -= _cost;
             return true;
@@ -159,8 +159,9 @@ public class GameManager : MonoBehaviour
     /// </summary>
     void spawnEnemies()
     {
+        currentGold += 30;
         //Increase the count of enemies based on Enemy Counter;
-        m_enemyAmount = m_roundCounter;
+        m_enemyAmount += Mathf.RoundToInt(m_roundCounter/2);
         m_round.text = "Round " + m_roundCounter;
 
         //For each enemy to spawn, randomly choose a spawn and run spawnEnemy
