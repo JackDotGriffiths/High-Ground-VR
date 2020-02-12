@@ -7,28 +7,26 @@ public class EnemySpawnBehaviour : MonoBehaviour
     [SerializeField, Tooltip("Prefab for the enemy unit")] private GameObject m_enemyUnit;
 
     public Node thisNode; //The current Node.
-    public void spawnEnemy()
+    public bool spawnEnemy()
     {
         Vector3 _spawnPosition = Vector3.zero;
         //Choose a random hex around the edge of the map.
-        bool _validHex = false;
+        int _index = 0;
         Node _spawnNode = null;
         do
         {
-            _spawnNode = thisNode.adjecant[Random.Range(0, thisNode.adjecant.Count - 1)];
-            if(_spawnNode.navigability == navigabilityStates.nonPlaceable)
+            _spawnNode = thisNode.adjecant[Random.Range(0, thisNode.adjecant.Count)];
+            if(_spawnNode.navigability == navigabilityStates.nonPlaceable || _spawnNode.navigability == navigabilityStates.navigable)
             {
-                _validHex = true;
-                float _yOffset = GameBoardGeneration.Instance.BuildingValidation.buildingHeightOffset;
-
-                if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
-                {
-                    _yOffset = GameBoardGeneration.Instance.BuildingValidation.buildingHeightOffset * InputManager.Instance.LargestScale.y + 20;
-                }
-
-                _spawnPosition = new Vector3(_spawnNode.hex.transform.position.x, _spawnNode.hex.transform.position.y + _yOffset, _spawnNode.hex.transform.position.z);
+                _spawnPosition = new Vector3(_spawnNode.hex.transform.position.x, _spawnNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _spawnNode.hex.transform.position.z);
             }
-        } while (_validHex == false);
+            _index++;
+        } while (_index < 6);
+
+        if(_index == 5)
+        {
+            return false; //Failed to spawn enemy, try again.
+        }
 
         GameObject _enemy = Instantiate(m_enemyUnit, _spawnPosition,Quaternion.identity);
         _enemy.GetComponent<EnemyGroupBehaviour>().currentX = _spawnNode.x;
@@ -36,8 +34,7 @@ public class EnemySpawnBehaviour : MonoBehaviour
         _enemy.GetComponent<EnemyGroupBehaviour>().goalX = GameManager.Instance.GameGemNode.x;
         _enemy.GetComponent<EnemyGroupBehaviour>().goalY = GameManager.Instance.GameGemNode.y;
 
-
-
+        return true; //Succeeded spawning an enemy, continuing spawning.
 
 
     }

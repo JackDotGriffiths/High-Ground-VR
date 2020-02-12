@@ -79,7 +79,6 @@ public class GameBoardGeneration : MonoBehaviour
         generateRec(); //Generate a rectangle out of hexagons
         populateGraph(); //Populate the Node Graph
         centralizeGameBoard(); //Centralise the Game Board on the object's point by moving all of the children.
-        placeGem();
     }
 
     #region Game Board Generation
@@ -167,11 +166,11 @@ public class GameBoardGeneration : MonoBehaviour
     /// <summary>
     /// Places the Gem in the center of the board. If there is not a center it will pick a random node that's towards the center.
     /// </summary>
-    private void placeGem()
+    public void placeGem()
     {
         Node _gemNode = Graph[ Mathf.RoundToInt(m_length / 2f), Mathf.RoundToInt(m_width / 2f)];
         _gemNode.navigability = navigabilityStates.destructable;
-        Vector3 _gemPosition = new Vector3(_gemNode.hex.transform.position.x, _gemNode.hex.transform.position.y + BuildingValidation.buildingHeightOffset, _gemNode.hex.transform.position.z);
+        Vector3 _gemPosition = new Vector3(_gemNode.hex.transform.position.x, _gemNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _gemNode.hex.transform.position.z);
         Instantiate(m_gem, _gemPosition, Quaternion.identity, _gemNode.hex.transform);
         GameManager.Instance.GameGemNode = _gemNode;
     }

@@ -85,7 +85,7 @@ public class Search
 
         adjacent.previous = node;
 
-        if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.nonPlaceable || adjacent.navigability == navigabilityStates.destructable)
+        if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.enemyUnit || adjacent.navigability == navigabilityStates.nonPlaceable || adjacent.navigability == navigabilityStates.destructable)
         {
             reachable.Add(adjacent);
         }
@@ -135,7 +135,7 @@ public class Search
         //Find the smallest distance from the goal node.
         for (int i = 0; i < reachable.Count-1; i++)
         {
-            explored.Add(reachable[i]);
+            //explored.Add(reachable[i]);
             Vector3 _nodePos = reachable[i].hex.transform.position;
             if (Vector3.Distance(_nodePos, _goalNodePos) < _minDistance)
             {

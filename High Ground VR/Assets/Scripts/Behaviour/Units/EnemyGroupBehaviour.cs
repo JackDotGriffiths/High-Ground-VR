@@ -6,7 +6,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
 {
     [SerializeField,Tooltip("Time between each tick of the enemy group.")] private float m_tickTimer = 3.0f;
     [SerializeField, Tooltip("Movement Speed Between Nodes")] private float m_movementSpeed = 0.4f;
-    [Range(0f,1f)]public float timePerception = 1.0f; //Timeperception is a value that is changed to impact either slowness or speedyness on a player or enemy unit.
+    [Range(0.2f,1.8f),Tooltip("multiplier on the timer. This can be used to speed up/slow down the enemy.")]public float timePerception = 1.0f; //Timeperception is a value that is changed to impact either slowness or speedyness on a player or enemy unit.
 
 
     public int currentX;
@@ -14,15 +14,19 @@ public class EnemyGroupBehaviour : MonoBehaviour
     public int goalX;
     public int goalY;
 
-    private bool m_unitInstantiated;
-    private float m_currentTimer;
-    private List<Node> m_groupPath;
-    private int m_currentStepIndex;
-    private Vector3 m_targetPosition;
+    private bool m_unitInstantiated; // Tracks whether the unit has been created and all values appropriately declared.
+    private bool m_reachedGoal;
+    private bool m_validMove; //Tracks whether the unit should be moving to the next node or staying still.
+    private float m_currentTimer; //Value of the timer on the enemy.
+    private List<Node> m_groupPath; //List of Nodes that lead to the groups goal.
+    private int m_currentStepIndex; //Index of the node within the current path.
+    private Vector3 m_targetPosition; //Position the node should be moving to.
 
     void Start()
     {
         m_unitInstantiated = false;
+        m_validMove = false;
+        //Delay allows for player to see the enemy before it starts moving.
         Invoke("InstantiateUnit", 0.1f);
     }
 
@@ -30,43 +34,87 @@ public class EnemyGroupBehaviour : MonoBehaviour
 
     void Update()
     {
-        if(m_unitInstantiated == true)
+        if (m_unitInstantiated == true)
         {
+            //Run on a tick, timePerception allows the speeding up/slowing down of certain units.
             m_currentTimer -= Time.deltaTime * GameManager.Instance.GameSpeed * timePerception;
-            if (m_currentTimer < 0)
+            if (m_currentTimer < 0.0f)
             {
-                m_currentStepIndex++;
-                if (m_currentStepIndex == m_groupPath.Count - 1)
+                if(m_groupPath.Count == 0)
                 {
-                    m_currentStepIndex = 0;
+                    RunPathfinding();
+                    return;
                 }
-                m_targetPosition = new Vector3(m_groupPath[m_currentStepIndex].hex.transform.position.x, m_groupPath[m_currentStepIndex].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.buildingHeightOffset, m_groupPath[m_currentStepIndex].hex.transform.position.z);
-                currentX = m_groupPath[m_currentStepIndex].x;
-                currentY = m_groupPath[m_currentStepIndex].y;
 
-                Debug.Log("Tick");
+                //If the next node is the gem, enter into combat with the gem.
+                if (m_groupPath[m_currentStepIndex + 1] == GameManager.Instance.GameGemNode)
+                {
+                    //Unit is in an adjecent node to the gem, initiate combat
+                    m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;
+                    Debug.Log("AT GEM");
+                    Destroy(this.gameObject);
+                }
+
+                //Reset the timer
                 m_currentTimer = m_tickTimer;
+                //Reevaluate Pathfinding, as a more efficient route may now be available.
+                //RunPathfinding();
+
+                //If the next node is navigable, move the node forward
+                if (m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.navigable || m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.nonPlaceable || m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.destructable)
+                {
+                    m_validMove = true;
+                    //Update previous and new node with the correct navigabilityStates
+                    m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;
+                    m_groupPath[m_currentStepIndex + 1].navigability = navigabilityStates.enemyUnit;
+                    m_currentStepIndex++;
+                    //Sets the parent so scaling works correclty.
+                    this.transform.SetParent(m_groupPath[m_currentStepIndex].hex.transform);
+                    m_groupPath[m_currentStepIndex].navigability = navigabilityStates.enemyUnit;
+                    //Set the new target Position
+                    m_targetPosition = new Vector3(m_groupPath[m_currentStepIndex].hex.transform.position.x, m_groupPath[m_currentStepIndex].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[m_currentStepIndex].hex.transform.position.z);
+                    currentX = m_groupPath[m_currentStepIndex].x;
+                    currentY = m_groupPath[m_currentStepIndex].y;
+                }
+                else
+                {
+                    Debug.Log(this + " enemy stuck.");
+                    m_validMove = false;
+                    return;
+                }
             }
-            MoveEnemy();
-            if(m_groupPath[m_currentStepIndex].navigability == navigabilityStates.destructable)
+
+            if(m_validMove == true)
             {
-                m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;
-                Destroy(m_groupPath[m_currentStepIndex].hex.transform.GetChild(0).gameObject);
-                Destroy(this.gameObject);
+                MoveEnemy();
             }
+
+
+            ////TEMPORARY - If the unit encounters a destructable object, destroy it. This is only for demo purposes.
+            //if(m_groupPath[m_currentStepIndex].navigability == navigabilityStates.destructable)
+            //{
+            //    //m_groupPath[m_currentStepIndex-1].navigability = navigabilityStates.navigable;
+            //    m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;
+            //    Destroy(m_groupPath[m_currentStepIndex].hex.transform.GetChild(0).gameObject);
+            //    Destroy(this.gameObject);
+            //}
+
         }
     }
 
-
+    /// <summary>
+    /// Creates the unitGroup and starts moving. Creates a bit of a delay so that players have a bit of time to notice the enemy spawning.
+    /// </summary>
     void InstantiateUnit()
     {
         m_groupPath = new List<Node>();
         m_currentTimer = m_tickTimer;
         m_currentStepIndex = 0;
+        GameBoardGeneration.Instance.Graph[currentX,currentY].navigability = navigabilityStates.enemyUnit;
         goalX = GameManager.Instance.GameGemNode.x;
         goalY = GameManager.Instance.GameGemNode.y;
         RunPathfinding();
-        m_targetPosition = new Vector3(m_groupPath[0].hex.transform.position.x, m_groupPath[0].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.buildingHeightOffset, m_groupPath[0].hex.transform.position.z);
+        m_targetPosition = new Vector3(m_groupPath[0].hex.transform.position.x, m_groupPath[0].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[0].hex.transform.position.z);
         m_unitInstantiated = true;
     }
 
@@ -75,7 +123,12 @@ public class EnemyGroupBehaviour : MonoBehaviour
     /// </summary>
     void RunPathfinding()
     {
+        if (currentX == goalX && currentY == goalY)
+        {
+            return;
+        }
         m_groupPath = new List<Node>();
+        m_currentStepIndex = 0;
         var graph = GameBoardGeneration.Instance.Graph;
         var search = new Search(GameBoardGeneration.Instance.Graph);
         search.Start(graph[currentX, currentY], graph[goalX, goalY]);
@@ -107,16 +160,36 @@ public class EnemyGroupBehaviour : MonoBehaviour
         float _yOffset = 0;
         if(m_currentStepIndex != 0)
         {
+            //Move the enemy along it's path. Calculate distance from the goal as a percentage.
             float _maxDistance = Vector3.Distance(m_groupPath[m_currentStepIndex - 1].hex.transform.position, m_targetPosition);
             float _currentDistance = Vector3.Distance(transform.position, m_targetPosition);
             float _percentage = _currentDistance / _maxDistance;
+            //Sin of the percentage creates a 'hop' like movement.
             _yOffset = Mathf.Sin(_percentage);
         }
         Vector3 _hopPosition = new Vector3(m_targetPosition.x, m_targetPosition.y + _yOffset, m_targetPosition.z);
         transform.position = Vector3.Lerp(transform.position, _hopPosition, m_movementSpeed * timePerception);
     }
 
-    
+    /// <summary>
+    /// Returns true if the node is found within the passed in list. Used to see if the unit is adjecent to the gem.
+    /// </summary>
+    /// <param name="node">Search Node</param>
+    /// <param name="list">List to Search through</param>
+    /// <returns></returns>
+    public bool FindNode(Node node, List<Node> list)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (node == list[i])
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 
 
 }

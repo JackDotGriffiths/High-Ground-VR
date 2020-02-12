@@ -55,6 +55,7 @@ public class InputManager : MonoBehaviour
     private LineRenderer m_mainPointer; //The Line Renderer used for pointing 
     private ValidateBuildingLocation m_buildingValidation; //The ValidateBuildingLocation script, which checks the position of a building before it's placed.
     private List<MeshRenderer> m_objectMeshes = new List<MeshRenderer>(); //List of all of the meshrenderers of the hexagons in the environment.
+    private SizeOptions m_currentSize;
 
 
     #region Accessors
@@ -68,7 +69,7 @@ public class InputManager : MonoBehaviour
     public GameObject OffHandController { get; set; } //GameObject of the offhand controller
     public GameObject MainController { get; set; } //GameObject of the mainHand controller
     public Vector3 LargestScale { get => m_largestScale; set => m_largestScale = value; }
-    public SizeOptions CurrentSize { get; set; }
+    public SizeOptions CurrentSize { get => m_currentSize; set => m_currentSize = value; }
     #endregion
 
     void Start()
@@ -263,23 +264,27 @@ public class InputManager : MonoBehaviour
         //Teleport onto the game board
         if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelectedHex != null && m_enlargePlayer == false)
         {
-            //Debug.Log("Teleported");
-            m_teleporterPrimed = false;
-            //Scale the game environment
-            m_gameEnvironment.transform.localScale = m_largestScale;
-            if (m_gameEnvironment.transform.position.y != -m_largestScale.y)
+            //If the node is able to be teleported onto, teleport the player.
+            if(m_currentlySelectedHex.GetComponent<NodeComponent>().node.navigability == navigabilityStates.navigable)
             {
-                m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, -m_largestScale.y - 20, m_gameEnvironment.transform.position.z);
+                //Debug.Log("Teleported");
+                m_teleporterPrimed = false;
+                //Scale the game environment
+                m_gameEnvironment.transform.localScale = m_largestScale;
+                if (m_gameEnvironment.transform.position.y != -m_largestScale.y)
+                {
+                    m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, -m_largestScale.y - 20, m_gameEnvironment.transform.position.z);
+                }
+                m_newPosition = new Vector3(m_currentlySelectedHex.transform.position.x, 0, m_currentlySelectedHex.transform.position.z);
+
+
+                //Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
+                //_gameEnvRigid.angularVelocity = Vector3.zero;
+                //_gameEnvRigid.velocity = Vector3.zero;
+                m_currentSize = SizeOptions.small;
+                m_mainPointer.startWidth = 0.03f;
+                m_mainPointer.endWidth = 0.00f;
             }
-            m_newPosition = new Vector3(m_currentlySelectedHex.transform.position.x, 0 , m_currentlySelectedHex.transform.position.z);
-
-
-            Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
-            _gameEnvRigid.angularVelocity = Vector3.zero;
-            _gameEnvRigid.velocity = Vector3.zero;
-            CurrentSize = SizeOptions.small;
-            m_mainPointer.startWidth = 0.03f;
-            m_mainPointer.endWidth = 0.00f;
         }
 
         //Teleport off the game board.
@@ -293,7 +298,7 @@ public class InputManager : MonoBehaviour
             m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 0);
 
 
-            CurrentSize = SizeOptions.large;
+            m_currentSize = SizeOptions.large;
             m_mainPointer.startWidth = 0.05f;
             m_mainPointer.endWidth = 0.00f;
         }

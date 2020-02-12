@@ -3,13 +3,30 @@ using System.Collections.Generic;
 using UnityEngine;
 public class ValidateBuildingLocation : MonoBehaviour
 {
-    [Tooltip ("Y Distance from the floor on which buildings should spawn")]public float buildingHeightOffset; //Y Distance from the floor to spawn the buildings.
+    [SerializeField, Tooltip ("Y Distance from the floor on which buildings should spawn")]private float buildingHeightOffset; //Y Distance from the floor to spawn the buildings.
 
     //Building prefabs
     [SerializeField, Space(10),Tooltip("Barracks prefab to spawn")] private GameObject m_barracks;
     [SerializeField, Space(1), Tooltip("Mine prefab to spawn")] private GameObject m_mine;
     [SerializeField, Space(1), Tooltip("Wall prefab to spawn")] private GameObject m_walls;
     [SerializeField, Space(1), Tooltip("Enemy Spawn prefab to spawn")] private GameObject m_enemySpawn;
+
+    private float m_currentHeightOffset;
+
+    public float CurrentHeightOffset { get => m_currentHeightOffset; set => m_currentHeightOffset = value; }
+
+    void Update()
+    {
+        //Ensures all buildings and units are placed at a correct height whether the player is large or small.
+        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
+        {
+            m_currentHeightOffset = buildingHeightOffset * (2*InputManager.Instance.LargestScale.y);
+        }
+        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
+        {
+            m_currentHeightOffset = buildingHeightOffset;
+        }
+    }
 
 
     /// <summary>
@@ -91,11 +108,11 @@ public class ValidateBuildingLocation : MonoBehaviour
         //Based on the size of the player (Small or large), change the position of which the raycast comes from.
         if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
         {
-            _raycastPos = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + 2f, _targetNode.hex.transform.position.z);
+            _raycastPos = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset+2f, _targetNode.hex.transform.position.z);
         }
         else
         {
-            _raycastPos = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + 2*(InputManager.Instance.LargestScale.y + 20), _targetNode.hex.transform.position.z);
+            _raycastPos = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset + 2 * (m_currentHeightOffset), _targetNode.hex.transform.position.z);
         }
 
         //If the raycast hits a node, the location is valid, otherwise it isn't
@@ -210,12 +227,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         _targetNode.navigability = navigabilityStates.destructable;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         GameObject _building = Instantiate(m_barracks, _targetNode.hex.transform);
-        float _yOffset = buildingHeightOffset;
-        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
-        {
-            _yOffset = buildingHeightOffset * InputManager.Instance.LargestScale.y + 20;
-        }
-        _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + _yOffset, _targetNode.hex.transform.position.z);
+        _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
     }
 
 
@@ -234,12 +246,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         _targetNode.navigability = navigabilityStates.destructable;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         GameObject _building = Instantiate(m_mine, _targetNode.hex.transform);
-        float _yOffset = buildingHeightOffset;
-        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
-        {
-            _yOffset = buildingHeightOffset * InputManager.Instance.LargestScale.y + 20;
-        }
-        _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + _yOffset, _targetNode.hex.transform.position.z);
+        _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
     }
 
     /// <summary>
@@ -257,12 +264,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         _targetNode.navigability = navigabilityStates.destructable;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         GameObject _building = Instantiate(m_walls, _targetNode.hex.transform);
-        float _yOffset = buildingHeightOffset;
-        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
-        {
-            _yOffset = buildingHeightOffset * InputManager.Instance.LargestScale.y + 20;
-        }
-        _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + _yOffset, _targetNode.hex.transform.position.z);
+        _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
     }
 
     /// <summary>
@@ -272,19 +274,14 @@ public class ValidateBuildingLocation : MonoBehaviour
     public void placeEnemySpawn(Node _targetNode)
     {
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = navigabilityStates.nonPlaceable;
-        foreach (Node _adjNode in _targetNode.adjecant)
-        {
-            _adjNode.navigability = navigabilityStates.nonPlaceable;
-        }
+        _targetNode.navigability = navigabilityStates.destructable;
+        //foreach (Node _adjNode in _targetNode.adjecant)
+        //{
+        //    _adjNode.navigability = navigabilityStates.nonPlaceable;
+        //}
         //Instantiate Relevant Prefab. Position + Scale Based on size of the environment.
         GameObject _spawn = Instantiate(m_enemySpawn, _targetNode.hex.transform);
-        float _yOffset = buildingHeightOffset;
-        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
-        {
-            _yOffset = buildingHeightOffset * InputManager.Instance.LargestScale.y + 20;
-        }
-        _spawn.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + _yOffset, _targetNode.hex.transform.position.z);
+        _spawn.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
         _spawn.GetComponent<EnemySpawnBehaviour>().thisNode = _targetNode;
         GameManager.Instance.enemySpawns.Add(_spawn.GetComponent<EnemySpawnBehaviour>());
     }

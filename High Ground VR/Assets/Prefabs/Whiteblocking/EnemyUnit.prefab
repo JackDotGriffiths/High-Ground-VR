@@ -107,8 +107,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b91c9ed759325d4bb8676574f23bf87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_tickTimer: 3.5
+  m_tickTimer: 1
   m_movementSpeed: 0.09
+  timePerception: 1
   currentX: 0
   currentY: 0
   goalX: 0

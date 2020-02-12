@@ -69,7 +69,7 @@ public class BarracksBehaviour : MonoBehaviour
         m_currentUnits = m_units.Count;
         if(m_currentUnits != m_unitCount)
         {
-            Vector3 _unitSpawnPos = new Vector3(m_barracksUnitNode.hex.transform.position.x, m_barracksUnitNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.buildingHeightOffset, m_barracksUnitNode.hex.transform.position.z);
+            Vector3 _unitSpawnPos = new Vector3(m_barracksUnitNode.hex.transform.position.x, m_barracksUnitNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_barracksUnitNode.hex.transform.position.z);
             GameObject _newUnit = Instantiate(m_unitPrefab, _unitSpawnPos, transform.rotation, m_barracksUnitNode.hex.transform);
             m_barracksUnitNode.navigability = navigabilityStates.playerUnit;
             m_unitPrefab.GetComponent<UnitComponent>().playerUnitConstructor();
@@ -85,12 +85,7 @@ public class BarracksBehaviour : MonoBehaviour
     void EvaluateUnitPositions()
     {
         //Based on size of the environment, the position on which the units should be moved to has a different Y value.
-        float _multiplier = 1;
-        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
-        {
-            _multiplier = InputManager.Instance.LargestScale.y + 20;
-        }
-        Vector3 _hexPosition = new Vector3(m_barracksUnitNode.hex.transform.position.x, m_barracksUnitNode.hex.transform.position.y + m_buildingValidation.buildingHeightOffset * _multiplier, m_barracksUnitNode.hex.transform.position.z);
+        Vector3 _hexPosition = new Vector3(m_barracksUnitNode.hex.transform.position.x, m_barracksUnitNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_barracksUnitNode.hex.transform.position.z);
 
 
         //Divide the hex into angles, based on the amount of units associated with this barracks.
@@ -100,6 +95,13 @@ public class BarracksBehaviour : MonoBehaviour
         {
             //Place the unit at a certain position along that angle, dividing the units into equal sectors of the hexagon.
             Quaternion _angle = Quaternion.Euler(0, _angleDifference * (_index+1), 0);
+
+            float _multiplier = 1;
+            if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
+            {
+                _multiplier = InputManager.Instance.LargestScale.y + 20;
+            }
+
             Vector3 _unitPostion = _hexPosition + (_angle * (Vector3.forward * 0.4f) * _multiplier);
             _gameObj.transform.position = _unitPostion;
             _index++;

@@ -61,7 +61,8 @@ public class GameManager : MonoBehaviour
         m_buildingPhaseTimer = 4;
 
         //Invoke on a delay so GameBoard Graph has been created.
-        Invoke("instantiateSpawns",0.1f);
+        Invoke("instantiateSpawns", 0.05f);
+        Invoke("instantiateGem", 0.05f);
     }
 
     void Update()
@@ -69,8 +70,9 @@ public class GameManager : MonoBehaviour
         m_buildingPhaseTimer -= Time.deltaTime * m_gameSpeed;
         if (m_buildingPhaseTimer <= 0.0f)
         {
+            //StartAttackPhase();
             Debug.Log("Spawning Enemies");
-            spawnEnemies();
+            StartCoroutine("spawnEnemies");
             m_buildingPhaseTimer = m_buildingPhaseTime;
         }
         //Updating Debug Displays
@@ -80,8 +82,33 @@ public class GameManager : MonoBehaviour
 
     }
 
+    #region PhaseControl
+    void StartBuildingPhase()
+    {
+        //Set all adjecent nodes to the spawns to nonPlaceable, so the player cannot build around them.
+        foreach (EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
+        {
+            List<Node> _adjNodes = _spawn.gameObject.GetComponentInParent<NodeComponent>().node.adjecant;
+            foreach (Node _node in _adjNodes)
+            {
+                _node.navigability = navigabilityStates.nonPlaceable;
+            }
+        }
+    }
+    void StartAttackPhase()
+    {
+        
+    }
+    #endregion
 
-    #region Money
+    #region Gem Control
+    private void instantiateGem()
+    {
+        GameBoardGeneration.Instance.placeGem();
+    }
+    #endregion
+
+    #region Money Control
     /// <summary>
     /// Increment the current gold by the amount per tick, all assigned in Game Manager.
     /// </summary>
@@ -90,6 +117,11 @@ public class GameManager : MonoBehaviour
         currentGold += m_goldPerTick;
     }
 
+    /// <summary>
+    /// Takes money away from the players balance
+    /// </summary>
+    /// <param name="_cost">Cost of the proposed purchase.</param>
+    /// <returns>True/False depending on whether the transaction went through</returns>
     public bool spendGold(int _cost)
     {
         if(_cost <= currentGold)
@@ -104,7 +136,7 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
-    #region Enemy Spawning
+    #region Enemy Spawning Control
 
     /// <summary>
     /// Instantiates the game starting spawns around the edge of the board.
@@ -157,7 +189,7 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// Ran at the end of the timer to spawn enemies.
     /// </summary>
-    void spawnEnemies()
+    IEnumerator spawnEnemies()
     {
         currentGold += 30;
         //Increase the count of enemies based on Enemy Counter;
@@ -167,7 +199,8 @@ public class GameManager : MonoBehaviour
         //For each enemy to spawn, randomly choose a spawn and run spawnEnemy
         for (int i = 0; i < m_enemyAmount; i++)
         {
-            enemySpawns[Random.Range(0, enemySpawns.Count - 1)].spawnEnemy();
+            if (!enemySpawns[Random.Range(0, enemySpawns.Count)].spawnEnemy()) { i--; }; //If it fails to spawn an enemy, try again.
+            yield return new WaitForSeconds(1.0f);
         }
         m_roundCounter++;
     }
