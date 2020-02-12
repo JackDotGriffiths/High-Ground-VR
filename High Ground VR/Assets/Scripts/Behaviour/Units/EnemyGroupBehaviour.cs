@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class EnemyGroupBehaviour : MonoBehaviour
 {
+
+    [SerializeField, Tooltip("Unit Prefab")] private GameObject m_unitPrefab;
+    [SerializeField, Tooltip("Enemy Group Size in number of units")] private int m_groupSize;
     [SerializeField,Tooltip("Time between each tick of the enemy group.")] private float m_tickTimer = 3.0f;
     [SerializeField, Tooltip("Movement Speed Between Nodes")] private float m_movementSpeed = 0.4f;
     [Range(0.2f,1.8f),Tooltip("multiplier on the timer. This can be used to speed up/slow down the enemy.")]public float timePerception = 1.0f; //Timeperception is a value that is changed to impact either slowness or speedyness on a player or enemy unit.
@@ -22,6 +25,10 @@ public class EnemyGroupBehaviour : MonoBehaviour
     private int m_currentStepIndex; //Index of the node within the current path.
     private Vector3 m_targetPosition; //Position the node should be moving to.
 
+
+    private List<GameObject> m_units;
+    private int m_currentUnits;
+
     void Start()
     {
         m_unitInstantiated = false;
@@ -29,8 +36,6 @@ public class EnemyGroupBehaviour : MonoBehaviour
         //Delay allows for player to see the enemy before it starts moving.
         Invoke("InstantiateUnit", 0.1f);
     }
-
-
 
     void Update()
     {
@@ -107,7 +112,6 @@ public class EnemyGroupBehaviour : MonoBehaviour
     /// </summary>
     void InstantiateUnit()
     {
-        m_groupPath = new List<Node>();
         m_currentTimer = m_tickTimer;
         m_currentStepIndex = 0;
         GameBoardGeneration.Instance.Graph[currentX,currentY].navigability = navigabilityStates.enemyUnit;
@@ -116,6 +120,37 @@ public class EnemyGroupBehaviour : MonoBehaviour
         RunPathfinding();
         m_targetPosition = new Vector3(m_groupPath[0].hex.transform.position.x, m_groupPath[0].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[0].hex.transform.position.z);
         m_unitInstantiated = true;
+
+        //Spawn the unit prefab
+        m_currentUnits = m_groupSize;
+        m_units = new List<GameObject>();
+        Node _spawnNode = GameBoardGeneration.Instance.Graph[currentX, currentY];
+        for (int i = 0; i < m_groupSize; i++)
+        {
+            Vector3 _unitSpawnPos = new Vector3(_spawnNode.hex.transform.position.x, _spawnNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _spawnNode.hex.transform.position.z);
+            GameObject _newUnit = Instantiate(m_unitPrefab, _unitSpawnPos, transform.rotation, this.transform);
+            _newUnit.GetComponent<UnitComponent>().enemyUnitConstructor();
+            m_units.Add(_newUnit);
+        }
+
+        //Divide the hex into angles, based on the amount of units associated with this barracks.
+        float _angleDifference = 360 / (m_currentUnits + 1);
+        int _index = 0;
+        float _multiplier = 1;
+        foreach (GameObject _gameObj in m_units)
+        {
+            //Place the unit at a certain position along that angle, dividing the units into equal sectors of the hexagon.
+            Quaternion _angle = Quaternion.Euler(0, _angleDifference * (_index + 1), 0);
+
+            if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
+            {
+                _multiplier = InputManager.Instance.LargestScale.y + 20;
+            }
+            _gameObj.transform.position += (_angle * (Vector3.forward * 0.4f) * _multiplier);
+            _index++;
+        }
+
+
     }
 
     /// <summary>

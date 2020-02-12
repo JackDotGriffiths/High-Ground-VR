@@ -32,4 +32,17 @@ public class UnitComponent : MonoBehaviour
 
         unit = new Unit(_unitType,_health,_damage,_intelligence,_helmet,_weapon);
     }
+
+    public void enemyUnitConstructor()
+    {
+        unitTypes _unitType = unitTypes.player;
+        int _health = (int)Random.Range(m_lowestHealth, m_highestHealth);
+        int _damage = (int)Random.Range(m_lowestDamage, m_highestDamage);
+        float _intelligence = m_highestIntelligence; //Player Units are always 100% intelligent
+        GameObject _helmet = m_helmets[Random.Range(0, m_helmets.Count)];
+        GameObject _weapon = m_weapons[Random.Range(0, m_weapons.Count)];
+        m_unitBody.material = m_enemyMaterials[Random.Range(0, m_enemyMaterials.Count)];
+
+        unit = new Unit(_unitType, _health, _damage, _intelligence, _helmet, _weapon);
+    }
 }
