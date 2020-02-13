@@ -194,6 +194,7 @@ public class InputManager : MonoBehaviour
                     if (m_buildingValidation.verifyBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node))
                     {
                         m_buildingValidation.placeBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node);
+                        m_mainTrigger = false;
                     }
                 }
             }

@@ -255,7 +255,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <param name="_targetNode">Node on which to place a Wall</param>
     public void placeWall(Node _targetNode)
     {
-        if (!GameManager.Instance.spendGold(10))
+        if (!GameManager.Instance.spendGold(3))
         {
             Debug.Log("Not Enough Money");
             return;

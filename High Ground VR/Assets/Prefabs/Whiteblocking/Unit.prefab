@@ -46,14 +46,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_unitBody: {fileID: 7455599958264160645}
-  m_lowestHealthPlayer: 5
-  m_highestHealthPlayer: 10
-  m_lowestHealthEnemy: 2
-  m_highestHealthEnemy: 5
+  m_lowestHealthPlayer: 20
+  m_highestHealthPlayer: 50
+  m_lowestHealthEnemy: 20
+  m_highestHealthEnemy: 50
   m_lowestDamagePlayer: 4
   m_highestDamagePlayer: 6
-  m_lowestDamageEnemy: 2
-  m_highestDamageEnemy: 4
+  m_lowestDamageEnemy: 4
+  m_highestDamageEnemy: 6
   m_lowestIntelligence: 0
   m_highestIntelligence: 1
   m_playerMaterials:

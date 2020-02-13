@@ -21,20 +21,26 @@ public class EnemySpawnBehaviour : MonoBehaviour
                 _spawnPosition = new Vector3(_spawnNode.hex.transform.position.x, _spawnNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _spawnNode.hex.transform.position.z);
             }
             _index++;
-        } while (_index < 6);
+        } while (_index < thisNode.adjecant.Count);
 
-        if(_index == 5)
+        if(_index == thisNode.adjecant.Count-1)
         {
             return false; //Failed to spawn enemy, try again.
         }
+        if(_spawnNode.navigability == navigabilityStates.navigable && _spawnNode.hex.transform.childCount == 0)
+        {
+            GameObject _enemy = Instantiate(m_enemyUnit, _spawnPosition, Quaternion.identity, _spawnNode.hex.transform);
+            _enemy.GetComponent<EnemyGroupBehaviour>().currentX = _spawnNode.x;
+            _enemy.GetComponent<EnemyGroupBehaviour>().currentY = _spawnNode.y;
+            _enemy.GetComponent<EnemyGroupBehaviour>().goalX = GameManager.Instance.GameGemNode.x;
+            _enemy.GetComponent<EnemyGroupBehaviour>().goalY = GameManager.Instance.GameGemNode.y;
 
-        GameObject _enemy = Instantiate(m_enemyUnit, _spawnPosition,Quaternion.identity);
-        _enemy.GetComponent<EnemyGroupBehaviour>().currentX = _spawnNode.x;
-        _enemy.GetComponent<EnemyGroupBehaviour>().currentY = _spawnNode.y;
-        _enemy.GetComponent<EnemyGroupBehaviour>().goalX = GameManager.Instance.GameGemNode.x;
-        _enemy.GetComponent<EnemyGroupBehaviour>().goalY = GameManager.Instance.GameGemNode.y;
-
-        return true; //Succeeded spawning an enemy, continuing spawning.
+            return true; //Succeeded spawning an enemy, continuing spawning.
+        }
+        else
+        {
+            return false;
+        }
 
 
     }

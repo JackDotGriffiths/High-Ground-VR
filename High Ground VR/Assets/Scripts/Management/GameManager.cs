@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-
+enum Phases { Building, Action };
 public class GameManager : MonoBehaviour
 {
     private static GameManager s_instance;
     [Header("Game Config")]
     [SerializeField, Range(0, 1), Tooltip("The speed of objects in the game on a scale of 0-1")] private float m_gameSpeed = 1.0f; //Game speed multiplier used across the game for allowing for slowmo/pausing etc.
-    [SerializeField, Tooltip("How long in seconds the building phase should be")] private float m_buildingPhaseTime; //Length of time the player should be allowed to build.
+    [SerializeField, Tooltip("How long in seconds the building phase should be"), Range(10,20)] private float m_buildingPhaseTime; //Length of time the player should be allowed to build.
 
     [Header("Enemy Spawn Management"),Space(10)]
     [Tooltip("Amount of spawns the game rounds should start with")]public int m_enemyStartingSpawns = 1;
     [Tooltip("Amount of enemies to spawn at the start")] public int m_enemyAmount;
+    [Tooltip("Enemy Spawn Delay")] public int m_enemySpawnDelay;
     public List<EnemySpawnBehaviour> enemySpawns;
     private List<Node> m_outerEdgeNodes; //Set to the nodes on the outer edge of the map, used when spawning enemies.
 
@@ -31,6 +32,7 @@ public class GameManager : MonoBehaviour
 
     public int currentGold; //The current gold of the player.
     private int m_roundCounter;
+    private Phases m_currentPhase;
     private float m_buildingPhaseTimer; //Track the current value of the countdown timer.
     private Node m_gameGemNode; // The Gem Gameobject, set by GameBoardGeneration.
 
@@ -39,6 +41,7 @@ public class GameManager : MonoBehaviour
     public float GameSpeed { get => m_gameSpeed; set => m_gameSpeed = value; }
     public float TickInterval { get => m_tickInterval; set => m_tickInterval = value; }
     public Node GameGemNode { get => m_gameGemNode; set => m_gameGemNode = value; }
+    internal Phases CurrentPhase { get => m_currentPhase; set => m_currentPhase = value; }
     #endregion
 
 
@@ -58,11 +61,12 @@ public class GameManager : MonoBehaviour
     {
         m_roundCounter = 1;
         currentGold = m_startingGold;
-        m_buildingPhaseTimer = 4;
+        m_buildingPhaseTimer = m_buildingPhaseTime;
 
         //Invoke on a delay so GameBoard Graph has been created.
         Invoke("instantiateSpawns", 0.05f);
         Invoke("instantiateGem", 0.05f);
+
     }
 
     void Update()
@@ -70,9 +74,10 @@ public class GameManager : MonoBehaviour
         m_buildingPhaseTimer -= Time.deltaTime * m_gameSpeed;
         if (m_buildingPhaseTimer <= 0.0f)
         {
+
             StartAttackPhase();
-            Debug.Log("Spawning Enemies");
             StartCoroutine("spawnEnemies");
+
             m_buildingPhaseTimer = m_buildingPhaseTime;
         }
         //Updating Debug Displays
@@ -199,7 +204,6 @@ public class GameManager : MonoBehaviour
     /// </summary>
     IEnumerator spawnEnemies()
     {
-        currentGold += 30;
         //Increase the count of enemies based on Enemy Counter;
         m_enemyAmount += Mathf.RoundToInt(m_roundCounter/2);
         m_round.text = "Round " + m_roundCounter;
@@ -208,7 +212,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < m_enemyAmount; i++)
         {
             if (!enemySpawns[Random.Range(0, enemySpawns.Count)].spawnEnemy()) { i--; }; //If it fails to spawn an enemy, try again.
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(m_enemySpawnDelay);
         }
         m_roundCounter++;
     }

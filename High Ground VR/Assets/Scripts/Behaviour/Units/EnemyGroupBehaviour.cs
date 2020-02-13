@@ -32,6 +32,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
 
     void Start()
     {
+        List<GameObject> m_units = new List<GameObject>();
         m_unitInstantiated = false;
         m_validMove = false;
         //Delay allows for player to see the enemy before it starts moving.
@@ -40,6 +41,21 @@ public class EnemyGroupBehaviour : MonoBehaviour
 
     void Update()
     {
+        //Remove null objects from m_units so that dead units don't stay in the list.
+        foreach (GameObject _unit in m_units)
+        {
+            if (_unit == null)
+            {
+                m_units.Remove(_unit);
+            }
+        }
+        m_currentUnits = m_units.Count;
+        if(m_currentUnits == 0 && m_unitInstantiated == true)
+        {
+            m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;
+            Destroy(this.gameObject);
+        }
+
         if (m_unitInstantiated == true && inCombat == false)
         {
             drawDebugLines();
@@ -49,7 +65,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
             {
                 if(m_groupPath.Count == 0)
                 {
-                    RunPathfinding(0.0f);
+                    m_validMove = false;
                     return;
                 }
 
@@ -68,7 +84,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
                 //RunPathfinding();
 
                 //If the next node is navigable, move the node forward
-                if (m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.navigable)
+                if (m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.navigable && m_groupPath[m_currentStepIndex + 1].hex.transform.childCount == 0)
                 {
                     m_validMove = true;
                     //Update previous and new node with the correct navigabilityStates
@@ -77,7 +93,6 @@ public class EnemyGroupBehaviour : MonoBehaviour
                     m_currentStepIndex++;
                     //Sets the parent so scaling works correclty.
                     this.transform.SetParent(m_groupPath[m_currentStepIndex].hex.transform);
-                    m_groupPath[m_currentStepIndex].navigability = navigabilityStates.enemyUnit;
                     //Set the new target Position
                     m_targetPosition = new Vector3(m_groupPath[m_currentStepIndex].hex.transform.position.x, m_groupPath[m_currentStepIndex].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[m_currentStepIndex].hex.transform.position.z);
                     currentX = m_groupPath[m_currentStepIndex].x;
@@ -86,22 +101,12 @@ public class EnemyGroupBehaviour : MonoBehaviour
                 else
                 {
                     //This renavigates if the unit is stuck, will help them go around combat and slower units.
-                    Debug.Log(this + " enemy stuck.");
+                    //Debug.Log(this + " enemy stuck.");
                     RunPathfinding(0.0f);
                     m_validMove = false;
                     return;
                 }
             }
-
-            ////TEMPORARY - If the unit encounters a destructable object, destroy it. This is only for demo purposes.
-            //if(m_groupPath[m_currentStepIndex].navigability == navigabilityStates.destructable)
-            //{
-            //    //m_groupPath[m_currentStepIndex-1].navigability = navigabilityStates.navigable;
-            //    m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;
-            //    Destroy(m_groupPath[m_currentStepIndex].hex.transform.GetChild(0).gameObject);
-            //    Destroy(this.gameObject);
-            //}
-
         }
 
         // Check for children ? that will track the units
@@ -123,13 +128,12 @@ public class EnemyGroupBehaviour : MonoBehaviour
         GameBoardGeneration.Instance.Graph[currentX,currentY].navigability = navigabilityStates.enemyUnit;
         goalX = GameManager.Instance.GameGemNode.x;
         goalY = GameManager.Instance.GameGemNode.y;
-        RunPathfinding(1.0f);
+        RunPathfinding(0.0f);
         m_targetPosition = new Vector3(m_groupPath[0].hex.transform.position.x, m_groupPath[0].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[0].hex.transform.position.z);
         m_unitInstantiated = true;
 
         //Spawn the unit prefab
         m_currentUnits = m_groupSize;
-        m_units = new List<GameObject>();
         Node _spawnNode = GameBoardGeneration.Instance.Graph[currentX, currentY];
         for (int i = 0; i < m_groupSize; i++)
         {

@@ -90,7 +90,7 @@ CapsuleCollider:
   m_GameObject: {fileID: 5718137492380263114}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   m_Radius: 0.5000001
   m_Height: 2
   m_Direction: 1
@@ -110,7 +110,7 @@ MonoBehaviour:
   m_unitPrefab: {fileID: 3167704458864864438, guid: 88eeb47fc39224545bd570cecfd88105,
     type: 3}
   m_groupSize: 3
-  m_tickTimer: 2
+  m_tickTimer: 4
   m_movementSpeed: 0.09
   timePerception: 1
   currentX: 0

@@ -6,6 +6,7 @@ public class BarracksBehaviour : MonoBehaviour
 {
     [SerializeField, Tooltip ("The Unit Prefab, used for spawning from the Barracks.")] private GameObject m_unitPrefab;
     [SerializeField, Tooltip ("The maximum amount of Units allowed from this Barracks.")] private int m_unitCount;
+    [SerializeField, Tooltip("Time between respawning units.")] private int m_unitRespawnDelay;
 
 
     public bool inCombat;  //Tracks whether the unit is in combat or not.
@@ -15,13 +16,12 @@ public class BarracksBehaviour : MonoBehaviour
     private Node m_barracksUnitNode; //The node on which the units are placed.
     private List<GameObject> m_units; //A list of all units associated with this barracks.
     private int m_currentUnits;  //The current amount of units associated with this barracks.
-   
+    private bool m_respawning = false;
 
 
     void Start()
     {
         m_units = new List<GameObject>();
-        
         //Assigning the node on which the barrack is placed. Try/Catch checks for any missed associations.
         try { 
             m_barracksPlacedNode = transform.GetComponentInParent<NodeComponent>().node;
@@ -71,21 +71,38 @@ public class BarracksBehaviour : MonoBehaviour
             m_units.Add(_newUnit);
         }
         m_currentUnits = m_unitCount;
-
+        EvaluateUnitPositions();
     }
 
     void Update()
     {
-        //Correctly position units around the hex - Only needs to happen when one dies/respawns
-        EvaluateUnitPositions();
+        //Remove null objects from m_units so that dead units don't stay in the list.
+        foreach (GameObject _unit in m_units)
+        {
+            if(_unit == null)
+            {
+                m_units.Remove(_unit);
+            }
+        }
+        m_currentUnits = m_units.Count;
+
+        if(m_currentUnits == 0)
+        {
+            m_barracksUnitNode.navigability = navigabilityStates.navigable;
+            if(m_respawning == false)
+            {
+                m_respawning = true;
+                StartCoroutine("RespawnUnits");
+            }
+        }
 
         //Check for any enemies in adjecent nodes to the friendly units.
-        if(inCombat == false)
+        if(inCombat == false && m_currentUnits != 0)
         {
             CheckLocalNodes();
         }
         //If an enemy approaches on an adjecent node, add it into the battle.
-        if (inCombat == true)
+        if (inCombat == true && m_currentUnits != 0)
         {
             AddEnemyToBattle();
         }
@@ -133,25 +150,29 @@ public class BarracksBehaviour : MonoBehaviour
             {
                 //If it detects an enemy group in any adjecent nodes, start combat
                 EnemyGroupBehaviour _enemy = _node.hex.transform.GetChild(0).GetComponent<EnemyGroupBehaviour>();
-                List<Unit> _friendlyUnits = new List<Unit>();
-                List<Unit> _enemyUnits = new List<Unit>();
-
-                foreach (GameObject _gameObj in m_units)
+                if(_enemy.inCombat == false)
                 {
-                    _friendlyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
+                    List<Unit> _friendlyUnits = new List<Unit>();
+                    List<Unit> _enemyUnits = new List<Unit>();
+
+                    foreach (GameObject _gameObj in m_units)
+                    {
+                        _friendlyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
+                    }
+                    foreach (GameObject _gameObj in _enemy.m_units)
+                    {
+                        _enemyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
+                    }
+
+                    BattleBehaviour _battle = this.gameObject.AddComponent<BattleBehaviour>();
+                    _battle.StartBattle(_friendlyUnits, _enemyUnits);
+                    _battle.m_friendlyGroups.Add(this);
+                    _battle.m_enemyGroups.Add(_enemy);
+
+                    _enemy.inCombat = true;
+                    inCombat = true;
+                    return;
                 }
-                foreach (GameObject _gameObj in _enemy.m_units)
-                {
-                    _enemyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
-                }
-
-                BattleBehaviour _battle = this.gameObject.AddComponent<BattleBehaviour>();
-                _battle.StartBattle(_friendlyUnits, _enemyUnits); 
-
-
-                _enemy.inCombat = true;
-                inCombat = true;
-                return;
             }
         }
     }
@@ -167,31 +188,61 @@ public class BarracksBehaviour : MonoBehaviour
             {
                 //If it detects an enemy group in any adjecent nodes, get all of the units from that enemy group
                 EnemyGroupBehaviour _enemy = _node.hex.transform.GetChild(0).GetComponent<EnemyGroupBehaviour>();
-                BattleBehaviour _battle = this.gameObject.GetComponent<BattleBehaviour>();
-                List<Unit> _enemyUnits = new List<Unit>();
-
-                foreach (GameObject _gameObj in _enemy.m_units)
+                if (_enemy.inCombat == false)
                 {
-                    _enemyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
-                }
+                    BattleBehaviour _battle = this.gameObject.GetComponent<BattleBehaviour>();
+                    List<Unit> _enemyUnits = new List<Unit>();
 
-                bool _groupAlreadyInBattle = false;
-                foreach(Unit _enemyUnit in _enemyUnits)
-                {
-                    //If the incoming enemy is already in the battle, it should't be added into the list.
-                    if (_battle.m_enemyUnits.Contains(_enemyUnit))
+                    foreach (GameObject _gameObj in _enemy.m_units)
                     {
-                        _groupAlreadyInBattle = true;
+                        _enemyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
                     }
-                }
-                
-                if (_groupAlreadyInBattle == false)
-                {
-                    _battle.JoinBattle(_enemyUnits);
-                    _enemy.inCombat = true;
+
+                    bool _groupAlreadyInBattle = false;
+                    foreach (Unit _enemyUnit in _enemyUnits)
+                    {
+                        //If the incoming enemy is already in the battle, it should't be added into the list.
+                        if (_battle.m_enemyUnits.Contains(_enemyUnit))
+                        {
+                            _groupAlreadyInBattle = true;
+                        }
+                    }
+
+                    if (_groupAlreadyInBattle == false)
+                    {
+                        _battle.JoinBattle(_enemyUnits);
+                        _battle.m_enemyGroups.Add(_enemy);
+                        _enemy.inCombat = true;
+                    }
                 }
             }
         }
+    }
+
+
+    IEnumerator RespawnUnits()
+    {
+        int _difference = m_unitCount - m_currentUnits;
+        for (int i = 0; i < _difference; i++)
+        {
+            yield return new WaitForSeconds(m_unitRespawnDelay);
+            if (m_barracksUnitNode.navigability == navigabilityStates.enemyUnit)
+            {
+                i--;
+            }
+            else
+            {
+                //Correctly position units around the hex - Only needs to happen when one dies/respawns
+                m_barracksUnitNode.navigability = navigabilityStates.playerUnit;
+                Vector3 _unitSpawnPos = new Vector3(m_barracksUnitNode.hex.transform.position.x, m_barracksUnitNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_barracksUnitNode.hex.transform.position.z);
+                GameObject _newUnit = Instantiate(m_unitPrefab, _unitSpawnPos, transform.rotation, m_barracksUnitNode.hex.transform);
+                m_barracksUnitNode.navigability = navigabilityStates.playerUnit;
+                _newUnit.GetComponent<UnitComponent>().playerUnitConstructor();
+                m_units.Add(_newUnit);
+                EvaluateUnitPositions();
+            }
+        }
+        m_respawning = false;
     }
 
 

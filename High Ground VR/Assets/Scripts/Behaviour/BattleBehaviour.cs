@@ -9,6 +9,9 @@ public class BattleBehaviour : MonoBehaviour
     private float m_currentTimer;
 
 
+    public List<EnemyGroupBehaviour> m_enemyGroups;
+    public List<BarracksBehaviour> m_friendlyGroups;
+
     public List<Unit> m_enemyUnits;
     public List<Unit> m_friendlyUnits;
 
@@ -20,6 +23,9 @@ public class BattleBehaviour : MonoBehaviour
     /// <param name="_enemyUnits">List of enemy units to have in the battle.</param>
     public void StartBattle(List<Unit> _friendlyUnits, List<Unit> _enemyUnits)
     {
+        m_enemyGroups = new List<EnemyGroupBehaviour>();
+        m_friendlyGroups = new List<BarracksBehaviour>();
+
         m_friendlyUnits = _friendlyUnits;
         m_enemyUnits = _enemyUnits;
         m_currentTimer = m_battleTimer;
@@ -37,15 +43,44 @@ public class BattleBehaviour : MonoBehaviour
     }
     void Update()
     {
-        if(m_battleStarted == true)
+        foreach (EnemyGroupBehaviour _enemy in m_enemyGroups)
+        {
+            if(_enemy == null)
+            {
+                m_enemyGroups.Remove(_enemy);
+            }
+        }
+
+        foreach (BarracksBehaviour _friendly in m_friendlyGroups)
+        {
+            if (_friendly == null)
+            {
+                m_friendlyGroups.Remove(_friendly);
+            }
+        }
+
+        if (m_battleStarted == true)
         {
             m_currentTimer -= Time.deltaTime * GameManager.Instance.GameSpeed;
             if (m_currentTimer < 0)
             {
                 Debug.Log("Attack");
+         
                 friendlyAttack();
                 enemyAttack();
                 m_currentTimer = m_battleTimer;
+            }
+            if (m_enemyUnits.Count == 0)
+            {
+                //End the battle, Player Won
+                battleOver();
+                Destroy(this);
+            }
+            if (m_friendlyUnits.Count == 0)
+            {
+                //End the battle, Enemy Won
+                battleOver();
+                Destroy(this);
             }
         }
     }
@@ -89,6 +124,21 @@ public class BattleBehaviour : MonoBehaviour
                 m_friendlyUnits.Remove(_unit);
                 _unit.unitComp.Die();
             }
+        }
+    }
+
+    /// <summary>
+    /// Tell all groups that the unit
+    /// </summary>
+    void battleOver()
+    {
+        foreach (EnemyGroupBehaviour _enemy in m_enemyGroups)
+        {
+            _enemy.inCombat = false;
+        }
+        foreach (BarracksBehaviour _friendy in m_friendlyGroups)
+        {
+            _friendy.inCombat = false;
         }
     }
 }
