@@ -274,7 +274,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     public void placeEnemySpawn(Node _targetNode)
     {
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = navigabilityStates.destructable;
+        _targetNode.navigability = navigabilityStates.nonPlaceable;
         //foreach (Node _adjNode in _targetNode.adjecant)
         //{
         //    _adjNode.navigability = navigabilityStates.nonPlaceable;

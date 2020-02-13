@@ -61,30 +61,34 @@ public class BarracksBehaviour : MonoBehaviour
                 m_barracksUnitNode.navigability = navigabilityStates.playerUnit;
             }
         }
-
-
-    }
-
-    void Update()
-    {  
-
-        //Temporary code checking the amount of units required and instantiating the correct amount. This will eventually be on a spawning delay.
-        //Debug.DrawLine(transform.position, m_barracksUnitNode.hex.transform.position,Color.blue);
-        m_currentUnits = m_units.Count;
-        if(m_currentUnits != m_unitCount)
+        //Spawn the correct amount of enemies 
+        for (int i = 0; i < m_unitCount; i++)
         {
             Vector3 _unitSpawnPos = new Vector3(m_barracksUnitNode.hex.transform.position.x, m_barracksUnitNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_barracksUnitNode.hex.transform.position.z);
             GameObject _newUnit = Instantiate(m_unitPrefab, _unitSpawnPos, transform.rotation, m_barracksUnitNode.hex.transform);
             m_barracksUnitNode.navigability = navigabilityStates.playerUnit;
-            m_unitPrefab.GetComponent<UnitComponent>().playerUnitConstructor();
+            _newUnit.GetComponent<UnitComponent>().playerUnitConstructor();
             m_units.Add(_newUnit);
         }
+        m_currentUnits = m_unitCount;
 
+    }
+
+    void Update()
+    {
         //Correctly position units around the hex - Only needs to happen when one dies/respawns
         EvaluateUnitPositions();
 
         //Check for any enemies in adjecent nodes to the friendly units.
-        CheckLocalNodes();
+        if(inCombat == false)
+        {
+            CheckLocalNodes();
+        }
+        //If an enemy approaches on an adjecent node, add it into the battle.
+        if (inCombat == true)
+        {
+            AddEnemyToBattle();
+        }
     }
 
     /// <summary>
@@ -118,15 +122,77 @@ public class BarracksBehaviour : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// Looks for enemies in adjecent nodes and creates a battle event if it finds any, adding the located enemies.
+    /// </summary>
     void CheckLocalNodes()
     {
         foreach(Node _node in m_barracksUnitNode.adjecant)
         {
             if (_node.navigability == navigabilityStates.enemyUnit)
             {
-                //If it detects an enemy unit in any adjecent nodes, start combat
-                this.gameObject.AddComponent()
+                //If it detects an enemy group in any adjecent nodes, start combat
+                EnemyGroupBehaviour _enemy = _node.hex.transform.GetChild(0).GetComponent<EnemyGroupBehaviour>();
+                List<Unit> _friendlyUnits = new List<Unit>();
+                List<Unit> _enemyUnits = new List<Unit>();
+
+                foreach (GameObject _gameObj in m_units)
+                {
+                    _friendlyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
+                }
+                foreach (GameObject _gameObj in _enemy.m_units)
+                {
+                    _enemyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
+                }
+
+                BattleBehaviour _battle = this.gameObject.AddComponent<BattleBehaviour>();
+                _battle.StartBattle(_friendlyUnits, _enemyUnits); 
+
+
+                _enemy.inCombat = true;
+                inCombat = true;
+                return;
             }
         }
     }
+
+    /// <summary>
+    /// Adds an enemy to the Battle if they're not already in it.
+    /// </summary>
+    void AddEnemyToBattle()
+    {
+        foreach (Node _node in m_barracksUnitNode.adjecant)
+        {
+            if (_node.navigability == navigabilityStates.enemyUnit)
+            {
+                //If it detects an enemy group in any adjecent nodes, get all of the units from that enemy group
+                EnemyGroupBehaviour _enemy = _node.hex.transform.GetChild(0).GetComponent<EnemyGroupBehaviour>();
+                BattleBehaviour _battle = this.gameObject.GetComponent<BattleBehaviour>();
+                List<Unit> _enemyUnits = new List<Unit>();
+
+                foreach (GameObject _gameObj in _enemy.m_units)
+                {
+                    _enemyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
+                }
+
+                bool _groupAlreadyInBattle = false;
+                foreach(Unit _enemyUnit in _enemyUnits)
+                {
+                    //If the incoming enemy is already in the battle, it should't be added into the list.
+                    if (_battle.m_enemyUnits.Contains(_enemyUnit))
+                    {
+                        _groupAlreadyInBattle = true;
+                    }
+                }
+                
+                if (_groupAlreadyInBattle == false)
+                {
+                    _battle.JoinBattle(_enemyUnits);
+                    _enemy.inCombat = true;
+                }
+            }
+        }
+    }
+
+
 }

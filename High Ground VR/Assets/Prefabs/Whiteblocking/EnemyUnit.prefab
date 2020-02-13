@@ -117,3 +117,5 @@ MonoBehaviour:
   currentY: 0
   goalX: 0
   goalY: 0
+  inCombat: 0
+  m_units: []

@@ -92,7 +92,7 @@ public class PathfindingTest : MonoBehaviour
         m_path = new List<Transform>();
         var graph = GameBoardGeneration.Instance.Graph;
         var search = new Search(GameBoardGeneration.Instance.Graph);
-        search.Start(graph[startPosX, startPosY], graph[endPosX, endPosY]);
+        search.Start(graph[startPosX, startPosY], graph[endPosX, endPosY],0.0f);
         while (!search.finished)
         {
             search.Step();

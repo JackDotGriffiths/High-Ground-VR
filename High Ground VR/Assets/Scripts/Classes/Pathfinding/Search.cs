@@ -11,19 +11,21 @@ public class Search
     public Node goalNode; //The end goal of the search
     public int iterations; //Amount of Iterations taken to find the path
     public bool finished; //Whether the search is finished
+    public float unitAggression;
 
     public Search(Node[,] _graph)
     {
         this.graph = _graph;
     }
 
-    public void Start(Node start, Node goal)
+    public void Start(Node start, Node goal, float aggression)
     {
         reachable = new List<Node>();
         explored = new List<Node>();
         path = new List<Node>();
         reachable.Add(start);
         goalNode = goal;
+        unitAggression = aggression;
         iterations = 0;
 
         //Clear all previously associated nodes
@@ -85,9 +87,19 @@ public class Search
 
         adjacent.previous = node;
 
-        if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.enemyUnit || adjacent.navigability == navigabilityStates.nonPlaceable || adjacent.navigability == navigabilityStates.destructable)
+        if (unitAggression == 1.0f)
         {
-            reachable.Add(adjacent);
+            if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.enemyUnit || adjacent.navigability == navigabilityStates.nonPlaceable || adjacent.navigability == navigabilityStates.destructable || adjacent.navigability == navigabilityStates.gem)
+            {
+                reachable.Add(adjacent);
+            }
+        }
+        else
+        {
+            if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.enemyUnit || adjacent.navigability == navigabilityStates.nonPlaceable || adjacent.navigability == navigabilityStates.gem)
+            {
+                reachable.Add(adjacent);
+            }
         }
     }
 

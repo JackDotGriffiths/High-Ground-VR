@@ -27,7 +27,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
     private Vector3 m_targetPosition; //Position the node should be moving to.
 
 
-    private List<GameObject> m_units;
+    public List<GameObject> m_units;
     private int m_currentUnits;
 
     void Start()
@@ -49,7 +49,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
             {
                 if(m_groupPath.Count == 0)
                 {
-                    RunPathfinding();
+                    RunPathfinding(0.0f);
                     return;
                 }
 
@@ -68,7 +68,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
                 //RunPathfinding();
 
                 //If the next node is navigable, move the node forward
-                if (m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.navigable || m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.nonPlaceable)
+                if (m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.navigable)
                 {
                     m_validMove = true;
                     //Update previous and new node with the correct navigabilityStates
@@ -85,18 +85,13 @@ public class EnemyGroupBehaviour : MonoBehaviour
                 }
                 else
                 {
+                    //This renavigates if the unit is stuck, will help them go around combat and slower units.
                     Debug.Log(this + " enemy stuck.");
-                    RunPathfinding();
+                    RunPathfinding(0.0f);
                     m_validMove = false;
                     return;
                 }
             }
-
-            if(m_validMove == true)
-            {
-                MoveEnemy();
-            }
-
 
             ////TEMPORARY - If the unit encounters a destructable object, destroy it. This is only for demo purposes.
             //if(m_groupPath[m_currentStepIndex].navigability == navigabilityStates.destructable)
@@ -107,6 +102,13 @@ public class EnemyGroupBehaviour : MonoBehaviour
             //    Destroy(this.gameObject);
             //}
 
+        }
+
+        // Check for children ? that will track the units
+
+        if (m_validMove == true)
+        {
+            MoveEnemy();
         }
     }
 
@@ -121,7 +123,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
         GameBoardGeneration.Instance.Graph[currentX,currentY].navigability = navigabilityStates.enemyUnit;
         goalX = GameManager.Instance.GameGemNode.x;
         goalY = GameManager.Instance.GameGemNode.y;
-        RunPathfinding();
+        RunPathfinding(1.0f);
         m_targetPosition = new Vector3(m_groupPath[0].hex.transform.position.x, m_groupPath[0].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[0].hex.transform.position.z);
         m_unitInstantiated = true;
 
@@ -160,7 +162,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
     /// <summary>
     /// Run the A* pathfinding
     /// </summary>
-    void RunPathfinding()
+    void RunPathfinding(float _aggression)
     {
         if (currentX == goalX && currentY == goalY)
         {
@@ -170,7 +172,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
         m_currentStepIndex = 0;
         var graph = GameBoardGeneration.Instance.Graph;
         var search = new Search(GameBoardGeneration.Instance.Graph);
-        search.Start(graph[currentX, currentY], graph[goalX, goalY]);
+        search.Start(graph[currentX, currentY], graph[goalX, goalY],_aggression);
         while (!search.finished)
         {
             search.Step();

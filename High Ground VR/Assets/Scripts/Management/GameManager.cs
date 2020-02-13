@@ -70,7 +70,7 @@ public class GameManager : MonoBehaviour
         m_buildingPhaseTimer -= Time.deltaTime * m_gameSpeed;
         if (m_buildingPhaseTimer <= 0.0f)
         {
-            //StartAttackPhase();
+            StartAttackPhase();
             Debug.Log("Spawning Enemies");
             StartCoroutine("spawnEnemies");
             m_buildingPhaseTimer = m_buildingPhaseTime;
@@ -97,7 +97,15 @@ public class GameManager : MonoBehaviour
     }
     void StartAttackPhase()
     {
-        
+        //Set all adjecent nodes to the spawns to nonPlaceable, so the player cannot build around them.
+        foreach (EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
+        {
+            List<Node> _adjNodes = _spawn.gameObject.GetComponentInParent<NodeComponent>().node.adjecant;
+            foreach (Node _node in _adjNodes)
+            {
+                _node.navigability = navigabilityStates.navigable;
+            }
+        }
     }
     #endregion
 
