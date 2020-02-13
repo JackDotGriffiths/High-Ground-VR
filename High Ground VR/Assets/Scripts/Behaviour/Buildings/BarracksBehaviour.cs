@@ -7,11 +7,15 @@ public class BarracksBehaviour : MonoBehaviour
     [SerializeField, Tooltip ("The Unit Prefab, used for spawning from the Barracks.")] private GameObject m_unitPrefab;
     [SerializeField, Tooltip ("The maximum amount of Units allowed from this Barracks.")] private int m_unitCount;
 
+
+    public bool inCombat;  //Tracks whether the unit is in combat or not.
+
     private ValidateBuildingLocation m_buildingValidation; //Script used to validate a building position, it also stores the Y offset of all placed objects.
     private Node m_barracksPlacedNode; //The node on which the barracks is placed.
     private Node m_barracksUnitNode; //The node on which the units are placed.
     private List<GameObject> m_units; //A list of all units associated with this barracks.
     private int m_currentUnits;  //The current amount of units associated with this barracks.
+   
 
 
     void Start()
@@ -76,7 +80,11 @@ public class BarracksBehaviour : MonoBehaviour
             m_units.Add(_newUnit);
         }
 
+        //Correctly position units around the hex - Only needs to happen when one dies/respawns
         EvaluateUnitPositions();
+
+        //Check for any enemies in adjecent nodes to the friendly units.
+        CheckLocalNodes();
     }
 
     /// <summary>
@@ -107,5 +115,18 @@ public class BarracksBehaviour : MonoBehaviour
             _index++;
         }
 
+    }
+
+
+    void CheckLocalNodes()
+    {
+        foreach(Node _node in m_barracksUnitNode.adjecant)
+        {
+            if (_node.navigability == navigabilityStates.enemyUnit)
+            {
+                //If it detects an enemy unit in any adjecent nodes, start combat
+                this.gameObject.AddComponent()
+            }
+        }
     }
 }

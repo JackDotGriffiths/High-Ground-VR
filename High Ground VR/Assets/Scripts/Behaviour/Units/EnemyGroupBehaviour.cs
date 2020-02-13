@@ -16,6 +16,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
     public int currentY;
     public int goalX;
     public int goalY;
+    public bool inCombat;//Tracks whether the unit is in combat or not.
 
     private bool m_unitInstantiated; // Tracks whether the unit has been created and all values appropriately declared.
     private bool m_reachedGoal;
@@ -39,8 +40,9 @@ public class EnemyGroupBehaviour : MonoBehaviour
 
     void Update()
     {
-        if (m_unitInstantiated == true)
+        if (m_unitInstantiated == true && inCombat == false)
         {
+            drawDebugLines();
             //Run on a tick, timePerception allows the speeding up/slowing down of certain units.
             m_currentTimer -= Time.deltaTime * GameManager.Instance.GameSpeed * timePerception;
             if (m_currentTimer < 0.0f)
@@ -56,7 +58,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
                 {
                     //Unit is in an adjecent node to the gem, initiate combat
                     m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;
-                    Debug.Log("AT GEM");
+                    Debug.Log(this + "reached Gem");
                     Destroy(this.gameObject);
                 }
 
@@ -66,7 +68,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
                 //RunPathfinding();
 
                 //If the next node is navigable, move the node forward
-                if (m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.navigable || m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.nonPlaceable || m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.destructable)
+                if (m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.navigable || m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.nonPlaceable)
                 {
                     m_validMove = true;
                     //Update previous and new node with the correct navigabilityStates
@@ -84,6 +86,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
                 else
                 {
                     Debug.Log(this + " enemy stuck.");
+                    RunPathfinding();
                     m_validMove = false;
                     return;
                 }
@@ -114,6 +117,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
     {
         m_currentTimer = m_tickTimer;
         m_currentStepIndex = 0;
+        inCombat = false;
         GameBoardGeneration.Instance.Graph[currentX,currentY].navigability = navigabilityStates.enemyUnit;
         goalX = GameManager.Instance.GameGemNode.x;
         goalY = GameManager.Instance.GameGemNode.y;
@@ -184,7 +188,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
             return;
         }
 
-        Debug.Log("Search done. Path length : " + search.path.Count + ". Iterations : " + search.iterations);
+        //Debug.Log("Search done. Path length : " + search.path.Count + ". Iterations : " + search.iterations);
     }
 
     /// <summary>
@@ -200,7 +204,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
             float _currentDistance = Vector3.Distance(transform.position, m_targetPosition);
             float _percentage = _currentDistance / _maxDistance;
             //Sin of the percentage creates a 'hop' like movement.
-            _yOffset = Mathf.Sin(_percentage);
+            _yOffset = Mathf.Pow(Mathf.Sin(_percentage),2);
         }
         Vector3 _hopPosition = new Vector3(m_targetPosition.x, m_targetPosition.y + _yOffset, m_targetPosition.z);
         transform.position = Vector3.Lerp(transform.position, _hopPosition, m_movementSpeed * timePerception);
@@ -222,6 +226,25 @@ public class EnemyGroupBehaviour : MonoBehaviour
             }
         }
         return false;
+    }
+
+
+
+    /// <summary>
+    /// Draws the lines of this nodes current route towards the gem.
+    /// </summary>
+    private void drawDebugLines()
+    {
+        Vector3 _startPos;
+        Vector3 _endPos;
+        for (int i = 1; i < m_groupPath.Count; i++)
+        {
+            _startPos = new Vector3(m_groupPath[i - 1].hex.transform.position.x, m_groupPath[i - 1].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[i - 1].hex.transform.position.z);
+            _endPos = new Vector3(m_groupPath[i].hex.transform.position.x, m_groupPath[i].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[i].hex.transform.position.z);
+
+
+            Debug.DrawLine(_startPos, _endPos, Color.blue);
+        }
     }
 
 
