@@ -198,14 +198,16 @@ public class GameBoardGeneration : MonoBehaviour
                 for (int i = 0; i < m_ambientNatureLimit; i++)//Loop of how many assets are on each hex.
                 {
                     int _rand = Random.Range(0, 100); //Random chance of placing an asset
-                    Vector3 _spawnPosition = Random.insideUnitSphere + _hex.transform.position;
-                    _spawnPosition.y = BuildingValidation.buildingHeightOffset;
-                    Quaternion _spawnRotation = new Quaternion(0, Random.Range(0, 360), 0, 1.0f);
+                    if(_rand < m_ambientNatureFrequency)
+                    {
+                        Vector3 _spawnPosition = Random.insideUnitSphere + _hex.transform.position;
+                        _spawnPosition.y = BuildingValidation.buildingHeightOffset;
+                        Quaternion _spawnRotation = new Quaternion(0, Random.Range(0, 360), 0, 1.0f);
 
 
-                    GameObject _randObject = m_ambientNatureAssets[Random.Range(0, m_ambientNatureAssets.Count)];//Choose a random object
-                    Instantiate(_randObject, _spawnPosition, _spawnRotation, _ambientParent.transform);//Create the gameObject
-                    i++;
+                        GameObject _randObject = m_ambientNatureAssets[Random.Range(0, m_ambientNatureAssets.Count)];//Choose a random object
+                        Instantiate(_randObject, _spawnPosition, _spawnRotation, _ambientParent.transform);//Create the gameObject
+                    }
                 }
             }
         }

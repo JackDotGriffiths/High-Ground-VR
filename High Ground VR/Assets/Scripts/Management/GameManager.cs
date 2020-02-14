@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     [Header("Game Config")]
     [SerializeField, Range(0, 1), Tooltip("The speed of objects in the game on a scale of 0-1")] private float m_gameSpeed = 1.0f; //Game speed multiplier used across the game for allowing for slowmo/pausing etc.
     [SerializeField, Tooltip("How long in seconds the building phase should be"), Range(10,20)] private float m_buildingPhaseTime; //Length of time the player should be allowed to build.
+    private bool m_gameOver = false;
 
     [Header("Enemy Spawn Management"),Space(10)]
     [Tooltip("Amount of spawns the game rounds should start with")]public int m_enemyStartingSpawns = 1;
@@ -42,6 +43,7 @@ public class GameManager : MonoBehaviour
     public float TickInterval { get => m_tickInterval; set => m_tickInterval = value; }
     public Node GameGemNode { get => m_gameGemNode; set => m_gameGemNode = value; }
     internal Phases CurrentPhase { get => m_currentPhase; set => m_currentPhase = value; }
+    public bool GameOver { get => m_gameOver; set => m_gameOver = value; }
     #endregion
 
 
@@ -74,9 +76,16 @@ public class GameManager : MonoBehaviour
         m_buildingPhaseTimer -= Time.deltaTime * m_gameSpeed;
         if (m_buildingPhaseTimer <= 0.0f)
         {
-
-            StartAttackPhase();
-            StartCoroutine("spawnEnemies");
+            if(m_gameOver == false)
+            {
+                StartAttackPhase();
+                StartCoroutine("spawnEnemies");
+            }
+            else
+            {
+                m_round.text = "GAME OVER";
+                m_gameSpeed = 0;
+            }
 
             m_buildingPhaseTimer = m_buildingPhaseTime;
         }
@@ -87,7 +96,7 @@ public class GameManager : MonoBehaviour
 
     }
 
-    #region PhaseControl
+    #region Phase Control
     void StartBuildingPhase()
     {
         //Set all adjecent nodes to the spawns to nonPlaceable, so the player cannot build around them.
@@ -204,17 +213,20 @@ public class GameManager : MonoBehaviour
     /// </summary>
     IEnumerator spawnEnemies()
     {
-        //Increase the count of enemies based on Enemy Counter;
-        m_enemyAmount += Mathf.RoundToInt(m_roundCounter/2);
-        m_round.text = "Round " + m_roundCounter;
-
-        //For each enemy to spawn, randomly choose a spawn and run spawnEnemy
-        for (int i = 0; i < m_enemyAmount; i++)
+        if(m_gameOver == false)
         {
-            if (!enemySpawns[Random.Range(0, enemySpawns.Count)].spawnEnemy()) { i--; }; //If it fails to spawn an enemy, try again.
-            yield return new WaitForSeconds(m_enemySpawnDelay);
+            //Increase the count of enemies based on Enemy Counter;
+            m_enemyAmount += Mathf.RoundToInt(m_roundCounter / 2);
+            m_round.text = "Round " + m_roundCounter;
+
+            //For each enemy to spawn, randomly choose a spawn and run spawnEnemy
+            for (int i = 0; i < m_enemyAmount; i++)
+            {
+                if (!enemySpawns[Random.Range(0, enemySpawns.Count)].spawnEnemy()) { i--; }; //If it fails to spawn an enemy, try again.
+                yield return new WaitForSeconds(Random.Range(m_enemySpawnDelay/2,m_enemySpawnDelay));
+            }
+            m_roundCounter++;
         }
-        m_roundCounter++;
     }
 
     #endregion

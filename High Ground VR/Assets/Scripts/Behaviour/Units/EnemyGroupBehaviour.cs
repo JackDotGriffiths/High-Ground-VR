@@ -75,6 +75,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
                     //Unit is in an adjecent node to the gem, initiate combat
                     m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;
                     Debug.Log(this + "reached Gem");
+                    GameManager.Instance.GameOver = true;
                     Destroy(this.gameObject);
                 }
 

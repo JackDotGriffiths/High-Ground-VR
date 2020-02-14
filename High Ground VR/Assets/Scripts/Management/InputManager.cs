@@ -179,7 +179,6 @@ public class InputManager : MonoBehaviour
                     if (m_buildingValidation.verifyBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node))
                     {
                         m_buildingValidation.placeBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node);
-                        m_mainTrigger = false;
                     }
                 }
             }
@@ -306,7 +305,7 @@ public class InputManager : MonoBehaviour
                 _zOffset = -90;
             }
             m_bookObject.transform.localEulerAngles = new Vector3(90, 0, _zOffset);
-            m_bookObject.transform.position =new Vector3(m_bookObject.transform.position.x, m_bookHandOffset, m_bookObject.transform.position.z);
+            m_bookObject.transform.position =new Vector3(m_bookObject.transform.position.x, m_bookHandOffset, m_bookObject.transform.position.z-0.13f);
         }
         #endregion
 
