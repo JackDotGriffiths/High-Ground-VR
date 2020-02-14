@@ -138,6 +138,13 @@ public class ValidateBuildingLocation : MonoBehaviour
             }
         }
 
+        foreach (Node _adjNode in _targetNode.adjecant)
+        {
+            if(_adjNode.navigability == navigabilityStates.enemySpawn)
+            {
+                _validLocation = false;
+            }
+        }
 
         return _validLocation;
 
@@ -156,14 +163,25 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <returns>True or false based on whether the targetNode can accept a Mine.</returns>
     public bool verifyMine(Node _targetNode)
     {
+        bool _validLocation;
         if (_targetNode.navigability == navigabilityStates.navigable)
         {
-            return true;
+            _validLocation = true;
         }
         else
         {
-            return false;
+            _validLocation = false;
         }
+
+        foreach (Node _adjNode in _targetNode.adjecant)
+        {
+            if (_adjNode.navigability == navigabilityStates.enemySpawn)
+            {
+                _validLocation = false;
+            }
+        }
+
+        return _validLocation;
     }
 
     /// <summary>
@@ -173,14 +191,26 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <returns>True or false based on whether the targetNode can accept a Wall.</returns>
     public bool verifyWall(Node _targetNode)
     {
+        bool _validLocation;
         if (_targetNode.navigability == navigabilityStates.navigable)
         {
-            return true;
+            _validLocation =  true;
         }
         else
         {
-            return false;
+            _validLocation =  false;
         }
+
+        foreach (Node _adjNode in _targetNode.adjecant)
+        {
+            if (_adjNode.navigability == navigabilityStates.enemySpawn)
+            {
+                _validLocation = false;
+            }
+        }
+
+        return _validLocation;
+
     }
 
     /// <summary>
@@ -280,7 +310,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     public void placeEnemySpawn(Node _targetNode)
     {
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = navigabilityStates.nonPlaceable;
+        _targetNode.navigability = navigabilityStates.enemySpawn;
         //foreach (Node _adjNode in _targetNode.adjecant)
         //{
         //    _adjNode.navigability = navigabilityStates.nonPlaceable;

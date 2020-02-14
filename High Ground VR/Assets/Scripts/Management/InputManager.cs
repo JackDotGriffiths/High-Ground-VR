@@ -106,6 +106,7 @@ public class InputManager : MonoBehaviour
 
         //TryCatch to catch any missing references.
         try { m_buildingValidation = m_gameEnvironment.GetComponent<ValidateBuildingLocation>(); } catch { Debug.LogWarning("Error getting the ValidateBuildingLocation from the gameEnvironment object."); }
+        Invoke("updateWorldHeight", 0.01f);
     }
     void Awake()
     {

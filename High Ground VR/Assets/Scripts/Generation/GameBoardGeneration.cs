@@ -40,9 +40,6 @@ public class GameBoardGeneration : MonoBehaviour
 
     void Start()
     {
-        //Try/Catch used to check any missed associations.
-        try { InputManager.Instance.updateWorldHeight(); }
-        catch { Debug.LogWarning("Assigning updateWorldHeight failed on GameBoard object."); }
         generate();
     }
 

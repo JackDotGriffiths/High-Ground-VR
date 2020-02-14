@@ -226,7 +226,7 @@ public class BarracksBehaviour : MonoBehaviour
         for (int i = 0; i < _difference; i++)
         {
             yield return new WaitForSeconds(m_unitRespawnDelay);
-            if (m_barracksUnitNode.navigability == navigabilityStates.enemyUnit)
+            if (m_barracksUnitNode.navigability == navigabilityStates.enemyUnit || m_barracksUnitNode.hex.transform.childCount != 0)
             {
                 i--;
             }

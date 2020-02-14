@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-public enum navigabilityStates { navigable, nonPlaceable, destructable, playerUnit, enemyUnit, gem};
+public enum navigabilityStates { navigable, destructable, nonPlaceable, gem, playerUnit, enemyUnit, enemySpawn};
 public class Node
 {
 

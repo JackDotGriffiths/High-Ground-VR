@@ -63,6 +63,12 @@ public class UnitComponent : MonoBehaviour
     //Kills the player
     public void Die()
     {
+        //Instantiate a duplicate of the object
+        GameObject _deadUnit = Instantiate(this.gameObject, this.gameObject.transform.position, this.gameObject.transform.rotation, null);
+        Rigidbody _rigid = _deadUnit.AddComponent<Rigidbody>();
+        Destroy(_deadUnit.GetComponent<UnitComponent>());
+        //Destroy the original. This ensures it's appropriately removed from lists.
         Destroy(this.gameObject);
+        Destroy(_deadUnit, 4f);
     }
 }
