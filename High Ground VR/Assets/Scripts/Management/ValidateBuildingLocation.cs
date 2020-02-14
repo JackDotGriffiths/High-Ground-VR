@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 public class ValidateBuildingLocation : MonoBehaviour
 {
-    [SerializeField, Tooltip ("Y Distance from the floor on which buildings should spawn")]private float buildingHeightOffset; //Y Distance from the floor to spawn the buildings.
+    /// <summary>
+    /// Does not account for player being Large or Small. Should only be used on methods ONLY ran on Start.
+    /// </summary>
+    [SerializeField, Tooltip ("Y Distance from the floor on which buildings should spawn")]public float buildingHeightOffset; //Y Distance from the floor to spawn the buildings.
 
     //Building prefabs
     [SerializeField, Space(10),Tooltip("Barracks prefab to spawn")] private GameObject m_barracks;
@@ -13,6 +16,9 @@ public class ValidateBuildingLocation : MonoBehaviour
 
     private float m_currentHeightOffset;
 
+    /// <summary>
+    /// Offset from the center to the top of the hex. Use this to place buildings/objects at runtime.
+    /// </summary>
     public float CurrentHeightOffset { get => m_currentHeightOffset; set => m_currentHeightOffset = value; }
 
     void Update()
