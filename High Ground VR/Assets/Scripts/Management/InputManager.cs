@@ -21,11 +21,6 @@ public class InputManager : MonoBehaviour
     [SerializeField, Tooltip("The Gameobject of the game environment. Used for scaling and positioning.")] private GameObject m_gameEnvironment;
 
     //
-    [Header("World Rotation")]
-    [SerializeField, Space(10), Tooltip("Distance required for the movement to be registered as a rotatation. Typically 0.1f")] private float m_rotationSensitivity = 0.1f;
-    [SerializeField, Tooltip("Strength of the rotation. Usually a very low number so that the weight of the environment feels heavy")] private float m_rotationMagnitude = 0.0005f;
-
-    //
     [Header("Point & Click")]
     [SerializeField, Space(10),Tooltip("Material to be used as the Line Renderer")] private Material m_pointerMaterial;
     [SerializeField, Tooltip("Grass Material of the Hexagons. Used when replacing the highlight.")] private Material m_grassMaterial; //Grass Material of the Hex
@@ -137,24 +132,14 @@ public class InputManager : MonoBehaviour
 
         #region Trigger Button Handling
 
-        //m_mainControllerPos = MainController.transform.position;
+        m_mainControllerPos = MainController.transform.position;
         ////Rotating the Game Board
-        //if (m_mainTrigger == true && m_currentlySelectedHex == null && !(RightTrigger == true && LeftTrigger == true) && CurrentSize == SizeOptions.large)
-        //{
-        //    m_currentlySelectedBuilding = null;
-        //    Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
-        //    Vector3 _forceVector = m_mainControllerPos - m_mainControllerPreviousPos;
-        //    if (_forceVector.magnitude > m_rotationSensitivity)
-        //    {
-        //        _gameEnvRigid.AddForceAtPosition(_forceVector * m_rotationMagnitude, m_mainControllerPreviousPos, ForceMode.Impulse);
-        //    }
-        //    else
-        //    {
-        //        _gameEnvRigid.angularVelocity = Vector3.Lerp(_gameEnvRigid.angularVelocity, Vector3.zero, 0.5f);
-        //    }
+        if (m_mainTrigger == true && m_currentlySelectedHex == null && !(RightTrigger == true && LeftTrigger == true) && CurrentSize == SizeOptions.large)
+        {
+            //Main trigger pressed and not pointing at any hex - Was used for rotation but may be useful later on.
 
-        //}
-        //m_mainControllerPreviousPos = m_mainControllerPos;
+        }
+        m_mainControllerPreviousPos = m_mainControllerPos;
         #endregion
 
         #region Pointer Handling
