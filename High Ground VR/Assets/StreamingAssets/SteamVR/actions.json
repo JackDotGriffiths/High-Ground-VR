@@ -15,6 +15,14 @@
     {
       "name": "/actions/High_GroundControlSet/in/HandPos",
       "type": "pose"
+    },
+    {
+      "name": "/actions/High_GroundControlSet/in/HeadsetOn",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/High_GroundControlSet/out/Haptic",
+      "type": "vibration"
     }
   ],
   "action_sets": [
