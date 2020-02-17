@@ -260,7 +260,7 @@ public class ValidateBuildingLocation : MonoBehaviour
             return;
         }
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = navigabilityStates.destructable;
+        _targetNode.navigability = navigabilityStates.destructible;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         GameObject _building = Instantiate(m_barracks, _targetNode.hex.transform);
         _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
@@ -279,7 +279,7 @@ public class ValidateBuildingLocation : MonoBehaviour
             return;
         }
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = navigabilityStates.destructable;
+        _targetNode.navigability = navigabilityStates.destructible;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         GameObject _building = Instantiate(m_mine, _targetNode.hex.transform);
         _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
@@ -297,7 +297,7 @@ public class ValidateBuildingLocation : MonoBehaviour
             return;
         }
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = navigabilityStates.destructable;
+        _targetNode.navigability = navigabilityStates.destructible;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         GameObject _building = Instantiate(m_walls, _targetNode.hex.transform);
         _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
