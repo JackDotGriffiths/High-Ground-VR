@@ -1,16 +1,38 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 public class ValidateBuildingLocation : MonoBehaviour
 {
-    [Tooltip ("Y Distance from the floor on which buildings should spawn")]public float buildingHeightOffset; //Y Distance from the floor to spawn the buildings.
+    /// <summary>
+    /// Does not account for player being Large or Small. Should only be used on methods ONLY ran on Start.
+    /// </summary>
+    [SerializeField, Tooltip ("Y Distance from the floor on which buildings should spawn")]public float buildingHeightOffset; //Y Distance from the floor to spawn the buildings.
 
     //Building prefabs
     [SerializeField, Space(10),Tooltip("Barracks prefab to spawn")] private GameObject m_barracks;
     [SerializeField, Space(1), Tooltip("Mine prefab to spawn")] private GameObject m_mine;
     [SerializeField, Space(1), Tooltip("Wall prefab to spawn")] private GameObject m_walls;
     [SerializeField, Space(1), Tooltip("Enemy Spawn prefab to spawn")] private GameObject m_enemySpawn;
+
+    private float m_currentHeightOffset;
+
+    /// <summary>
+    /// Offset from the center to the top of the hex. Use this to place buildings/objects at runtime.
+    /// </summary>
+    public float CurrentHeightOffset { get => m_currentHeightOffset; set => m_currentHeightOffset = value; }
+
+    void Update()
+    {
+        //Ensures all buildings and units are placed at a correct height whether the player is large or small.
+        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
+        {
+            m_currentHeightOffset = buildingHeightOffset * (2*InputManager.Instance.LargestScale.y);
+        }
+        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
+        {
+            m_currentHeightOffset = buildingHeightOffset;
+        }
+    }
 
 
     /// <summary>
@@ -76,14 +98,62 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <returns>True or false based on whether the targetNode can accept a Barracks.</returns>
     public bool verifyBarracks(Node _targetNode)
     {
-        if(_targetNode.navigability == navigabilityStates.navigable)
+        bool _validLocation = true;
+
+        if(_targetNode.navigability == navigabilityStates.navigable){_validLocation = true;}
+        else{ _validLocation = false;}
+
+        // Finding the node on which the units should be placed.
+        Vector3 _raycastPos;
+        Vector3 _raycastDir;
+
+        //Raycast out of the door and downwards to find the correct node on which units should spawn.
+        _raycastDir = (_targetNode.hex.transform.right - _targetNode.hex.transform.up) * 100;
+        RaycastHit _hit;
+
+        //Based on the size of the player (Small or large), change the position of which the raycast comes from.
+        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
         {
-            return true;
+            _raycastPos = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset+2f, _targetNode.hex.transform.position.z);
         }
         else
         {
-            return false;
+            _raycastPos = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset + 2 * (m_currentHeightOffset), _targetNode.hex.transform.position.z);
         }
+
+        //If the raycast hits a node, the location is valid, otherwise it isn't
+        Debug.DrawRay(_raycastPos, _raycastDir, Color.green);
+        if (Physics.Raycast(_raycastPos, _raycastDir, out _hit))
+        {
+            if (_hit.collider.tag == "Environment")
+            {
+                if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability != navigabilityStates.navigable)
+                {
+                    _validLocation = false;
+                }
+            }
+            else
+            {
+                _validLocation = false;
+            }
+        }
+
+        foreach (Node _adjNode in _targetNode.adjecant)
+        {
+            if(_adjNode.navigability == navigabilityStates.enemySpawn)
+            {
+                _validLocation = false;
+            }
+        }
+
+        return _validLocation;
+
+
+
+
+
+
+
     }
 
     /// <summary>
@@ -93,14 +163,25 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <returns>True or false based on whether the targetNode can accept a Mine.</returns>
     public bool verifyMine(Node _targetNode)
     {
+        bool _validLocation;
         if (_targetNode.navigability == navigabilityStates.navigable)
         {
-            return true;
+            _validLocation = true;
         }
         else
         {
-            return false;
+            _validLocation = false;
         }
+
+        foreach (Node _adjNode in _targetNode.adjecant)
+        {
+            if (_adjNode.navigability == navigabilityStates.enemySpawn)
+            {
+                _validLocation = false;
+            }
+        }
+
+        return _validLocation;
     }
 
     /// <summary>
@@ -110,14 +191,26 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <returns>True or false based on whether the targetNode can accept a Wall.</returns>
     public bool verifyWall(Node _targetNode)
     {
+        bool _validLocation;
         if (_targetNode.navigability == navigabilityStates.navigable)
         {
-            return true;
+            _validLocation =  true;
         }
         else
         {
-            return false;
+            _validLocation =  false;
         }
+
+        foreach (Node _adjNode in _targetNode.adjecant)
+        {
+            if (_adjNode.navigability == navigabilityStates.enemySpawn)
+            {
+                _validLocation = false;
+            }
+        }
+
+        return _validLocation;
+
     }
 
     /// <summary>
@@ -127,14 +220,26 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <returns>True or false based on whether the targetNode can accept a enemySpawn.</returns>
     public bool verifyEnemySpawn(Node _targetNode)
     {
+        bool _validLocation = true;
         if (_targetNode.navigability == navigabilityStates.navigable)
         {
-            return true;
+            _validLocation = true;
         }
         else
         {
-            return false;
+            _validLocation = false;
         }
+
+        //Checks for any nonPlaceable adjecent nodes. This helps with ensuring spawns are spread out.
+        foreach(Node _adjNode in _targetNode.adjecant)
+        {
+            if(_adjNode.navigability == navigabilityStates.nonPlaceable)
+            {
+                _validLocation = false;
+            }
+        }
+
+        return _validLocation;
     }
     #endregion
 
@@ -149,16 +254,16 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <param name="_targetNode">Node on which to place a Barracks</param>
     public void placeBarracks(Node _targetNode)
     {
+        if (!GameManager.Instance.spendGold(10))
+        {
+            Debug.Log("Not Enough Money");
+            return;
+        }
         //Update Node navigability and surrounding nodes
         _targetNode.navigability = navigabilityStates.destructable;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         GameObject _building = Instantiate(m_barracks, _targetNode.hex.transform);
-        float _yOffset = buildingHeightOffset;
-        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
-        {
-            _yOffset = buildingHeightOffset * InputManager.Instance.LargestScale.y + 20;
-        }
-        _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + _yOffset, _targetNode.hex.transform.position.z);
+        _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
     }
 
 
@@ -168,16 +273,16 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <param name="_targetNode">Node on which to place a Mine</param>
     public void placeMine(Node _targetNode)
     {
+        if (!GameManager.Instance.spendGold(10))
+        {
+            Debug.Log("Not Enough Money");
+            return;
+        }
         //Update Node navigability and surrounding nodes
         _targetNode.navigability = navigabilityStates.destructable;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         GameObject _building = Instantiate(m_mine, _targetNode.hex.transform);
-        float _yOffset = buildingHeightOffset;
-        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
-        {
-            _yOffset = buildingHeightOffset * InputManager.Instance.LargestScale.y + 20;
-        }
-        _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + _yOffset, _targetNode.hex.transform.position.z);
+        _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
     }
 
     /// <summary>
@@ -186,16 +291,16 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <param name="_targetNode">Node on which to place a Wall</param>
     public void placeWall(Node _targetNode)
     {
+        if (!GameManager.Instance.spendGold(3))
+        {
+            Debug.Log("Not Enough Money");
+            return;
+        }
         //Update Node navigability and surrounding nodes
         _targetNode.navigability = navigabilityStates.destructable;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         GameObject _building = Instantiate(m_walls, _targetNode.hex.transform);
-        float _yOffset = buildingHeightOffset;
-        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
-        {
-            _yOffset = buildingHeightOffset * InputManager.Instance.LargestScale.y + 20;
-        }
-        _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + _yOffset, _targetNode.hex.transform.position.z);
+        _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
     }
 
     /// <summary>
@@ -205,8 +310,16 @@ public class ValidateBuildingLocation : MonoBehaviour
     public void placeEnemySpawn(Node _targetNode)
     {
         //Update Node navigability and surrounding nodes
-        //Instantiate Relevant Prefab
-        //Position + Scale Based on size of the environment.
+        _targetNode.navigability = navigabilityStates.enemySpawn;
+        //foreach (Node _adjNode in _targetNode.adjecant)
+        //{
+        //    _adjNode.navigability = navigabilityStates.nonPlaceable;
+        //}
+        //Instantiate Relevant Prefab. Position + Scale Based on size of the environment.
+        GameObject _spawn = Instantiate(m_enemySpawn, _targetNode.hex.transform);
+        _spawn.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
+        _spawn.GetComponent<EnemySpawnBehaviour>().thisNode = _targetNode;
+        GameManager.Instance.enemySpawns.Add(_spawn.GetComponent<EnemySpawnBehaviour>());
     }
     #endregion
 }

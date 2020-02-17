@@ -62,7 +62,7 @@ public class ControllerInputs : MonoBehaviour
     }
     public bool GetTrigger()
     {
-        return triggerAction.GetState(handType);
+        return triggerAction.GetStateDown(handType);
     }
 
 }

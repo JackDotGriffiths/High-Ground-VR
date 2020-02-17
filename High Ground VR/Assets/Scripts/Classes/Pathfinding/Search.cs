@@ -11,19 +11,21 @@ public class Search
     public Node goalNode; //The end goal of the search
     public int iterations; //Amount of Iterations taken to find the path
     public bool finished; //Whether the search is finished
+    public float unitAggression;
 
     public Search(Node[,] _graph)
     {
         this.graph = _graph;
     }
 
-    public void Start(Node start, Node goal)
+    public void Start(Node start, Node goal, float aggression)
     {
         reachable = new List<Node>();
         explored = new List<Node>();
         path = new List<Node>();
         reachable.Add(start);
         goalNode = goal;
+        unitAggression = aggression;
         iterations = 0;
 
         //Clear all previously associated nodes
@@ -84,10 +86,28 @@ public class Search
         }
 
         adjacent.previous = node;
-        
-        if(adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.destructable)
+
+        if (unitAggression == 1.0f)
         {
-            reachable.Add(adjacent);
+            if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.destructable || adjacent.navigability == navigabilityStates.gem || adjacent.navigability == navigabilityStates.playerUnit)
+            {
+                reachable.Add(adjacent);
+            }
+        }
+        else
+        {
+            if (adjacent.navigability == navigabilityStates.navigable  ||  adjacent.navigability == navigabilityStates.gem || adjacent.navigability == navigabilityStates.playerUnit)
+            {
+                reachable.Add(adjacent);
+            }
+        }
+
+        if (Random.Range(0.0f, 1.0f) < 0.5f)
+        {
+            if (adjacent.navigability == navigabilityStates.enemyUnit)
+            {
+                reachable.Add(adjacent);
+            }
         }
     }
 
@@ -135,7 +155,7 @@ public class Search
         //Find the smallest distance from the goal node.
         for (int i = 0; i < reachable.Count-1; i++)
         {
-            explored.Add(reachable[i]);
+            //explored.Add(reachable[i]);
             Vector3 _nodePos = reachable[i].hex.transform.position;
             if (Vector3.Distance(_nodePos, _goalNodePos) < _minDistance)
             {

@@ -77,7 +77,7 @@ public class PathfindingTest : MonoBehaviour
                 {
                     int RandomX = Random.Range(0, GameBoardGeneration.Instance.Graph.GetLength(0));
                     int RandomY = Random.Range(0, GameBoardGeneration.Instance.Graph.GetLength(1));
-                    GameBoardGeneration.Instance.Graph[RandomX, RandomY].navigability = navigabilityStates.nonNavigable;
+                    GameBoardGeneration.Instance.Graph[RandomX, RandomY].navigability = navigabilityStates.nonPlaceable;
                 }
             }
 
@@ -92,7 +92,7 @@ public class PathfindingTest : MonoBehaviour
         m_path = new List<Transform>();
         var graph = GameBoardGeneration.Instance.Graph;
         var search = new Search(GameBoardGeneration.Instance.Graph);
-        search.Start(graph[startPosX, startPosY], graph[endPosX, endPosY]);
+        search.Start(graph[startPosX, startPosY], graph[endPosX, endPosY],0.0f);
         while (!search.finished)
         {
             search.Step();
@@ -141,7 +141,7 @@ public class PathfindingTest : MonoBehaviour
     {
         foreach(Node _node in GameBoardGeneration.Instance.Graph)
         {
-            if(_node.navigability == navigabilityStates.nonNavigable)
+            if(_node.navigability == navigabilityStates.nonPlaceable)
             {
                 Gizmos.color = Color.red;
                 Gizmos.DrawCube(_node.hex.transform.position, Vector3.one);

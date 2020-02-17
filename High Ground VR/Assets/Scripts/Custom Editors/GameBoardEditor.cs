@@ -17,6 +17,12 @@ public class GameBoardEditor : Editor
             genTerrain.generate();
         }
         GUILayout.Space(3);
+        if (GUILayout.Button("Clear Nature"))
+        {
+            genTerrain.destroyAmbientNature();
+        }
+
+        GUILayout.Space(10);
         if (GUILayout.Button("Clear Terrain"))
         {
             genTerrain.destroyAll();

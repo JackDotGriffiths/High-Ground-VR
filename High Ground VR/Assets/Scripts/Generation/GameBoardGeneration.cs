@@ -10,9 +10,15 @@ public class GameBoardGeneration : MonoBehaviour
     private static GameBoardGeneration s_instance;
     [Header("Game Board Configuration")]
     [SerializeField,Tooltip("The Hex GameObject to Use")] private GameObject m_hexBlock;
-    [SerializeField, Tooltip("Distance between Hexes. Tested to be around 0.86")] private float m_hexGapSize = 0.86f;
+    [SerializeField, Tooltip("The Gem GameObject to Use")] private GameObject m_gem;
+    [SerializeField, Tooltip("Distance between Hexes. Tested to be around 0.86"),Space(5)] private float m_hexGapSize = 0.86f;
     [SerializeField, Space(10),Tooltip("Amount of hexes wide the terrain will be. Usual game board is 17x17"),Range(1,100)] private int m_width = 1;
     [SerializeField, Tooltip("Amount of hexes long the terrain will be. Usual game board is 17x17"), Range(1, 100)] private int m_length = 1;
+
+    [SerializeField, Space(10), Tooltip("Generate ambient assets like rocks and grass, placing them on the board")] private bool m_ambientGeneration = true;
+    [SerializeField, Tooltip("Distance between Hexes. Tested to be around 0.86"), Range(0,100)] private int m_ambientNatureFrequency = 30;
+    [SerializeField, Tooltip("Limit of the ambient nature assets allowed per hex"), Range (0,5)] private int m_ambientNatureLimit = 2;
+    [SerializeField,Tooltip("List of ambient nature assets")]private List<GameObject> m_ambientNatureAssets;
 
 
     private float m_hexagonalWidth; //Calculated width of a hexagon from the hexGapSize
@@ -34,13 +40,7 @@ public class GameBoardGeneration : MonoBehaviour
 
     void Start()
     {
-        //Try/Catch used to check any missed associations.
-        try{BuildingValidation = this.GetComponent<ValidateBuildingLocation>();}
-        catch{ Debug.LogWarning("Assigning BuildingValidation failed on GameBoard object.");}
         generate();
-
-        try{InputManager.Instance.updateWorldHeight();}
-        catch { Debug.LogWarning("Assigning updateWorldHeight failed on GameBoard object."); }
     }
 
     void Awake()
@@ -64,7 +64,12 @@ public class GameBoardGeneration : MonoBehaviour
         {
             //Game not currently in Play mode. This doesn't need to be caught as this script sometimes runs not in play mode and doens't need this method to run.
         }
-        
+
+        //Try/Catch used to check any missed associations.
+        try { BuildingValidation = this.GetComponent<ValidateBuildingLocation>(); }
+        catch { Debug.LogWarning("Assigning BuildingValidation failed on GameBoard object."); }
+
+
         //Create the parent of all subsequently spawned nodes that will aid with scaling
         m_parentObject = new GameObject("nodesScalingParent");
         m_parentObject.transform.SetParent(this.transform);
@@ -78,6 +83,10 @@ public class GameBoardGeneration : MonoBehaviour
         generateRec(); //Generate a rectangle out of hexagons
         populateGraph(); //Populate the Node Graph
         centralizeGameBoard(); //Centralise the Game Board on the object's point by moving all of the children.
+        if(m_ambientGeneration == true)
+        {
+            placeAmbientNature();
+        }
     }
 
     #region Game Board Generation
@@ -159,6 +168,49 @@ public class GameBoardGeneration : MonoBehaviour
         else
         {
             _hex.transform.SetParent(m_parentObject.transform);
+        }
+    }
+
+    /// <summary>
+    /// Places the Gem in the center of the board. If there is not a center it will pick a random node that's towards the center.
+    /// </summary>
+    public void placeGem()
+    {
+        Node _gemNode = Graph[ Mathf.RoundToInt(m_length / 2f), Mathf.RoundToInt(m_width / 2f)];
+        _gemNode.navigability = navigabilityStates.gem;
+        Vector3 _gemPosition = new Vector3(_gemNode.hex.transform.position.x, _gemNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _gemNode.hex.transform.position.z);
+        Instantiate(m_gem, _gemPosition, Quaternion.identity, _gemNode.hex.transform);
+        GameManager.Instance.GameGemNode = _gemNode;
+    }
+
+
+    public void placeAmbientNature()
+    {
+        if(m_ambientNatureAssets.Count != 0)
+        {
+            GameObject _ambientParent = new GameObject("ambientNature");
+            _ambientParent.transform.SetParent(this.transform);
+            foreach (GameObject _hex in nodes)
+            {
+                for (int i = 0; i < m_ambientNatureLimit; i++)//Loop of how many assets are on each hex.
+                {
+                    int _rand = Random.Range(0, 100); //Random chance of placing an asset
+                    if(_rand < m_ambientNatureFrequency)
+                    {
+                        Vector3 _spawnPosition = Random.insideUnitSphere + _hex.transform.position;
+                        _spawnPosition.y = BuildingValidation.buildingHeightOffset;
+                        Quaternion _spawnRotation = new Quaternion(0, Random.Range(0, 360), 0, 1.0f);
+
+
+                        GameObject _randObject = m_ambientNatureAssets[Random.Range(0, m_ambientNatureAssets.Count)];//Choose a random object
+                        Instantiate(_randObject, _spawnPosition, _spawnRotation, _ambientParent.transform);//Create the gameObject
+                    }
+                }
+            }
+        }
+        else
+        {
+            Debug.LogWarning("No Ambient Assets Available in GameBoardGeneration");
         }
     }
 
@@ -244,7 +296,17 @@ public class GameBoardGeneration : MonoBehaviour
         }
 
         DestroyImmediate(GameObject.Find("nodesScalingParent"));
+        DestroyImmediate(GameObject.Find("ambientNature"));
         nodes = new List<GameObject>();
+    }
+
+
+    /// <summary>
+    /// Clears the ambient Nature off the game board.
+    /// </summary>
+    public void destroyAmbientNature()
+    {
+        DestroyImmediate(GameObject.Find("ambientNature"));
     }
 
     #endregion
@@ -263,7 +325,7 @@ public class GameBoardGeneration : MonoBehaviour
     //            Handles.Label(_labelPos, _go.transform.name);
     //        }
     //    }
-     
+
     //    catch { }
     //}
     #endregion

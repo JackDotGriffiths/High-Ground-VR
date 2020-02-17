@@ -9,18 +9,16 @@ public class InputManager : MonoBehaviour
     public enum HandTypes { left, right }; // Handedness
     public enum SizeOptions { small, large }; //Whether the player is currently Large or Small.
 
-    [Header ("Input Config"),Space(5)]
+    [Header ("Player Config"),Space(5)]
     public HandTypes m_handedness; //The handedness of the player, used to place the book and the laser pointer in the correct hand
+    [SerializeField, Tooltip("The height at which the game board should sit relative to the player's height."),Range(0f,1f)] private float m_playerHeightMultiplier = 0.5f;
+
+    [Header("Input Config"), Space(5)]
     [SerializeField, Tooltip("The GameObject of the entire Rig. Used for scaling and positioning.")] private GameObject m_vrRig; 
     [SerializeField, Tooltip("The Gameobject of the players camera.")] private GameObject m_camera;
     [SerializeField, Tooltip("The Gameobject of the players left controller.")] private GameObject m_leftController;
     [SerializeField, Tooltip("The Gameobject of the players right controller.")] private GameObject m_rightController;
     [SerializeField, Tooltip("The Gameobject of the game environment. Used for scaling and positioning.")] private GameObject m_gameEnvironment;
-
-    //
-    [Header("World Rotation")]
-    [SerializeField, Space(10), Tooltip("Distance required for the movement to be registered as a rotatation. Typically 0.1f")] private float m_rotationSensitivity = 0.1f;
-    [SerializeField, Tooltip("Strength of the rotation. Usually a very low number so that the weight of the environment feels heavy")] private float m_rotationMagnitude = 0.0005f;
 
     //
     [Header("Point & Click")]
@@ -52,6 +50,7 @@ public class InputManager : MonoBehaviour
     private LineRenderer m_mainPointer; //The Line Renderer used for pointing 
     private ValidateBuildingLocation m_buildingValidation; //The ValidateBuildingLocation script, which checks the position of a building before it's placed.
     private List<MeshRenderer> m_objectMeshes = new List<MeshRenderer>(); //List of all of the meshrenderers of the hexagons in the environment.
+    private SizeOptions m_currentSize;
 
 
     #region Accessors
@@ -65,7 +64,7 @@ public class InputManager : MonoBehaviour
     public GameObject OffHandController { get; set; } //GameObject of the offhand controller
     public GameObject MainController { get; set; } //GameObject of the mainHand controller
     public Vector3 LargestScale { get => m_largestScale; set => m_largestScale = value; }
-    public SizeOptions CurrentSize { get; set; }
+    public SizeOptions CurrentSize { get => m_currentSize; set => m_currentSize = value; }
     #endregion
 
     void Start()
@@ -91,7 +90,7 @@ public class InputManager : MonoBehaviour
         m_mainPointer.sortingOrder = 1;
 
         //Sets the inertiaTensor so that the rotation of the board isn't effected by the amount of collider children within the board.
-        m_gameEnvironment.GetComponent<Rigidbody>().inertiaTensor = new Vector3(0.1f, 0.1f, 0.1f);
+        //m_gameEnvironment.GetComponent<Rigidbody>().inertiaTensor = new Vector3(0.1f, 0.1f, 0.1f);
 
         //Current size of the player always starts as Large
         CurrentSize = SizeOptions.large;
@@ -107,6 +106,7 @@ public class InputManager : MonoBehaviour
 
         //TryCatch to catch any missing references.
         try { m_buildingValidation = m_gameEnvironment.GetComponent<ValidateBuildingLocation>(); } catch { Debug.LogWarning("Error getting the ValidateBuildingLocation from the gameEnvironment object."); }
+        Invoke("updateWorldHeight", 0.01f);
     }
     void Awake()
     {
@@ -134,20 +134,10 @@ public class InputManager : MonoBehaviour
         #region Trigger Button Handling
 
         m_mainControllerPos = MainController.transform.position;
-        //Rotating the Game Board
+        ////Rotating the Game Board
         if (m_mainTrigger == true && m_currentlySelectedHex == null && !(RightTrigger == true && LeftTrigger == true) && CurrentSize == SizeOptions.large)
         {
-            m_currentlySelectedBuilding = null;
-            Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
-            Vector3 _forceVector = m_mainControllerPos - m_mainControllerPreviousPos;
-            if (_forceVector.magnitude > m_rotationSensitivity)
-            {
-                _gameEnvRigid.AddForceAtPosition(_forceVector * m_rotationMagnitude, m_mainControllerPreviousPos, ForceMode.Impulse);
-            }
-            else
-            {
-                _gameEnvRigid.angularVelocity = Vector3.Lerp(_gameEnvRigid.angularVelocity, Vector3.zero, 0.5f);
-            }
+            //Main trigger pressed and not pointing at any hex - Was used for rotation but may be useful later on.
 
         }
         m_mainControllerPreviousPos = m_mainControllerPos;
@@ -260,23 +250,27 @@ public class InputManager : MonoBehaviour
         //Teleport onto the game board
         if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelectedHex != null && m_enlargePlayer == false)
         {
-            //Debug.Log("Teleported");
-            m_teleporterPrimed = false;
-            //Scale the game environment
-            m_gameEnvironment.transform.localScale = m_largestScale;
-            if (m_gameEnvironment.transform.position.y != -m_largestScale.y)
+            //If the node is able to be teleported onto, teleport the player.
+            if(m_currentlySelectedHex.GetComponent<NodeComponent>().node.navigability == navigabilityStates.navigable)
             {
-                m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, -m_largestScale.y - 20, m_gameEnvironment.transform.position.z);
+                //Debug.Log("Teleported");
+                m_teleporterPrimed = false;
+                //Scale the game environment
+                m_gameEnvironment.transform.localScale = m_largestScale;
+                if (m_gameEnvironment.transform.position.y != -m_largestScale.y)
+                {
+                    m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, -m_largestScale.y - 20, m_gameEnvironment.transform.position.z);
+                }
+                m_newPosition = new Vector3(m_currentlySelectedHex.transform.position.x, 0, m_currentlySelectedHex.transform.position.z);
+
+
+                //Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
+                //_gameEnvRigid.angularVelocity = Vector3.zero;
+                //_gameEnvRigid.velocity = Vector3.zero;
+                m_currentSize = SizeOptions.small;
+                m_mainPointer.startWidth = 0.03f;
+                m_mainPointer.endWidth = 0.00f;
             }
-            m_newPosition = new Vector3(m_currentlySelectedHex.transform.position.x, 0 , m_currentlySelectedHex.transform.position.z);
-
-
-            Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
-            _gameEnvRigid.angularVelocity = Vector3.zero;
-            _gameEnvRigid.velocity = Vector3.zero;
-            CurrentSize = SizeOptions.small;
-            m_mainPointer.startWidth = 0.03f;
-            m_mainPointer.endWidth = 0.00f;
         }
 
         //Teleport off the game board.
@@ -290,7 +284,7 @@ public class InputManager : MonoBehaviour
             m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 0);
 
 
-            CurrentSize = SizeOptions.large;
+            m_currentSize = SizeOptions.large;
             m_mainPointer.startWidth = 0.05f;
             m_mainPointer.endWidth = 0.00f;
         }
@@ -312,7 +306,7 @@ public class InputManager : MonoBehaviour
                 _zOffset = -90;
             }
             m_bookObject.transform.localEulerAngles = new Vector3(90, 0, _zOffset);
-            m_bookObject.transform.position =new Vector3(m_bookObject.transform.position.x, m_bookHandOffset, m_bookObject.transform.position.z);
+            m_bookObject.transform.position =new Vector3(m_bookObject.transform.position.x, m_bookHandOffset, m_bookObject.transform.position.z-0.13f);
         }
         #endregion
 
@@ -328,9 +322,11 @@ public class InputManager : MonoBehaviour
     /// <summary>
     /// Updates the m_maxWorldHeight based on the current Y position of the headset. This adjusts the game world to work with any height.
     /// </summary>
+    /// 
+    [ContextMenu("Update Game Board Height")] //Allows me to press a button within the editor to execute this method.
     public void updateWorldHeight()
     {
-        m_maxWorldHeight = m_camera.transform.position.y * 0.6f;
+        m_maxWorldHeight = m_camera.transform.position.y * m_playerHeightMultiplier;
         m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 0);
         for (int i = 0; i < m_gameEnvironment.transform.childCount; i++)
         {

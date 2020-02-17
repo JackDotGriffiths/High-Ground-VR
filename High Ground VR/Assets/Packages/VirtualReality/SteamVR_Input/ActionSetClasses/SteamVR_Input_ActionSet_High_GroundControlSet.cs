@@ -48,5 +48,21 @@ namespace Valve.VR
                 return SteamVR_Actions.high_GroundControlSet_HandPos;
             }
         }
+        
+        public virtual SteamVR_Action_Boolean HeadsetOn
+        {
+            get
+            {
+                return SteamVR_Actions.high_GroundControlSet_HeadsetOn;
+            }
+        }
+        
+        public virtual SteamVR_Action_Vibration Haptic
+        {
+            get
+            {
+                return SteamVR_Actions.high_GroundControlSet_Haptic;
+            }
+        }
     }
 }
