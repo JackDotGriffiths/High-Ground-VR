@@ -98,11 +98,11 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <returns>True or false based on whether the targetNode can accept a Barracks.</returns>
     public bool verifyBarracks(Node _targetNode)
     {
-        bool _validLocation = true;
-
-        if(_targetNode.navigability == navigabilityStates.navigable){_validLocation = true;}
-        else{ _validLocation = false;}
-
+        bool _validLocation = false;
+        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
+        {
+            _validLocation = true;
+        }
         // Finding the node on which the units should be placed.
         Vector3 _raycastPos;
         Vector3 _raycastDir;
@@ -114,11 +114,11 @@ public class ValidateBuildingLocation : MonoBehaviour
         //Based on the size of the player (Small or large), change the position of which the raycast comes from.
         if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
         {
-            _raycastPos = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset+2f, _targetNode.hex.transform.position.z);
+            _raycastPos = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + 1f, _targetNode.hex.transform.position.z);
         }
         else
         {
-            _raycastPos = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset + 2 * (m_currentHeightOffset), _targetNode.hex.transform.position.z);
+            _raycastPos = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + InputManager.Instance.LargestScale.y + 20, _targetNode.hex.transform.position.z);
         }
 
         //If the raycast hits a node, the location is valid, otherwise it isn't
@@ -127,7 +127,12 @@ public class ValidateBuildingLocation : MonoBehaviour
         {
             if (_hit.collider.tag == "Environment")
             {
-                if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability != navigabilityStates.navigable)
+                Node _hitNode = _hit.collider.gameObject.GetComponent<NodeComponent>().node;
+                if(nodeEmpty(_hitNode) && !adjacentToEnemySpawn(_hitNode) && !adjacentToGem(_targetNode))
+                {
+                    _validLocation = true;
+                }
+                else
                 {
                     _validLocation = false;
                 }
@@ -163,22 +168,10 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <returns>True or false based on whether the targetNode can accept a Mine.</returns>
     public bool verifyMine(Node _targetNode)
     {
-        bool _validLocation;
-        if (_targetNode.navigability == navigabilityStates.navigable)
+        bool _validLocation = false;
+        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
         {
             _validLocation = true;
-        }
-        else
-        {
-            _validLocation = false;
-        }
-
-        foreach (Node _adjNode in _targetNode.adjecant)
-        {
-            if (_adjNode.navigability == navigabilityStates.enemySpawn)
-            {
-                _validLocation = false;
-            }
         }
 
         return _validLocation;
@@ -191,22 +184,10 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <returns>True or false based on whether the targetNode can accept a Wall.</returns>
     public bool verifyWall(Node _targetNode)
     {
-        bool _validLocation;
-        if (_targetNode.navigability == navigabilityStates.navigable)
+        bool _validLocation = false;
+        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
         {
-            _validLocation =  true;
-        }
-        else
-        {
-            _validLocation =  false;
-        }
-
-        foreach (Node _adjNode in _targetNode.adjecant)
-        {
-            if (_adjNode.navigability == navigabilityStates.enemySpawn)
-            {
-                _validLocation = false;
-            }
+            _validLocation = true;
         }
 
         return _validLocation;
@@ -220,8 +201,8 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <returns>True or false based on whether the targetNode can accept a enemySpawn.</returns>
     public bool verifyEnemySpawn(Node _targetNode)
     {
-        bool _validLocation = true;
-        if (_targetNode.navigability == navigabilityStates.navigable)
+        bool _validLocation;
+        if (nodeEmpty(_targetNode))
         {
             _validLocation = true;
         }
@@ -231,7 +212,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         }
 
         //Checks for any nonPlaceable adjecent nodes. This helps with ensuring spawns are spread out.
-        foreach(Node _adjNode in _targetNode.adjecant)
+        foreach (Node _adjNode in _targetNode.adjecant)
         {
             if(_adjNode.navigability == navigabilityStates.nonPlaceable)
             {
@@ -321,5 +302,62 @@ public class ValidateBuildingLocation : MonoBehaviour
         _spawn.GetComponent<EnemySpawnBehaviour>().thisNode = _targetNode;
         GameManager.Instance.enemySpawns.Add(_spawn.GetComponent<EnemySpawnBehaviour>());
     }
+    #endregion
+
+
+
+    #region gameRules
+
+    /// <summary>
+    /// Checks whether a node is empty.
+    /// </summary>
+    /// <param name="_targetNode">The node to be checked</param>
+    /// <returns>True/False based on whether the node is empty.</returns>
+    private bool nodeEmpty(Node _targetNode)
+    {
+        if (_targetNode.navigability == navigabilityStates.navigable)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    /// <summary>
+    /// Checks whether the node to adjacent to any enemy spawns.
+    /// </summary>
+    /// <param name="_targetNode">The node to check</param>
+    /// <returns>True/False depending on whether the _targetNode is adjacent to an enemy spawn.</returns>
+    private bool adjacentToEnemySpawn(Node _targetNode)
+    {
+        foreach (Node _adjNode in _targetNode.adjecant)
+        {
+            if (_adjNode.navigability == navigabilityStates.enemySpawn)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    /// <summary>
+    /// Checks whether the node to adjacent to the gem
+    /// </summary>
+    /// <param name="_targetNode">The node to check</param>
+    /// <returns>True/False depending on whether the _targetNode is adjacent to the gem</returns>
+    private bool adjacentToGem(Node _targetNode)
+    {
+        foreach (Node _adjNode in _targetNode.adjecant)
+        {
+            if (_adjNode.navigability == navigabilityStates.gem)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     #endregion
 }
