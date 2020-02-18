@@ -22,8 +22,8 @@ public class GameManager : MonoBehaviour
 
     [Header("Gold Management"), Space(10)]
     [SerializeField,Tooltip("Gold the player should start with.")] private int m_startingGold = 10; //Starting gold for the player
-    [SerializeField, Tooltip("Amount of time in seconds between each interval of the timer.")] private float m_tickInterval = 1.0f; //Time between each tick of the timer for gold
-    [SerializeField, Tooltip("Amount of gold for a player to earn per interval.")] private int m_goldPerTick = 1; //Amount of gold per tick
+    [SerializeField, Tooltip("Amount of gold for a player to earn per interval.")] private int m_minedGoldPerRound = 20; //Amount of gold per tick
+    private int m_mineCount;
 
 
 
@@ -41,7 +41,6 @@ public class GameManager : MonoBehaviour
     #region Accessors
     public static GameManager Instance { get => s_instance; set => s_instance = value; }
     public float GameSpeed { get => m_gameSpeed; set => m_gameSpeed = value; }
-    public float TickInterval { get => m_tickInterval; set => m_tickInterval = value; }
     public Node GameGemNode { get => m_gameGemNode; set => m_gameGemNode = value; }
     internal Phases CurrentPhase { get => m_currentPhase; set => m_currentPhase = value; }
     public bool GameOver { get => m_gameOver; set => m_gameOver = value; }
@@ -104,6 +103,7 @@ public class GameManager : MonoBehaviour
     {
         m_round.text = "Building";
         CurrentPhase = Phases.Building;
+        currentGold += (m_mineCount * m_minedGoldPerRound) + 30;
         //Set all adjecent nodes to the spawns to nonPlaceable, so the player cannot build around them.
         foreach (EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
         {
@@ -147,9 +147,9 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// Increment the current gold by the amount per tick, all assigned in Game Manager.
     /// </summary>
-    public void IncrementGold()
+    public void IncrementMines()
     {
-        currentGold += m_goldPerTick;
+        m_mineCount += 1;
     }
 
     /// <summary>
@@ -229,7 +229,10 @@ public class GameManager : MonoBehaviour
         if(m_gameOver == false)
         {
             //Increase the count of enemies based on Enemy Counter;
-            m_enemyAmount += Mathf.RoundToInt(m_roundCounter / 2);
+            m_enemyAmount += m_roundCounter;
+
+
+
             CurrentEnemies = m_enemyAmount;
             m_round.text = "Round " + m_roundCounter;
 

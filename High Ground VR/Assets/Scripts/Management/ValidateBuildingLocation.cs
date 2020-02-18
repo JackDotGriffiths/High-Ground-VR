@@ -239,7 +239,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <param name="_targetNode">Node on which to place a Barracks</param>
     public void placeBarracks(Node _targetNode, float _angle)
     {
-        if (!GameManager.Instance.spendGold(10))
+        if (!GameManager.Instance.spendGold(40))
         {
             Debug.Log("Not Enough Money");
             return;
@@ -259,7 +259,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <param name="_targetNode">Node on which to place a Mine</param>
     public void placeMine(Node _targetNode, float _angle)
     {
-        if (!GameManager.Instance.spendGold(10))
+        if (!GameManager.Instance.spendGold(40))
         {
             Debug.Log("Not Enough Money");
             return;
@@ -278,7 +278,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <param name="_targetNode">Node on which to place a Wall</param>
     public void placeWall(Node _targetNode, float _angle)
     {
-        if (!GameManager.Instance.spendGold(3))
+        if (!GameManager.Instance.spendGold(10))
         {
             Debug.Log("Not Enough Money");
             return;
