@@ -54,6 +54,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
         {
             m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;
             GameManager.Instance.CurrentEnemies -= 1;
+            GameManager.Instance.enemyGold();
             Destroy(this.gameObject);
         }
 

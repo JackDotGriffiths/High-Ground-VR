@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
     [Header("Gold Management"), Space(10)]
     [SerializeField,Tooltip("Gold the player should start with.")] private int m_startingGold = 10; //Starting gold for the player
     [SerializeField, Tooltip("Amount of gold for a player to earn per interval.")] private int m_minedGoldPerRound = 20; //Amount of gold per tick
+    [SerializeField, Tooltip("Amount of gold for a player to earn from killing an enemy")] private int m_goldPerKill = 20; //Amount of enemyKilled
     private int m_mineCount;
 
 
@@ -168,6 +169,15 @@ public class GameManager : MonoBehaviour
         {
             return false;
         }
+    }
+
+
+    /// <summary>
+    /// Adds money for the player killing an enemy.
+    /// </summary>
+    public void enemyGold()
+    {
+        currentGold += m_goldPerKill;
     }
     #endregion
 
