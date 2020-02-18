@@ -243,55 +243,55 @@ public class InputManager : MonoBehaviour
         #endregion
 
         #region Teleporting
-        ////Teleporting down to tiny size
-        //if (m_mainTeleport == true && m_teleporterPrimed == false)
-        //{
-        //    //Debug.Log("Teleporter Primed");
-        //    m_teleporterPrimed = true;
-        //}
+        //Teleporting down to tiny size
+        if (m_mainTeleport == true && m_teleporterPrimed == false)
+        {
+            //Debug.Log("Teleporter Primed");
+            m_teleporterPrimed = true;
+        }
 
 
-        ////Teleport onto the game board
-        //if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelectedHex != null && m_enlargePlayer == false)
-        //{
-        //    //If the node is able to be teleported onto, teleport the player.
-        //    if(m_currentlySelectedHex.GetComponent<NodeComponent>().node.navigability == navigabilityStates.navigable)
-        //    {
-        //        //Debug.Log("Teleported");
-        //        m_teleporterPrimed = false;
-        //        //Scale the game environment
-        //        m_gameEnvironment.transform.localScale = m_largestScale;
-        //        if (m_gameEnvironment.transform.position.y != -m_largestScale.y)
-        //        {
-        //            m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, -m_largestScale.y - 20, m_gameEnvironment.transform.position.z);
-        //        }
-        //        m_newPosition = new Vector3(m_currentlySelectedHex.transform.position.x, 0, m_currentlySelectedHex.transform.position.z);
+        //Teleport onto the game board
+        if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelectedHex != null && m_enlargePlayer == false)
+        {
+            //If the node is able to be teleported onto, teleport the player.
+            if (m_currentlySelectedHex.GetComponent<NodeComponent>().node.navigability == navigabilityStates.navigable)
+            {
+                //Debug.Log("Teleported");
+                m_teleporterPrimed = false;
+                //Scale the game environment
+                m_gameEnvironment.transform.localScale = m_largestScale;
+                if (m_gameEnvironment.transform.position.y != -m_largestScale.y)
+                {
+                    m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, -m_largestScale.y - 20, m_gameEnvironment.transform.position.z);
+                }
+                m_newPosition = new Vector3(m_currentlySelectedHex.transform.position.x, 0, m_currentlySelectedHex.transform.position.z);
 
 
-        //        //Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
-        //        //_gameEnvRigid.angularVelocity = Vector3.zero;
-        //        //_gameEnvRigid.velocity = Vector3.zero;
-        //        m_currentSize = SizeOptions.small;
-        //        m_mainPointer.startWidth = 0.03f;
-        //        m_mainPointer.endWidth = 0.00f;
-        //    }
-        //}
+                //Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
+                //_gameEnvRigid.angularVelocity = Vector3.zero;
+                //_gameEnvRigid.velocity = Vector3.zero;
+                m_currentSize = SizeOptions.small;
+                m_mainPointer.startWidth = 0.03f;
+                m_mainPointer.endWidth = 0.00f;
+            }
+        }
 
-        ////Teleport off the game board.
-        //if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelectedHex == null && m_enlargePlayer == true)
-        //{
-        //    //Debug.Log("Teleported");
-        //    m_teleporterPrimed = false;
+        //Teleport off the game board.
+        if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelectedHex == null && m_enlargePlayer == true)
+        {
+            //Debug.Log("Teleported");
+            m_teleporterPrimed = false;
 
-        //    m_newPosition = new Vector3(0, 0, 0);
-        //    m_gameEnvironment.transform.localScale = m_smallestScale;
-        //    m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 0);
+            m_newPosition = new Vector3(0, 0, 0);
+            m_gameEnvironment.transform.localScale = m_smallestScale;
+            m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 0);
 
 
-        //    m_currentSize = SizeOptions.large;
-        //    m_mainPointer.startWidth = 0.05f;
-        //    m_mainPointer.endWidth = 0.00f;
-        //}
+            m_currentSize = SizeOptions.large;
+            m_mainPointer.startWidth = 0.05f;
+            m_mainPointer.endWidth = 0.00f;
+        }
         #endregion
 
         #region Book UI

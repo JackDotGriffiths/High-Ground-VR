@@ -76,20 +76,18 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        if (m_gameOver == true)
+        {
+            m_round.text = "GAME OVER";
+            m_gameSpeed = 0;
+            return;
+        }
         if(m_currentEnemies <= 0 && CurrentPhase == Phases.Building)
         {
             m_buildingPhaseTimer -= Time.deltaTime * m_gameSpeed;
             if (m_buildingPhaseTimer <= 0.0f)
             {
-                if (m_gameOver == false)
-                {
                     StartAttackPhase();
-                }
-                else
-                {
-                    m_round.text = "GAME OVER";
-                    m_gameSpeed = 0;
-                }
             }
         }
         if(m_currentEnemies <=0 && CurrentPhase == Phases.Attack)
