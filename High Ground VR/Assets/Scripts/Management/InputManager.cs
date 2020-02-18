@@ -148,10 +148,10 @@ public class InputManager : MonoBehaviour
         //Raycasting from the controllers
         RaycastHit _hit;
 
-        Debug.DrawRay(MainController.transform.position, MainController.transform.forward * 1000);
+        //Debug.DrawRay(MainController.transform.position, MainController.transform.forward * 1000);
 
         //Raycast from the mainController forward.
-        if (Physics.Raycast(MainController.transform.position, MainController.transform.forward, out _hit, 1000))
+        if (Physics.Raycast(MainController.transform.position, MainController.transform.forward - MainController.transform.up, out _hit, 1000))
         {
             //If it hits an environment Hex, highlight.
             if (_hit.collider.gameObject.tag == "Environment")
@@ -217,7 +217,7 @@ public class InputManager : MonoBehaviour
         {
             //If the player doesn't hit anything with a relevant tag, Just update the laser.
             m_mainPointer.SetPosition(0, MainController.transform.position);
-            m_mainPointer.SetPosition(1, MainController.transform.position + MainController.transform.forward * 100);
+            m_mainPointer.SetPosition(1, MainController.transform.position + (MainController.transform.forward - MainController.transform.up) * 100);
             m_currentlySelectedHex = null;
             m_enlargePlayer = true;
             //Turn the laser colour red.
@@ -399,13 +399,16 @@ public class InputManager : MonoBehaviour
     private float headsetToHexAngle()
     {
         //Retrieve the angle of the headset to the chosen hex, using an equal Y so it's on the same plane.
-        Vector3 _hexagonPos = m_currentlySelectedHex.transform.forward;
-        Vector3 _headsetPos = new Vector3(m_camera.transform.position.x, m_currentlySelectedHex.transform.position.y, m_camera.transform.position.z) - m_currentlySelectedHex.transform.position;
+        Vector3 _hexagonPos = m_currentlySelectedHex.transform.position;
+        Vector3 _headsetPos = new Vector3(m_camera.transform.position.x, m_currentlySelectedHex.transform.position.y, m_camera.transform.position.z);
 
-        float _rawAngle = Vector3.Angle(_hexagonPos, _headsetPos);
-        float _angle = (Mathf.Floor(_rawAngle / 60.0f) * 60.0f) + 30.0f;
-        Debug.DrawLine(_headsetPos,_hexagonPos,Color.magenta);
+        Vector3 _difference = _headsetPos - _hexagonPos;
 
-        return _angle; 
+
+        float _rawAngle = Mathf.Atan2(_difference.z, _difference.x) * Mathf.Rad2Deg - 90;
+
+        //float _angle = (Mathf.Floor(_rawAngle / 60.0f) * 60.0f) + 30.0f;
+
+        return -_rawAngle; 
     }
 }

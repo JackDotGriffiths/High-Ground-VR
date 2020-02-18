@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-enum Phases { Building, Action };
+enum Phases { Building, Attack };
 public class GameManager : MonoBehaviour
 {
     private static GameManager s_instance;
     [Header("Game Config")]
     [SerializeField, Range(0, 1), Tooltip("The speed of objects in the game on a scale of 0-1")] private float m_gameSpeed = 1.0f; //Game speed multiplier used across the game for allowing for slowmo/pausing etc.
-    [SerializeField, Tooltip("How long in seconds the building phase should be"), Range(10,20)] private float m_buildingPhaseTime; //Length of time the player should be allowed to build.
+    [SerializeField, Tooltip("How long in seconds the building phase should be")] private float m_buildingPhaseTime; //Length of time the player should be allowed to build.
     private bool m_gameOver = false;
 
     [Header("Enemy Spawn Management"),Space(10)]
@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     [Tooltip("Enemy Spawn Delay")] public int m_enemySpawnDelay;
     public List<EnemySpawnBehaviour> enemySpawns;
     private List<Node> m_outerEdgeNodes; //Set to the nodes on the outer edge of the map, used when spawning enemies.
+    private int m_currentEnemies;
 
 
     [Header("Gold Management"), Space(10)]
@@ -44,6 +45,7 @@ public class GameManager : MonoBehaviour
     public Node GameGemNode { get => m_gameGemNode; set => m_gameGemNode = value; }
     internal Phases CurrentPhase { get => m_currentPhase; set => m_currentPhase = value; }
     public bool GameOver { get => m_gameOver; set => m_gameOver = value; }
+    public int CurrentEnemies { get => m_currentEnemies; set => m_currentEnemies = value; }
     #endregion
 
 
@@ -64,6 +66,7 @@ public class GameManager : MonoBehaviour
         m_roundCounter = 1;
         currentGold = m_startingGold;
         m_buildingPhaseTimer = m_buildingPhaseTime;
+        CurrentPhase = Phases.Building;
 
         //Invoke on a delay so GameBoard Graph has been created.
         Invoke("instantiateSpawns", 0.05f);
@@ -73,32 +76,36 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        m_buildingPhaseTimer -= Time.deltaTime * m_gameSpeed;
-        if (m_buildingPhaseTimer <= 0.0f)
+        if(m_currentEnemies <= 0 && CurrentPhase == Phases.Building)
         {
-            if(m_gameOver == false)
+            m_buildingPhaseTimer -= Time.deltaTime * m_gameSpeed;
+            if (m_buildingPhaseTimer <= 0.0f)
             {
-                StartAttackPhase();
-                StartCoroutine("spawnEnemies");
+                if (m_gameOver == false)
+                {
+                    StartAttackPhase();
+                }
+                else
+                {
+                    m_round.text = "GAME OVER";
+                    m_gameSpeed = 0;
+                }
             }
-            else
-            {
-                m_round.text = "GAME OVER";
-                m_gameSpeed = 0;
-            }
-
-            m_buildingPhaseTimer = m_buildingPhaseTime;
+        }
+        if(m_currentEnemies <=0 && CurrentPhase == Phases.Attack)
+        {
+            StartBuildingPhase();
         }
         //Updating Debug Displays
         m_goldValue.text = currentGold.ToString();
         m_timerLeft.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString() + "s";
-
-
     }
 
     #region Phase Control
     void StartBuildingPhase()
     {
+        m_round.text = "Building";
+        CurrentPhase = Phases.Building;
         //Set all adjecent nodes to the spawns to nonPlaceable, so the player cannot build around them.
         foreach (EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
         {
@@ -108,9 +115,11 @@ public class GameManager : MonoBehaviour
                 _node.navigability = navigabilityStates.nonPlaceable;
             }
         }
+        m_buildingPhaseTimer = m_buildingPhaseTime;
     }
     void StartAttackPhase()
     {
+        CurrentPhase = Phases.Attack;
         //Set all adjecent nodes to the spawns to nonPlaceable, so the player cannot build around them.
         foreach (EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
         {
@@ -120,6 +129,12 @@ public class GameManager : MonoBehaviour
                 _node.navigability = navigabilityStates.navigable;
             }
         }
+
+
+
+        StartCoroutine("spawnEnemies");
+
+
     }
     #endregion
 
@@ -217,6 +232,7 @@ public class GameManager : MonoBehaviour
         {
             //Increase the count of enemies based on Enemy Counter;
             m_enemyAmount += Mathf.RoundToInt(m_roundCounter / 2);
+            CurrentEnemies = m_enemyAmount;
             m_round.text = "Round " + m_roundCounter;
 
             //For each enemy to spawn, randomly choose a spawn and run spawnEnemy
