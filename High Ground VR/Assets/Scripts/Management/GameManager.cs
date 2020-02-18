@@ -198,9 +198,9 @@ public class GameManager : MonoBehaviour
             Node _chosenNode = m_outerEdgeNodes[Random.Range(0, m_outerEdgeNodes.Count)];
             
             //Verify and place the enemy spawn at this hex
-            if (GameBoardGeneration.Instance.BuildingValidation.verifyEnemySpawn(_chosenNode) == true)
+            if (GameBoardGeneration.Instance.BuildingValidation.verifyEnemySpawn(_chosenNode, 0.0f) == true)
             {
-                    GameBoardGeneration.Instance.BuildingValidation.placeEnemySpawn(_chosenNode);
+                    GameBoardGeneration.Instance.BuildingValidation.placeEnemySpawn(_chosenNode, 0.0f);
             }
             else { 
                 i--; 

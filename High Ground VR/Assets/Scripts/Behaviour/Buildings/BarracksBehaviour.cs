@@ -38,7 +38,7 @@ public class BarracksBehaviour : MonoBehaviour
         Vector3 _raycastDir;
 
         //Raycast out of the door and downwards to find the correct node on which units should spawn.
-        _raycastDir = (transform.right - transform.up) * 100;
+        _raycastDir = (transform.forward - transform.up) * 100;
         RaycastHit _hit;
 
         //Based on the size of the player (Small or large), change the position of which the raycast comes from.

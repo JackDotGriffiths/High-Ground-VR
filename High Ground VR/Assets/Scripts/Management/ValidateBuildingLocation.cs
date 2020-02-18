@@ -41,19 +41,19 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <param name="_building">Chosen Building to verify</param>
     /// <param name="_targetNode">Node on which to spawn the building.</param>
     /// <returns>Bool returns true if the building location is verified, false if not.</returns>
-    public bool verifyBuilding(BuildingOption _building,Node _targetNode)
+    public bool verifyBuilding(BuildingOption _building,Node _targetNode,float _buildingAngle)
     {
         if(_building.type == buildingTypes.Barracks)
         {
-            return verifyBarracks(_targetNode);
+            return verifyBarracks(_targetNode, _buildingAngle);
         }
         else if (_building.type == buildingTypes.Mine)
         {
-            return verifyMine(_targetNode);
+            return verifyMine(_targetNode, _buildingAngle);
         }
         else if (_building.type == buildingTypes.Wall)
         {
-            return verifyWall(_targetNode);
+            return verifyWall(_targetNode, _buildingAngle);
         }
         else
         {
@@ -67,19 +67,19 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// </summary>
     /// <param name="_building">Building you wish to spawn.</param>
     /// <param name="_targetNode">Target Node</param>
-    public void placeBuilding(BuildingOption _building, Node _targetNode)
+    public void placeBuilding(BuildingOption _building, Node _targetNode, float _buildingAngle)
     {
         if (_building.type == buildingTypes.Barracks)
         {
-            placeBarracks(_targetNode);
+            placeBarracks(_targetNode, _buildingAngle);
         }
         else if (_building.type == buildingTypes.Mine)
         {
-            placeMine(_targetNode);
+            placeMine(_targetNode, _buildingAngle);
         }
         else if (_building.type == buildingTypes.Wall)
         {
-            placeWall(_targetNode);
+            placeWall(_targetNode, _buildingAngle);
         }
         else
         {
@@ -96,9 +96,13 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// </summary>
     /// <param name="_targetNode">Node on which to place a barracks</param>
     /// <returns>True or false based on whether the targetNode can accept a Barracks.</returns>
-    public bool verifyBarracks(Node _targetNode)
+    public bool verifyBarracks(Node _targetNode, float _angle)
     {
         bool _validLocation = false;
+        if (!nodeEmpty(_targetNode))
+        {
+            return false ;
+        }
         if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
         {
             _validLocation = true;
@@ -108,7 +112,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         Vector3 _raycastDir;
 
         //Raycast out of the door and downwards to find the correct node on which units should spawn.
-        _raycastDir = (_targetNode.hex.transform.right - _targetNode.hex.transform.up) * 100;
+        _raycastDir = (Quaternion.Euler(0, _angle, 0) * _targetNode.hex.transform.forward - _targetNode.hex.transform.up) * 100;
         RaycastHit _hit;
 
         //Based on the size of the player (Small or large), change the position of which the raycast comes from.
@@ -166,7 +170,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// </summary>
     /// <param name="_targetNode">Node on which to place a Mine</param>
     /// <returns>True or false based on whether the targetNode can accept a Mine.</returns>
-    public bool verifyMine(Node _targetNode)
+    public bool verifyMine(Node _targetNode, float _angle)
     {
         bool _validLocation = false;
         if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
@@ -182,7 +186,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// </summary>
     /// <param name="_targetNode">Node on which to place a Wall</param>
     /// <returns>True or false based on whether the targetNode can accept a Wall.</returns>
-    public bool verifyWall(Node _targetNode)
+    public bool verifyWall(Node _targetNode, float _angle)
     {
         bool _validLocation = false;
         if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
@@ -199,7 +203,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// </summary>
     /// <param name="_targetNode">Node on which to place a enemySpawn</param>
     /// <returns>True or false based on whether the targetNode can accept a enemySpawn.</returns>
-    public bool verifyEnemySpawn(Node _targetNode)
+    public bool verifyEnemySpawn(Node _targetNode, float _angle)
     {
         bool _validLocation;
         if (nodeEmpty(_targetNode))
@@ -233,7 +237,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// Takes in a targetNode and places a Barracks at that position
     /// </summary>
     /// <param name="_targetNode">Node on which to place a Barracks</param>
-    public void placeBarracks(Node _targetNode)
+    public void placeBarracks(Node _targetNode, float _angle)
     {
         if (!GameManager.Instance.spendGold(10))
         {
@@ -243,8 +247,9 @@ public class ValidateBuildingLocation : MonoBehaviour
         //Update Node navigability and surrounding nodes
         _targetNode.navigability = navigabilityStates.destructible;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
-        GameObject _building = Instantiate(m_barracks, _targetNode.hex.transform);
-        _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
+        Vector3 _position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
+        Vector3 _rotation = new Vector3(0.0f, _angle, 0.0f);
+        GameObject _building = Instantiate(m_barracks,_position,Quaternion.Euler(_rotation), _targetNode.hex.transform);
     }
 
 
@@ -252,7 +257,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// Takes in a targetNode and places a Mine at that position
     /// </summary>
     /// <param name="_targetNode">Node on which to place a Mine</param>
-    public void placeMine(Node _targetNode)
+    public void placeMine(Node _targetNode, float _angle)
     {
         if (!GameManager.Instance.spendGold(10))
         {
@@ -262,15 +267,16 @@ public class ValidateBuildingLocation : MonoBehaviour
         //Update Node navigability and surrounding nodes
         _targetNode.navigability = navigabilityStates.destructible;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
-        GameObject _building = Instantiate(m_mine, _targetNode.hex.transform);
-        _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
+        Vector3 _position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
+        Vector3 _rotation = new Vector3(0.0f, _angle, 0.0f);
+        GameObject _building = Instantiate(m_mine, _position, Quaternion.Euler(_rotation), _targetNode.hex.transform);
     }
 
     /// <summary>
     /// Takes in a targetNode and places a Wall at that position
     /// </summary>
     /// <param name="_targetNode">Node on which to place a Wall</param>
-    public void placeWall(Node _targetNode)
+    public void placeWall(Node _targetNode, float _angle)
     {
         if (!GameManager.Instance.spendGold(3))
         {
@@ -288,7 +294,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// Takes in a targetNode and places a enemySpawn at that position
     /// </summary>
     /// <param name="_targetNode">Node on which to place a enemySpawn</param>
-    public void placeEnemySpawn(Node _targetNode)
+    public void placeEnemySpawn(Node _targetNode, float _angle)
     {
         //Update Node navigability and surrounding nodes
         _targetNode.navigability = navigabilityStates.enemySpawn;

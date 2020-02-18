@@ -10,9 +10,9 @@ public class NodeComponent : MonoBehaviour
     public void PlaceBarracks()
     {
         //If the proposed position of the barrack is verified, place the barracks.
-        if (buildingPlacementValidation.verifyBarracks(node))
+        if (buildingPlacementValidation.verifyBarracks(node,0.0f))
         {
-            buildingPlacementValidation.placeBarracks(node);
+            buildingPlacementValidation.placeBarracks(node, 0.0f);
             Debug.Log("Barracks Placed at " + node.label);
         }
         else
@@ -23,9 +23,9 @@ public class NodeComponent : MonoBehaviour
     public void PlaceMine()
     {
         //If the proposed position of the barrack is verified, place the mine.
-        if (buildingPlacementValidation.verifyMine(node))
+        if (buildingPlacementValidation.verifyMine(node, 0.0f))
         {
-            buildingPlacementValidation.placeMine(node);
+            buildingPlacementValidation.placeMine(node, 0.0f);
             Debug.Log("Mine Placed at " + node.label);
         }
         else
@@ -36,9 +36,9 @@ public class NodeComponent : MonoBehaviour
     public void PlaceWalls()
     {
         //If the proposed position of the barrack is verified, place the wall.
-        if (buildingPlacementValidation.verifyWall(node))
+        if (buildingPlacementValidation.verifyWall(node, 0.0f))
         {
-            buildingPlacementValidation.placeWall(node);
+            buildingPlacementValidation.placeWall(node, 0.0f);
             Debug.Log("Walls Placed at " + node.label);
         }
         else
