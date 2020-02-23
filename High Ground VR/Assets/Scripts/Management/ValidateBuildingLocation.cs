@@ -14,25 +14,10 @@ public class ValidateBuildingLocation : MonoBehaviour
     [SerializeField, Space(1), Tooltip("Wall prefab to spawn")] private GameObject m_walls;
     [SerializeField, Space(1), Tooltip("Enemy Spawn prefab to spawn")] private GameObject m_enemySpawn;
 
-    private float m_currentHeightOffset;
-
     /// <summary>
     /// Offset from the center to the top of the hex. Use this to place buildings/objects at runtime.
     /// </summary>
-    public float CurrentHeightOffset { get => m_currentHeightOffset; set => m_currentHeightOffset = value; }
-
-    void Update()
-    {
-        //Ensures all buildings and units are placed at a correct height whether the player is large or small.
-        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
-        {
-            m_currentHeightOffset = buildingHeightOffset * (2*InputManager.Instance.LargestScale.y);
-        }
-        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
-        {
-            m_currentHeightOffset = buildingHeightOffset;
-        }
-    }
+    public float CurrentHeightOffset { get => buildingHeightOffset; set => buildingHeightOffset = value; }
 
 
     /// <summary>
@@ -247,7 +232,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         //Update Node navigability and surrounding nodes
         _targetNode.navigability = navigabilityStates.destructible;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
-        Vector3 _position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
+        Vector3 _position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
         Vector3 _rotation = new Vector3(0.0f, _angle, 0.0f);
         GameObject _building = Instantiate(m_barracks,_position,Quaternion.Euler(_rotation), _targetNode.hex.transform);
 
@@ -270,7 +255,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         //Update Node navigability and surrounding nodes
         _targetNode.navigability = navigabilityStates.destructible;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
-        Vector3 _position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
+        Vector3 _position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
         Vector3 _rotation = new Vector3(0.0f, _angle, 0.0f);
         GameObject _building = Instantiate(m_mine, _position, Quaternion.Euler(_rotation), _targetNode.hex.transform);
         AudioManager.Instance.PlaySound(SoundLists.placeBuildings, true, 1, _targetNode.hex, true, false, true);
@@ -291,7 +276,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         _targetNode.navigability = navigabilityStates.destructible;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         GameObject _building = Instantiate(m_walls, _targetNode.hex.transform);
-        _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
+        _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
         AudioManager.Instance.PlaySound(SoundLists.placeBuildings, true, 1, _targetNode.hex, true, false, true);
     }
 
@@ -309,7 +294,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         //}
         //Instantiate Relevant Prefab. Position + Scale Based on size of the environment.
         GameObject _spawn = Instantiate(m_enemySpawn, _targetNode.hex.transform);
-        _spawn.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + m_currentHeightOffset, _targetNode.hex.transform.position.z);
+        _spawn.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
         _spawn.GetComponent<EnemySpawnBehaviour>().thisNode = _targetNode;
         GameManager.Instance.enemySpawns.Add(_spawn.GetComponent<EnemySpawnBehaviour>());
     }

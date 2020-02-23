@@ -202,7 +202,7 @@ public class InputManager : MonoBehaviour
                     //Try/Catch to check for any missing references
                     try
                     {
-                        m_currentlySelectedBuilding = BuildingManager.Instance.GetBuilding(_hit.collider);
+                        m_currentlySelectedBuilding = BookManager.Instance.GetBuilding(_hit.collider);
                         Debug.Log("Selected " + m_currentlySelectedBuilding.type);
                     }
                     catch { Debug.LogError("Does the button have an option available in BuildingManager on BookUI?"); }
@@ -259,18 +259,19 @@ public class InputManager : MonoBehaviour
             {
                 //Debug.Log("Teleported");
                 m_teleporterPrimed = false;
+
+
                 //Scale the game environment
-                m_gameEnvironment.transform.localScale = m_largestScale;
-                if (m_gameEnvironment.transform.position.y != -m_largestScale.y)
-                {
-                    m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, -m_largestScale.y - 20, m_gameEnvironment.transform.position.z);
-                }
-                m_newPosition = new Vector3(m_currentlySelectedHex.transform.position.x, 0, m_currentlySelectedHex.transform.position.z);
+                //m_gameEnvironment.transform.localScale = m_largestScale;
+                //if (m_gameEnvironment.transform.position.y != -m_largestScale.y)
+                //{
+                //    m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, -m_largestScale.y - 20, m_gameEnvironment.transform.position.z);
+                //}
 
 
-                //Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
-                //_gameEnvRigid.angularVelocity = Vector3.zero;
-                //_gameEnvRigid.velocity = Vector3.zero;
+                m_vrRig.transform.localScale = m_smallestScale;
+                m_newPosition = new Vector3(m_currentlySelectedHex.transform.position.x, m_currentlySelectedHex.transform.position.y + m_buildingValidation.CurrentHeightOffset, m_currentlySelectedHex.transform.position.z);
+
                 m_currentSize = SizeOptions.small;
                 m_mainPointer.startWidth = 0.03f;
                 m_mainPointer.endWidth = 0.00f;
@@ -284,8 +285,10 @@ public class InputManager : MonoBehaviour
             m_teleporterPrimed = false;
 
             m_newPosition = new Vector3(0, 0, 0);
-            m_gameEnvironment.transform.localScale = m_smallestScale;
-            m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 0);
+            m_vrRig.transform.localScale = m_largestScale;
+            
+            //m_gameEnvironment.transform.localScale = m_smallestScale;
+            //m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 0);
 
 
             m_currentSize = SizeOptions.large;

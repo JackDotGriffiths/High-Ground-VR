@@ -102,6 +102,7 @@ public class GameManager : MonoBehaviour
     #region Phase Control
     void StartBuildingPhase()
     {
+        BookManager.Instance.HideActions();
         m_round.text = "Building";
         CurrentPhase = Phases.Building;
         currentGold += (m_mineCount * m_minedGoldPerRound) + 30;
@@ -118,6 +119,7 @@ public class GameManager : MonoBehaviour
     }
     void StartAttackPhase()
     {
+        BookManager.Instance.ShowActions();
         CurrentPhase = Phases.Attack;
         //Set all adjecent nodes to the spawns to nonPlaceable, so the player cannot build around them.
         foreach (EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
