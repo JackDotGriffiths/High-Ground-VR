@@ -183,7 +183,9 @@ public class GameBoardGeneration : MonoBehaviour
         GameManager.Instance.GameGemNode = _gemNode;
     }
 
-
+    /// <summary>
+    /// Places random nature assets on the map.
+    /// </summary>
     public void placeAmbientNature()
     {
         if(m_ambientNatureAssets.Count != 0)
@@ -199,11 +201,11 @@ public class GameBoardGeneration : MonoBehaviour
                     {
                         Vector3 _spawnPosition = Random.insideUnitSphere + _hex.transform.position;
                         _spawnPosition.y = BuildingValidation.buildingHeightOffset;
-                        Quaternion _spawnRotation = new Quaternion(0, Random.Range(0, 360), 0, 1.0f);
+                        Vector3 _spawnRotation = new Vector3(0, Random.Range(0.0f, 360.0f), 0);
 
 
                         GameObject _randObject = m_ambientNatureAssets[Random.Range(0, m_ambientNatureAssets.Count)];//Choose a random object
-                        Instantiate(_randObject, _spawnPosition, _spawnRotation, _ambientParent.transform);//Create the gameObject
+                        Instantiate(_randObject, _spawnPosition, Quaternion.Euler(_spawnRotation), _ambientParent.transform);//Create the gameObject
                     }
                 }
             }

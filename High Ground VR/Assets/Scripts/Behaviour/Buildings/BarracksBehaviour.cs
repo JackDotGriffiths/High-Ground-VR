@@ -38,18 +38,11 @@ public class BarracksBehaviour : MonoBehaviour
         Vector3 _raycastDir;
 
         //Raycast out of the door and downwards to find the correct node on which units should spawn.
-        _raycastDir = (transform.right - transform.up) * 100;
+        _raycastDir = (transform.forward - transform.up) * 100;
         RaycastHit _hit;
 
         //Based on the size of the player (Small or large), change the position of which the raycast comes from.
-        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
-        {
-            _raycastPos = new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z);
-        }
-        else
-        {
-            _raycastPos = new Vector3(transform.position.x, transform.position.y + InputManager.Instance.LargestScale.y + 20, transform.position.z);
-        }
+         _raycastPos = new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z);
 
         //If the raycast hits a node, assign m_barracksUnitNode to this located node.
         Debug.DrawRay(_raycastPos, _raycastDir, Color.green);
@@ -125,13 +118,7 @@ public class BarracksBehaviour : MonoBehaviour
             //Place the unit at a certain position along that angle, dividing the units into equal sectors of the hexagon.
             Quaternion _angle = Quaternion.Euler(0, _angleDifference * (_index+1), 0);
 
-            float _multiplier = 1;
-            if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
-            {
-                _multiplier = InputManager.Instance.LargestScale.y + 20;
-            }
-
-            Vector3 _unitPostion = _hexPosition + (_angle * (Vector3.forward * 0.4f) * _multiplier);
+            Vector3 _unitPostion = _hexPosition + (_angle * (Vector3.forward * 0.4f));
             _gameObj.transform.position = _unitPostion;
             _index++;
         }
@@ -226,7 +213,7 @@ public class BarracksBehaviour : MonoBehaviour
         for (int i = 0; i < _difference; i++)
         {
             yield return new WaitForSeconds(m_unitRespawnDelay);
-            if (m_barracksUnitNode.navigability == navigabilityStates.enemyUnit || m_barracksUnitNode.hex.transform.childCount != 0)
+            if (m_barracksUnitNode.navigability == navigabilityStates.enemyUnit)
             {
                 i--;
             }

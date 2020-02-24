@@ -89,7 +89,7 @@ public class Search
 
         if (unitAggression == 1.0f)
         {
-            if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.destructable || adjacent.navigability == navigabilityStates.gem || adjacent.navigability == navigabilityStates.playerUnit)
+            if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.destructible || adjacent.navigability == navigabilityStates.gem || adjacent.navigability == navigabilityStates.playerUnit)
             {
                 reachable.Add(adjacent);
             }

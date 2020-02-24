@@ -148,10 +148,10 @@ public class InputManager : MonoBehaviour
         //Raycasting from the controllers
         RaycastHit _hit;
 
-        Debug.DrawRay(MainController.transform.position, MainController.transform.forward * 1000);
+        //Debug.DrawRay(MainController.transform.position, MainController.transform.forward * 1000);
 
         //Raycast from the mainController forward.
-        if (Physics.Raycast(MainController.transform.position, MainController.transform.forward, out _hit, 1000))
+        if (Physics.Raycast(MainController.transform.position, MainController.transform.forward - MainController.transform.up, out _hit, 1000))
         {
             //If it hits an environment Hex, highlight.
             if (_hit.collider.gameObject.tag == "Environment")
@@ -177,9 +177,10 @@ public class InputManager : MonoBehaviour
                 //If the user is selecting a hex, and they have a building selected, verify it's location and then place the building if it's verified 
                 if (m_mainTrigger == true && m_currentlySelectedBuilding != null)
                 {
-                    if (m_buildingValidation.verifyBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node))
+                    float _angle = headsetToHexAngle();
+                    if (m_buildingValidation.verifyBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node, _angle))
                     {
-                        m_buildingValidation.placeBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node);
+                        m_buildingValidation.placeBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node, _angle);
                     }
                 }
             }
@@ -192,13 +193,16 @@ public class InputManager : MonoBehaviour
                 m_mainPointer.startColor = Color.blue;
                 m_mainPointer.endColor = Color.blue;
 
+                m_currentlySelectedHex = null;
+                updateObjectList();
+
                 //If the player clicks, get the building associated with that button and set it as m_currentlySelectedBuilding
                 if (m_mainTrigger == true)
                 {
                     //Try/Catch to check for any missing references
                     try
                     {
-                        m_currentlySelectedBuilding = BuildingManager.Instance.GetBuilding(_hit.collider);
+                        m_currentlySelectedBuilding = BookManager.Instance.GetBuilding(_hit.collider);
                         Debug.Log("Selected " + m_currentlySelectedBuilding.type);
                     }
                     catch { Debug.LogError("Does the button have an option available in BuildingManager on BookUI?"); }
@@ -213,7 +217,7 @@ public class InputManager : MonoBehaviour
         {
             //If the player doesn't hit anything with a relevant tag, Just update the laser.
             m_mainPointer.SetPosition(0, MainController.transform.position);
-            m_mainPointer.SetPosition(1, MainController.transform.position + MainController.transform.forward * 100);
+            m_mainPointer.SetPosition(1, MainController.transform.position + (MainController.transform.forward - MainController.transform.up) * 100);
             m_currentlySelectedHex = null;
             m_enlargePlayer = true;
             //Turn the laser colour red.
@@ -251,22 +255,23 @@ public class InputManager : MonoBehaviour
         if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelectedHex != null && m_enlargePlayer == false)
         {
             //If the node is able to be teleported onto, teleport the player.
-            if(m_currentlySelectedHex.GetComponent<NodeComponent>().node.navigability == navigabilityStates.navigable)
+            if (m_currentlySelectedHex.GetComponent<NodeComponent>().node.navigability == navigabilityStates.navigable)
             {
                 //Debug.Log("Teleported");
                 m_teleporterPrimed = false;
+
+
                 //Scale the game environment
-                m_gameEnvironment.transform.localScale = m_largestScale;
-                if (m_gameEnvironment.transform.position.y != -m_largestScale.y)
-                {
-                    m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, -m_largestScale.y - 20, m_gameEnvironment.transform.position.z);
-                }
-                m_newPosition = new Vector3(m_currentlySelectedHex.transform.position.x, 0, m_currentlySelectedHex.transform.position.z);
+                //m_gameEnvironment.transform.localScale = m_largestScale;
+                //if (m_gameEnvironment.transform.position.y != -m_largestScale.y)
+                //{
+                //    m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, -m_largestScale.y - 20, m_gameEnvironment.transform.position.z);
+                //}
 
 
-                //Rigidbody _gameEnvRigid = m_gameEnvironment.GetComponent<Rigidbody>();
-                //_gameEnvRigid.angularVelocity = Vector3.zero;
-                //_gameEnvRigid.velocity = Vector3.zero;
+                m_vrRig.transform.localScale = m_smallestScale;
+                m_newPosition = new Vector3(m_currentlySelectedHex.transform.position.x, m_currentlySelectedHex.transform.position.y + m_buildingValidation.CurrentHeightOffset, m_currentlySelectedHex.transform.position.z);
+
                 m_currentSize = SizeOptions.small;
                 m_mainPointer.startWidth = 0.03f;
                 m_mainPointer.endWidth = 0.00f;
@@ -280,8 +285,10 @@ public class InputManager : MonoBehaviour
             m_teleporterPrimed = false;
 
             m_newPosition = new Vector3(0, 0, 0);
-            m_gameEnvironment.transform.localScale = m_smallestScale;
-            m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 0);
+            m_vrRig.transform.localScale = m_largestScale;
+            
+            //m_gameEnvironment.transform.localScale = m_smallestScale;
+            //m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 0);
 
 
             m_currentSize = SizeOptions.large;
@@ -386,5 +393,25 @@ public class InputManager : MonoBehaviour
             _matList.Add(m_grassMaterial);
             _mesh.materials = _matList.ToArray();
         }
+    }
+
+    /// <summary>
+    /// Retrieve the angle of the headset to the selected hex.
+    /// </summary>
+    /// <returns>The angle as a float in quaternions, ready for building placement.</returns>
+    private float headsetToHexAngle()
+    {
+        //Retrieve the angle of the headset to the chosen hex, using an equal Y so it's on the same plane.
+        Vector3 _hexagonPos = m_currentlySelectedHex.transform.position;
+        Vector3 _headsetPos = new Vector3(m_camera.transform.position.x, m_currentlySelectedHex.transform.position.y, m_camera.transform.position.z);
+
+        Vector3 _difference = _headsetPos - _hexagonPos;
+
+
+        float _rawAngle = Mathf.Atan2(_difference.z, _difference.x) * Mathf.Rad2Deg - 90;
+
+        //float _angle = (Mathf.Floor(_rawAngle / 60.0f) * 60.0f) + 30.0f;
+
+        return -_rawAngle; 
     }
 }
