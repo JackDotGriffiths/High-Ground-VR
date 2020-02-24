@@ -34,7 +34,7 @@ public class EnemySpawnBehaviour : MonoBehaviour
             _enemy.GetComponent<EnemyGroupBehaviour>().currentY = _spawnNode.y;
             _enemy.GetComponent<EnemyGroupBehaviour>().goalX = GameManager.Instance.GameGemNode.x;
             _enemy.GetComponent<EnemyGroupBehaviour>().goalY = GameManager.Instance.GameGemNode.y;
-
+            AudioManager.Instance.PlaySound(SoundLists.enemySpawning, false, 0, _enemy, true, false, true);
             return true; //Succeeded spawning an enemy, continuing spawning.
         }
         else

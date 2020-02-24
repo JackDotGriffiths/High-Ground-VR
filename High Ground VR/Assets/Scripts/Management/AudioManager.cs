@@ -2,17 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum SoundLists { placeBuildings, weaponClashes };
+public enum SoundLists { placeBuildings, weaponClashes,enemySpawning };
 public class AudioManager : MonoBehaviour
 {
     private static AudioManager s_instance;
 
     [SerializeField, Tooltip("Variation on pitch.")] private float m_pitchVariation; //How much to add onto/take away from the pitch once playing.
+
+    [Header("Enemy Spawning")]
+    [SerializeField, Tooltip("Enemy Spawning Sounds."), Space(10)] public List<AudioClip> enemySpawning; //List of building placement sounds
+    [SerializeField, Tooltip("Enemy Spawning Volume"), Range(0.0f, 1.0f)] private float m_enemySpawningVolume; //How much to add onto/take away from the pitch once playing.
+
+
+    [Header ("Weapon Clashes")]
     [SerializeField, Tooltip("Weapon Clash Sounds."),Space(10)] public List<AudioClip> weaponClashes; //List of weapon clash sounds
     [SerializeField, Tooltip("weaponClash Volume"),Range(0.0f,1.0f)] private float m_weaponClashVolume; //How much to add onto/take away from the pitch once playing.
 
-
-
+    [Header("Placing Buildings")]
     [SerializeField, Tooltip("Building Placement Sounds."),Space(10)] public List<AudioClip> placeBuildings; //List of building placement sounds
     [SerializeField, Tooltip("place Building Volume"), Range(0.0f, 1.0f)] private float m_placeBuildingVolume; //How much to add onto/take away from the pitch once playing.
 
@@ -55,6 +61,10 @@ public class AudioManager : MonoBehaviour
                 _chosenList = placeBuildings;
                 _chosenVolume = m_placeBuildingVolume;
                 break;
+            case SoundLists.enemySpawning:
+                _chosenList = enemySpawning;
+                _chosenVolume = m_enemySpawningVolume;
+                break;
         }
 
 
@@ -92,10 +102,10 @@ public class AudioManager : MonoBehaviour
 
 
         _source.loop = false;
-        _source.rolloffMode = AudioRolloffMode.Linear;
-        _source.minDistance = 30;
-        _source.maxDistance = 1000;
-        _source.spatialBlend = 1f;
+        _source.rolloffMode = AudioRolloffMode.Logarithmic;
+        _source.minDistance = 0.1f;
+        _source.maxDistance = 0.5f;
+        _source.spatialBlend = 1.0f;
         _source.Play();
         if (_destroySource == true)
         {
