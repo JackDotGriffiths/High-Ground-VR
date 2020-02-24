@@ -213,10 +213,25 @@ public class EnemyGroupBehaviour : MonoBehaviour
             float _currentDistance = Vector3.Distance(transform.position, m_targetPosition);
             float _percentage = _currentDistance / _maxDistance;
             //Sin of the percentage creates a 'hop' like movement.
-            _yOffset = Mathf.Pow(Mathf.Sin(_percentage),2);
+            _yOffset = 2 * Mathf.Pow(Mathf.Sin(_percentage),2);
         }
         Vector3 _hopPosition = new Vector3(m_targetPosition.x, m_targetPosition.y + _yOffset, m_targetPosition.z);
         transform.position = Vector3.Lerp(transform.position, _hopPosition, m_movementSpeed * timePerception);
+
+        RotateEachUnit();
+    }
+
+
+    void RotateEachUnit()
+    {
+        if(inCombat == false)
+        {
+            foreach (GameObject unit in m_units)
+            {
+                Vector3 _targetRotation = new Vector3(m_groupPath[m_currentStepIndex + 1].hex.transform.position.x, m_groupPath[m_currentStepIndex + 1].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[m_currentStepIndex + 1].hex.transform.position.z);
+                unit.transform.LookAt(_targetRotation);
+            }
+        }
     }
 
     /// <summary>
@@ -236,7 +251,6 @@ public class EnemyGroupBehaviour : MonoBehaviour
         }
         return false;
     }
-
 
 
     /// <summary>
