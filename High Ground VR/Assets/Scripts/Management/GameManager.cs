@@ -27,11 +27,13 @@ public class GameManager : MonoBehaviour
     private int m_mineCount;
 
 
+    [HideInInspector] public TextMeshProUGUI moneyBookText, timerBookText;
 
     [Header ("Debug Wall Displays"), Space(10)]
     [SerializeField] private TextMeshProUGUI m_goldValue; //Debug Wall Text object that temporarily displays money
     [SerializeField] private TextMeshProUGUI m_round; //Debug Wall Text object that temporarily displays round no.
     [SerializeField] private TextMeshProUGUI m_timerLeft; //Debug Wall Text object that temporarily displays time
+
 
     public int currentGold; //The current gold of the player.
     private int m_roundCounter;
@@ -97,6 +99,14 @@ public class GameManager : MonoBehaviour
         //Updating Debug Displays
         m_goldValue.text = currentGold.ToString();
         m_timerLeft.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString() + "s";
+
+        //Update Book Display
+        try
+        {
+            moneyBookText.text = currentGold.ToString();
+            timerBookText.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString();
+        }
+        catch { }
     }
 
     #region Phase Control

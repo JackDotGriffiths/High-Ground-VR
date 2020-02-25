@@ -140,6 +140,12 @@ public class ValidateBuildingLocation : MonoBehaviour
             }
         }
 
+
+        if (!checkGemAccessible(_targetNode))
+        {
+            _validLocation = false;
+        }
+
         return _validLocation;
 
 
@@ -158,7 +164,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     public bool verifyMine(Node _targetNode, float _angle)
     {
         bool _validLocation = false;
-        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
+        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode) && checkGemAccessible(_targetNode))
         {
             _validLocation = true;
         }
@@ -174,7 +180,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     public bool verifyWall(Node _targetNode, float _angle)
     {
         bool _validLocation = false;
-        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
+        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode) && checkGemAccessible(_targetNode))
         {
             _validLocation = true;
         }
@@ -353,6 +359,55 @@ public class ValidateBuildingLocation : MonoBehaviour
         }
 
         return false;
+    }
+
+
+    /// <summary>
+    /// Checks whether or not the gem is still accessible.
+    /// </summary>
+    /// <returns></returns>
+    private bool checkGemAccessible(Node _targetNode)
+    {
+        bool _result = true;
+
+        _targetNode.navigability = navigabilityStates.destructible;
+
+        foreach(EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
+        {
+            Node _spawnNode = _spawn.thisNode;
+            bool _spawnCanAccessGem = false;
+            int _accessibleNodes = 0;
+            //For each of the nodes adjacent to that spawn, check whether the enemy can reach the gem.
+            foreach (Node _adjecentNode in _spawnNode.adjecant)
+            {
+                List<Node> _path = new List<Node>();
+                var graph = GameBoardGeneration.Instance.Graph;
+                var search = new Search(GameBoardGeneration.Instance.Graph);
+                search.Start(graph[_adjecentNode.x, _adjecentNode.y], graph[GameManager.Instance.GameGemNode.x, GameManager.Instance.GameGemNode.y], 0.0f);
+                while (!search.finished)
+                {
+                    search.Step();
+                }
+                Transform[] _pathPositions = new Transform[search.path.Count];
+                for (int i = 0; i < search.path.Count; i++)
+                {
+                    _path.Add(search.path[i]);
+                }
+                if (search.path.Count != 0)
+                {
+                    _accessibleNodes++;
+                }
+            }
+
+            if(_accessibleNodes == 0)
+            {
+                _result = false;
+            }
+
+
+        }
+        _targetNode.navigability = navigabilityStates.navigable;
+        return _result;
     }
 
     #endregion

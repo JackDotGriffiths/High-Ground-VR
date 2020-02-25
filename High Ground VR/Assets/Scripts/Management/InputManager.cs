@@ -302,6 +302,8 @@ public class InputManager : MonoBehaviour
         if (m_bookObject == null && OffHandController.transform.position != Vector3.zero)
         {
             m_bookObject = Instantiate(m_bookPrefab, OffHandController.transform.position, OffHandController.transform.rotation, OffHandController.transform);
+            GameManager.Instance.moneyBookText = m_bookObject.GetComponent<BookManager>().moneyText;
+            GameManager.Instance.timerBookText = m_bookObject.GetComponent<BookManager>().timerText;
             float _zOffset;
             //Rotate based on Handedness
             if (m_handedness == HandTypes.right)
