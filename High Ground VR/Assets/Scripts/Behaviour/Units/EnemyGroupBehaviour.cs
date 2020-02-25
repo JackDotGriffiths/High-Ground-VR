@@ -41,12 +41,11 @@ public class EnemyGroupBehaviour : MonoBehaviour
 
     void Update()
     {
-        //Remove null objects from m_units so that dead units don't stay in the list.
-        foreach (GameObject _unit in m_units)
+        for (int i = 0; i < m_units.Count; i++)
         {
-            if (_unit == null)
+            if (m_units[i] == null)
             {
-                m_units.Remove(_unit);
+                m_units.Remove(m_units[i]);
             }
         }
         m_currentUnits = m_units.Count;

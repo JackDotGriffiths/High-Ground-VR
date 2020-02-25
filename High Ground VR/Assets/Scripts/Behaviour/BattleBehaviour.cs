@@ -43,6 +43,27 @@ public class BattleBehaviour : MonoBehaviour
     }
     void Update()
     {
+        if (m_battleStarted == true)
+        {
+
+            drawDebugLines();
+            m_currentTimer -= Time.deltaTime * GameManager.Instance.GameSpeed;
+            if (m_enemyUnits.Count == 0 || m_friendlyUnits.Count == 0)
+            {
+                //End the battle, Player Won
+                battleOver();
+                Destroy(this);
+            }
+            if (m_currentTimer < 0)
+            {
+                Debug.Log("Attack");
+
+                friendlyAttack();
+                enemyAttack();
+                m_currentTimer = m_battleTimer;
+            }
+        }
+
         foreach (EnemyGroupBehaviour _enemy in m_enemyGroups)
         {
             if (_enemy == null)
@@ -58,33 +79,6 @@ public class BattleBehaviour : MonoBehaviour
                 m_friendlyGroups.Remove(_friendly);
             }
         }
-
-        if (m_battleStarted == true)
-        {
-
-            drawDebugLines();
-            m_currentTimer -= Time.deltaTime * GameManager.Instance.GameSpeed;
-            if (m_currentTimer < 0)
-            {
-                Debug.Log("Attack");
-
-                friendlyAttack();
-                enemyAttack();
-                m_currentTimer = m_battleTimer;
-            }
-            if (m_enemyUnits.Count == 0)
-            {
-                //End the battle, Player Won
-                battleOver();
-                Destroy(this);
-            }
-            if (m_friendlyUnits.Count == 0)
-            {
-                //End the battle, Enemy Won
-                battleOver();
-                Destroy(this);
-            }
-        }
     }
 
 
@@ -92,20 +86,23 @@ public class BattleBehaviour : MonoBehaviour
     {
         StartCoroutine("delayFriendlyAttackAnim");
         float _totalDamage = 0;
-        foreach (Unit _unit in m_friendlyUnits)
+
+        for (int i = 0; i < m_friendlyUnits.Count; i++)
         {
-            _totalDamage += _unit.damage;
+            _totalDamage += m_friendlyUnits[i].damage;
         }
         float _distributedDamage = _totalDamage / m_enemyUnits.Count;
-        foreach (Unit _unit in m_enemyUnits)
+        for (int i = 0; i < m_enemyUnits.Count; i++)
         {
-            _unit.health -= _distributedDamage;
-            if (_unit.health < 0)
+
+            m_enemyUnits[i].health -= _distributedDamage;
+            if (m_enemyUnits[i].health < 0)
             {
-                m_enemyUnits.Remove(_unit);
-                _unit.unitComp.Die();
+                m_enemyUnits[i].unitComp.Die();
+                m_enemyUnits.Remove(m_enemyUnits[i]);
             }
         }
+
 
 
 
@@ -115,18 +112,19 @@ public class BattleBehaviour : MonoBehaviour
     {
         StartCoroutine("delayEnemyAttackAnim");
         float _totalDamage = 0;
-        foreach (Unit _unit in m_enemyUnits)
+        for (int i = 0; i < m_enemyUnits.Count; i++)
         {
-            _totalDamage += _unit.damage;
+            _totalDamage += m_enemyUnits[i].damage;
         }
         float _distributedDamage = _totalDamage / m_friendlyUnits.Count;
-        foreach (Unit _unit in m_friendlyUnits)
+        for (int i = 0; i < m_friendlyUnits.Count; i++)
         {
-            _unit.health -= _distributedDamage;
-            if (_unit.health < 0)
+
+            m_friendlyUnits[i].health -= _distributedDamage;
+            if (m_friendlyUnits[i].health < 0)
             {
-                m_friendlyUnits.Remove(_unit);
-                _unit.unitComp.Die();
+                m_friendlyUnits[i].unitComp.Die();
+                m_friendlyUnits.Remove(m_friendlyUnits[i]);
             }
         }
     }
@@ -164,19 +162,22 @@ public class BattleBehaviour : MonoBehaviour
     /// <returns></returns>
     IEnumerator delayFriendlyAttackAnim()
     {
-        foreach (Unit _unit in m_friendlyUnits)
+        for (int i = 0; i < m_friendlyUnits.Count; i++)
         {
-            //Rotate towards a random target
-            Vector3 _randomTarget = m_enemyUnits[Random.Range(0, m_enemyUnits.Count)].unitComp.transform.position;
-            _unit.unitComp.transform.LookAt(_randomTarget);
-
-            //Run attack animation
-            _unit.unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
-            //Play an appropriate sound
-            AudioManager.Instance.PlaySound(SoundLists.weaponClashes, true, 1, _unit.unitComp.gameObject, true, false, true);
             yield return new WaitForSeconds(Random.Range(0, 0.4f));
+            //All units may be dead by this point.
+            try
+            {
+                //Rotate towards a random target
+                Vector3 _randomTarget = m_enemyUnits[Random.Range(0, m_enemyUnits.Count)].unitComp.transform.position;
+                m_friendlyUnits[i].unitComp.transform.LookAt(_randomTarget);
 
-
+                //Run attack animation
+                m_friendlyUnits[i].unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
+                //Play an appropriate sound
+                AudioManager.Instance.PlaySound(SoundLists.weaponClashes, true, 1, m_friendlyUnits[i].unitComp.gameObject, true, false, true);
+            }
+            catch { }
         }
     }
 
@@ -186,18 +187,23 @@ public class BattleBehaviour : MonoBehaviour
     /// <returns></returns>
     IEnumerator delayEnemyAttackAnim()
     {
-        foreach (Unit _unit in m_enemyUnits)
+        for (int i = 0; i < m_enemyUnits.Count; i++)
         {
-            //Rotate towards a random target
-            Vector3 _randomTarget = m_friendlyUnits[Random.Range(0, m_friendlyUnits.Count)].unitComp.transform.position;
-            _unit.unitComp.transform.LookAt(_randomTarget);
+            yield return new WaitForSeconds(Random.Range(0, 0.4f));
+            //All units may be dead by this point.
+            try
+            {
+                //Rotate towards a random target
+                Vector3 _randomTarget = m_friendlyUnits[Random.Range(0, m_friendlyUnits.Count)].unitComp.transform.position;
+                m_enemyUnits[i].unitComp.transform.LookAt(_randomTarget);
 
-            //Run attack animation
-            _unit.unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
+                //Run attack animation
+                m_enemyUnits[i].unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
 
-            //Play an appropriate sound
-            AudioManager.Instance.PlaySound(SoundLists.weaponClashes, true, 1, _unit.unitComp.gameObject, true, false, true);
-            yield return new WaitForSeconds(Random.Range(0, 0.6f));
+                //Play an appropriate sound
+                AudioManager.Instance.PlaySound(SoundLists.weaponClashes, true, 1, m_enemyUnits[i].unitComp.gameObject, true, false, true);
+            }
+            catch { }
         }
     }
 }

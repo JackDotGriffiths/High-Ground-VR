@@ -130,7 +130,7 @@ public class GameManager : MonoBehaviour
                 _node.navigability = navigabilityStates.nonPlaceable;
             }
         }
-        m_buildingPhaseTimer = m_buildingPhaseTime;
+        m_buildingPhaseTimer = m_buildingPhaseTime/2;
     }
     void StartAttackPhase()
     {
@@ -258,7 +258,7 @@ public class GameManager : MonoBehaviour
         if(m_gameOver == false)
         {
             //Increase the count of enemies based on Enemy Counter;
-            m_enemyAmount += m_roundCounter * 2;
+            m_enemyAmount += Mathf.RoundToInt(Mathf.Pow((float)m_roundCounter,2.0f)/2);
 
 
 

@@ -70,11 +70,11 @@ public class BarracksBehaviour : MonoBehaviour
     void Update()
     {
         //Remove null objects from m_units so that dead units don't stay in the list.
-        foreach (GameObject _unit in m_units)
+        for (int i = 0; i < m_units.Count; i++)
         {
-            if(_unit == null)
+            if (m_units[i] == null)
             {
-                m_units.Remove(_unit);
+                m_units.Remove(m_units[i]);
             }
         }
         m_currentUnits = m_units.Count;
@@ -220,28 +220,38 @@ public class BarracksBehaviour : MonoBehaviour
     /// <returns></returns>
     IEnumerator RespawnUnits()
     {
-        //Waits until the node to spawn units on is clear.
+        int _difference = m_unitCount - m_currentUnits;
         do
         {
-            yield return new WaitForSeconds(0.1f);
-        }
-        while (m_barracksUnitNode.navigability != navigabilityStates.navigable);
-        m_barracksUnitNode.navigability = navigabilityStates.playerUnit;
-
-        int _difference = m_unitCount - m_currentUnits;
-        for (int i = 0; i < _difference; i++)
-        {
-                //Correctly position units around the hex - Only needs to happen when one dies/respawns
-                Vector3 _unitSpawnPos = new Vector3(m_barracksUnitNode.hex.transform.position.x, m_barracksUnitNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_barracksUnitNode.hex.transform.position.z);
-                GameObject _newUnit = Instantiate(m_unitPrefab, _unitSpawnPos, transform.rotation, m_barracksUnitNode.hex.transform);
-                m_barracksUnitNode.navigability = navigabilityStates.playerUnit;
-                _newUnit.GetComponent<UnitComponent>().playerUnitConstructor();
-                m_units.Add(_newUnit);
-                EvaluateUnitPositions();
-                yield return new WaitForSeconds(m_unitRespawnDelay);
-        }
+            if (m_barracksUnitNode.hex.transform.childCount != 0)
+            {
+                EnemyGroupBehaviour _test;
+                if (m_barracksUnitNode.hex.transform.GetChild(0).TryGetComponent<EnemyGroupBehaviour>(out _test) == false)
+                {
+                    SpawnAUnit();
+                }
+            }
+            else if (m_barracksUnitNode.navigability == navigabilityStates.navigable || m_barracksUnitNode.navigability == navigabilityStates.playerUnit)
+            {
+                SpawnAUnit();
+            }
+            yield return new WaitForSeconds(m_unitRespawnDelay);
+        } while (m_currentUnits != m_unitCount);
         m_respawning = false;
     }
 
+    /// <summary>
+    /// Spawns a Unit on the Barracks Unit Node Position.
+    /// </summary>
+    void SpawnAUnit()
+    {
+        //Correctly position units around the hex - Only needs to happen when one dies/respawns
+        Vector3 _unitSpawnPos = new Vector3(m_barracksUnitNode.hex.transform.position.x, m_barracksUnitNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_barracksUnitNode.hex.transform.position.z);
+        GameObject _newUnit = Instantiate(m_unitPrefab, _unitSpawnPos, transform.rotation, m_barracksUnitNode.hex.transform);
+        m_barracksUnitNode.navigability = navigabilityStates.playerUnit;
+        _newUnit.GetComponent<UnitComponent>().playerUnitConstructor();
+        m_units.Add(_newUnit);
+        EvaluateUnitPositions();
+    }
 
 }

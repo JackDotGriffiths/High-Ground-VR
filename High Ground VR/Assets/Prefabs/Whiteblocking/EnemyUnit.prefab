@@ -110,7 +110,7 @@ MonoBehaviour:
   m_unitPrefab: {fileID: 3167704458864864438, guid: 88eeb47fc39224545bd570cecfd88105,
     type: 3}
   m_groupSize: 3
-  m_tickTimer: 3.5
+  m_tickTimer: 1.5
   m_movementSpeed: 0.09
   timePerception: 1
   currentX: 0
