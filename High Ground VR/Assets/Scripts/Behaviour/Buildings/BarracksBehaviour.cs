@@ -88,6 +88,14 @@ public class BarracksBehaviour : MonoBehaviour
                 StartCoroutine("RespawnUnits");
             }
         }
+        if(m_currentUnits < m_unitCount)
+        {
+            if (m_respawning == false)
+            {
+                m_respawning = true;
+                StartCoroutine("RespawnUnits");
+            }
+        }
 
         //Check for any enemies in adjecent nodes to the friendly units.
         if(inCombat == false && m_currentUnits != 0)
@@ -206,28 +214,31 @@ public class BarracksBehaviour : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// Controls the respawn of units from a barracks.
+    /// </summary>
+    /// <returns></returns>
     IEnumerator RespawnUnits()
     {
+        //Waits until the node to spawn units on is clear.
+        do
+        {
+            yield return new WaitForSeconds(0.1f);
+        }
+        while (m_barracksUnitNode.navigability != navigabilityStates.navigable);
+        m_barracksUnitNode.navigability = navigabilityStates.playerUnit;
+
         int _difference = m_unitCount - m_currentUnits;
         for (int i = 0; i < _difference; i++)
         {
-            if (m_barracksUnitNode.navigability == navigabilityStates.navigable)
-            {
                 //Correctly position units around the hex - Only needs to happen when one dies/respawns
-                m_barracksUnitNode.navigability = navigabilityStates.playerUnit;
                 Vector3 _unitSpawnPos = new Vector3(m_barracksUnitNode.hex.transform.position.x, m_barracksUnitNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_barracksUnitNode.hex.transform.position.z);
                 GameObject _newUnit = Instantiate(m_unitPrefab, _unitSpawnPos, transform.rotation, m_barracksUnitNode.hex.transform);
                 m_barracksUnitNode.navigability = navigabilityStates.playerUnit;
                 _newUnit.GetComponent<UnitComponent>().playerUnitConstructor();
                 m_units.Add(_newUnit);
                 EvaluateUnitPositions();
-            }
-            else
-            {
-                i--;
-            }
-            yield return new WaitForSeconds(m_unitRespawnDelay);
+                yield return new WaitForSeconds(m_unitRespawnDelay);
         }
         m_respawning = false;
     }

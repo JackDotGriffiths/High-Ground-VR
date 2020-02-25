@@ -172,10 +172,10 @@ public class BattleBehaviour : MonoBehaviour
 
             //Run attack animation
             _unit.unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
-            yield return new WaitForSeconds(Random.Range(0, 0.4f));
-
             //Play an appropriate sound
             AudioManager.Instance.PlaySound(SoundLists.weaponClashes, true, 1, _unit.unitComp.gameObject, true, false, true);
+            yield return new WaitForSeconds(Random.Range(0, 0.4f));
+
 
         }
     }
@@ -194,10 +194,10 @@ public class BattleBehaviour : MonoBehaviour
 
             //Run attack animation
             _unit.unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
-            yield return new WaitForSeconds(Random.Range(0, 0.6f));
 
             //Play an appropriate sound
             AudioManager.Instance.PlaySound(SoundLists.weaponClashes, true, 1, _unit.unitComp.gameObject, true, false, true);
+            yield return new WaitForSeconds(Random.Range(0, 0.6f));
         }
     }
 }
