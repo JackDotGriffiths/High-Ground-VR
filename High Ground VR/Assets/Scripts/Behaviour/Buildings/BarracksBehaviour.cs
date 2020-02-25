@@ -212,12 +212,7 @@ public class BarracksBehaviour : MonoBehaviour
         int _difference = m_unitCount - m_currentUnits;
         for (int i = 0; i < _difference; i++)
         {
-            yield return new WaitForSeconds(m_unitRespawnDelay);
-            if (m_barracksUnitNode.navigability == navigabilityStates.enemyUnit)
-            {
-                i--;
-            }
-            else
+            if (m_barracksUnitNode.navigability == navigabilityStates.navigable)
             {
                 //Correctly position units around the hex - Only needs to happen when one dies/respawns
                 m_barracksUnitNode.navigability = navigabilityStates.playerUnit;
@@ -228,6 +223,11 @@ public class BarracksBehaviour : MonoBehaviour
                 m_units.Add(_newUnit);
                 EvaluateUnitPositions();
             }
+            else
+            {
+                i--;
+            }
+            yield return new WaitForSeconds(m_unitRespawnDelay);
         }
         m_respawning = false;
     }

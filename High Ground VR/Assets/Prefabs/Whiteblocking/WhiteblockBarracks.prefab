@@ -56,7 +56,7 @@ MonoBehaviour:
   m_unitPrefab: {fileID: 3167704458864864438, guid: 88eeb47fc39224545bd570cecfd88105,
     type: 3}
   m_unitCount: 3
-  m_unitRespawnDelay: 3
+  m_unitRespawnDelay: 5
   inCombat: 0
 --- !u!1001 &5553423508389417461
 PrefabInstance:

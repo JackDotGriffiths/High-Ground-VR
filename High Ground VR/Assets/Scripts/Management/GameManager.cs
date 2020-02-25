@@ -71,8 +71,8 @@ public class GameManager : MonoBehaviour
         CurrentPhase = Phases.Building;
 
         //Invoke on a delay so GameBoard Graph has been created.
-        Invoke("instantiateSpawns", 0.05f);
         Invoke("instantiateGem", 0.05f);
+        Invoke("instantiateSpawns", 0.05f);
 
     }
 
@@ -258,7 +258,7 @@ public class GameManager : MonoBehaviour
         if(m_gameOver == false)
         {
             //Increase the count of enemies based on Enemy Counter;
-            m_enemyAmount += m_roundCounter;
+            m_enemyAmount += m_roundCounter * 2;
 
 
 
@@ -274,6 +274,9 @@ public class GameManager : MonoBehaviour
             m_roundCounter++;
         }
     }
+
+
+  
 
     #endregion
 

@@ -90,9 +90,9 @@ public class EnemyGroupBehaviour : MonoBehaviour
                 if (m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.navigable && m_groupPath[m_currentStepIndex + 1].hex.transform.childCount == 0)
                 {
                     m_validMove = true;
+                    m_groupPath[m_currentStepIndex + 1].navigability = navigabilityStates.enemyUnit;
                     //Update previous and new node with the correct navigabilityStates
                     m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;
-                    m_groupPath[m_currentStepIndex + 1].navigability = navigabilityStates.enemyUnit;
                     m_currentStepIndex++;
                     //Sets the parent so scaling works correclty.
                     this.transform.SetParent(m_groupPath[m_currentStepIndex].hex.transform);
@@ -149,17 +149,11 @@ public class EnemyGroupBehaviour : MonoBehaviour
         //Divide the hex into angles, based on the amount of units associated with this barracks.
         float _angleDifference = 360 / (m_currentUnits + 1);
         int _index = 0;
-        float _multiplier = 1;
         foreach (GameObject _gameObj in m_units)
         {
             //Place the unit at a certain position along that angle, dividing the units into equal sectors of the hexagon.
             Quaternion _angle = Quaternion.Euler(0, _angleDifference * (_index + 1), 0);
-
-            if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
-            {
-                _multiplier = InputManager.Instance.LargestScale.y + 20;
-            }
-            _gameObj.transform.position += (_angle * (Vector3.forward * 0.4f) * _multiplier);
+            _gameObj.transform.position += (_angle * (Vector3.forward * 0.4f));
             _index++;
         }
 

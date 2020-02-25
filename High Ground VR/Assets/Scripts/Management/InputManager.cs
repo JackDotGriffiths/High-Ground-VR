@@ -273,7 +273,7 @@ public class InputManager : MonoBehaviour
                 m_newPosition = new Vector3(m_currentlySelectedHex.transform.position.x, m_currentlySelectedHex.transform.position.y + m_buildingValidation.CurrentHeightOffset, m_currentlySelectedHex.transform.position.z);
 
                 m_currentSize = SizeOptions.small;
-                m_mainPointer.startWidth = 0.03f;
+                m_mainPointer.startWidth = 0.003f;
                 m_mainPointer.endWidth = 0.00f;
             }
         }
@@ -299,7 +299,7 @@ public class InputManager : MonoBehaviour
 
         #region Book UI
         //Place the book in the Player's hand
-        if (m_bookObject == null && OffHandController.transform.position != Vector3.zero)
+        if (m_bookObject == null)
         {
             m_bookObject = Instantiate(m_bookPrefab, OffHandController.transform.position, OffHandController.transform.rotation, OffHandController.transform);
             GameManager.Instance.moneyBookText = m_bookObject.GetComponent<BookManager>().moneyText;
