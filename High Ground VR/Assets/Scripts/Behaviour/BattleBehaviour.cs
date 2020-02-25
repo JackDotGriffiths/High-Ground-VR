@@ -5,7 +5,7 @@ using UnityEngine;
 public class BattleBehaviour : MonoBehaviour
 {
     private bool m_battleStarted = false;
-    private float m_battleTimer = 3.0f; //Time between each attack
+    private float m_battleTimer = 1.5f; //Time between each attack
     private float m_currentTimer;
 
 

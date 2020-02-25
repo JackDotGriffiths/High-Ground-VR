@@ -102,9 +102,14 @@ public class GameManager : MonoBehaviour
     #region Phase Control
     void StartBuildingPhase()
     {
-        BookManager.Instance.HideActions();
-        m_round.text = "Building";
         CurrentPhase = Phases.Building;
+        //If playing in the Scene view, the book will not exist.
+        try
+        {
+            BookManager.Instance.HideActions();
+        }
+        catch { }
+        m_round.text = "Building";
         currentGold += (m_mineCount * m_minedGoldPerRound) + 30;
         //Set all adjecent nodes to the spawns to nonPlaceable, so the player cannot build around them.
         foreach (EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
@@ -119,7 +124,12 @@ public class GameManager : MonoBehaviour
     }
     void StartAttackPhase()
     {
-        BookManager.Instance.ShowActions();
+        //If playing in the Scene view, the book will not exist.
+        try
+        {
+            BookManager.Instance.ShowActions();
+        }
+        catch { }
         CurrentPhase = Phases.Attack;
         //Set all adjecent nodes to the spawns to nonPlaceable, so the player cannot build around them.
         foreach (EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
@@ -130,9 +140,6 @@ public class GameManager : MonoBehaviour
                 _node.navigability = navigabilityStates.navigable;
             }
         }
-
-
-
         StartCoroutine("spawnEnemies");
 
 

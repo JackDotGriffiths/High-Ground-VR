@@ -80,7 +80,7 @@ MonoBehaviour:
   m_unitBody: {fileID: 7455599958264160645}
   m_lowestHealthPlayer: 20
   m_highestHealthPlayer: 50
-  m_lowestHealthEnemy: 20
+  m_lowestHealthEnemy: 5
   m_highestHealthEnemy: 50
   m_lowestDamagePlayer: 4
   m_highestDamagePlayer: 6

@@ -299,7 +299,7 @@ public class InputManager : MonoBehaviour
 
         #region Book UI
         //Place the book in the Player's hand
-        if (m_bookObject == null)
+        if (m_bookObject == null && OffHandController.transform.position != Vector3.zero)
         {
             m_bookObject = Instantiate(m_bookPrefab, OffHandController.transform.position, OffHandController.transform.rotation, OffHandController.transform);
             float _zOffset;
