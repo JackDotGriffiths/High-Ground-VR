@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour
 {
     private static GameManager s_instance;
     [Header("Game Config")]
-    [SerializeField, Range(0, 1), Tooltip("The speed of objects in the game on a scale of 0-1")] private float m_gameSpeed = 1.0f; //Game speed multiplier used across the game for allowing for slowmo/pausing etc.
+    [SerializeField, Range(0.0f, 2.0f), Tooltip("The speed of objects in the game on a scale of 0-1")] private float m_gameSpeed = 1.0f; //Game speed multiplier used across the game for allowing for slowmo/pausing etc.
     [SerializeField, Tooltip("How long in seconds the building phase should be")] private float m_buildingPhaseTime; //Length of time the player should be allowed to build.
     private bool m_gameOver = false;
 

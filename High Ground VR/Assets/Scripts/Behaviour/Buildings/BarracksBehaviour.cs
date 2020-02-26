@@ -225,8 +225,7 @@ public class BarracksBehaviour : MonoBehaviour
         {
             if (m_barracksUnitNode.hex.transform.childCount != 0)
             {
-                EnemyGroupBehaviour _test;
-                if (m_barracksUnitNode.hex.transform.GetChild(0).TryGetComponent<EnemyGroupBehaviour>(out _test) == false)
+                if (m_barracksUnitNode.hex.transform.GetChild(0).GetComponent<EnemyGroupBehaviour>() == null)
                 {
                     SpawnAUnit();
                 }

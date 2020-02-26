@@ -134,10 +134,13 @@ public class BattleBehaviour : MonoBehaviour
     /// </summary>
     void battleOver()
     {
-        foreach (EnemyGroupBehaviour _enemy in m_enemyGroups)
+
+        for (int i = 0; i < m_enemyGroups.Count; i++)
         {
+            EnemyGroupBehaviour _enemy = m_enemyGroups[i];
             _enemy.inCombat = false;
         }
+
         foreach (BarracksBehaviour _friendy in m_friendlyGroups)
         {
             _friendy.inCombat = false;
@@ -147,12 +150,15 @@ public class BattleBehaviour : MonoBehaviour
 
     void drawDebugLines()
     {
-        foreach (BarracksBehaviour _friendly in m_friendlyGroups)
+        for (int i = 0; i < m_friendlyGroups.Count; i++)
         {
-            foreach(EnemyGroupBehaviour _enemy in m_enemyGroups)
+            BarracksBehaviour _friendly = m_friendlyGroups[i];
+            for (int j = 0; j < m_enemyGroups.Count; j++)
             {
-                Debug.DrawLine(_friendly.transform.position, _enemy.transform.position, Color.red);
+                Debug.DrawLine(_friendly.transform.position, m_enemyGroups[j].transform.position, Color.red);
             }
+
+
         }
     }
 
