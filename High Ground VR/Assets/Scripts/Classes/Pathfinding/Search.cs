@@ -89,22 +89,14 @@ public class Search
 
         if (unitAggression == 1.0f)
         {
-            if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.destructible || adjacent.navigability == navigabilityStates.gem || adjacent.navigability == navigabilityStates.playerUnit)
+            if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.destructible || adjacent.navigability == navigabilityStates.gem || adjacent.navigability == navigabilityStates.playerUnit || adjacent.navigability == navigabilityStates.enemyUnit)
             {
                 reachable.Add(adjacent);
             }
         }
         else
         {
-            if (adjacent.navigability == navigabilityStates.navigable  ||  adjacent.navigability == navigabilityStates.gem || adjacent.navigability == navigabilityStates.playerUnit)
-            {
-                reachable.Add(adjacent);
-            }
-        }
-
-        if (Random.Range(0.0f, 1.0f) < 0.5f)
-        {
-            if (adjacent.navigability == navigabilityStates.enemyUnit)
+            if (adjacent.navigability == navigabilityStates.navigable  ||  adjacent.navigability == navigabilityStates.gem || adjacent.navigability == navigabilityStates.playerUnit || adjacent.navigability == navigabilityStates.enemyUnit)
             {
                 reachable.Add(adjacent);
             }

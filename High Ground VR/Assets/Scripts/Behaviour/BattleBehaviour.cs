@@ -5,7 +5,7 @@ using UnityEngine;
 public class BattleBehaviour : MonoBehaviour
 {
     private bool m_battleStarted = false;
-    private float m_battleTimer = 1.5f; //Time between each attack
+    private float m_battleTimer = 1f; //Time between each attack
     private float m_currentTimer;
 
 
@@ -164,7 +164,7 @@ public class BattleBehaviour : MonoBehaviour
     {
         for (int i = 0; i < m_friendlyUnits.Count; i++)
         {
-            yield return new WaitForSeconds(Random.Range(0, 0.4f));
+            yield return new WaitForSeconds(Random.Range(0, 0.2f));
             //All units may be dead by this point.
             try
             {
@@ -189,7 +189,7 @@ public class BattleBehaviour : MonoBehaviour
     {
         for (int i = 0; i < m_enemyUnits.Count; i++)
         {
-            yield return new WaitForSeconds(Random.Range(0, 0.4f));
+            yield return new WaitForSeconds(Random.Range(0, 0.2f));
             //All units may be dead by this point.
             try
             {
