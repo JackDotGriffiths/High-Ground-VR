@@ -103,7 +103,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
                     currentX = m_groupPath[m_currentStepIndex].x;
                     currentY = m_groupPath[m_currentStepIndex].y;
                 }
-                else if (m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.destructible && inSiege == false)
+                else if ((m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.wall || m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.mine) && inSiege == false)
                 {
                     inSiege = true;
                     List<Unit> _enemyUnits = new List<Unit>();
@@ -285,7 +285,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
     IEnumerator aggressionTimer()
     {
         yield return new WaitForSeconds(2.0f);
-        groupAggression += 0.1f;
+        groupAggression =Mathf.Clamp(groupAggression +  0.1f,0,0.9f);
         RunPathfinding(groupAggression);
     }
 

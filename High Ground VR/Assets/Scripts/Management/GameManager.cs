@@ -125,15 +125,6 @@ public class GameManager : MonoBehaviour
         catch { }
         m_round.text = "Building";
         currentGold += (m_mineCount * m_minedGoldPerRound) + 30;
-        //Set all adjecent nodes to the spawns to nonPlaceable, so the player cannot build around them.
-        foreach (EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
-        {
-            List<Node> _adjNodes = _spawn.gameObject.GetComponentInParent<NodeComponent>().node.adjecant;
-            foreach (Node _node in _adjNodes)
-            {
-                _node.navigability = navigabilityStates.nonPlaceable;
-            }
-        }
         m_buildingPhaseTimer = m_buildingPhaseTime/2;
     }
     void StartAttackPhase()
@@ -262,7 +253,8 @@ public class GameManager : MonoBehaviour
         if(m_gameOver == false)
         {
             //Increase the count of enemies based on Enemy Counter;
-            enemyAmount += Mathf.RoundToInt(Mathf.Pow((float)m_roundCounter,2.0f)/2);
+            enemyAmount = Mathf.RoundToInt(2 * Mathf.Sqrt(RoundCounter));
+
             CurrentEnemies = enemyAmount;
             m_round.text = "Round " + m_roundCounter;
 

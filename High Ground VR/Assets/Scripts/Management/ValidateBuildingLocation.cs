@@ -84,7 +84,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     public bool verifyBarracks(Node _targetNode, float _angle)
     {
         bool _validLocation = false;
-        if (!nodeEmpty(_targetNode))
+        if (!nodeEmpty(_targetNode) || !checkAdjecentBarracks(_targetNode))
         {
             return false ;
         }
@@ -146,14 +146,8 @@ public class ValidateBuildingLocation : MonoBehaviour
             _validLocation = false;
         }
 
+
         return _validLocation;
-
-
-
-
-
-
-
     }
 
     /// <summary>
@@ -209,7 +203,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         //Checks for any nonPlaceable adjecent nodes. This helps with ensuring spawns are spread out.
         foreach (Node _adjNode in _targetNode.adjecant)
         {
-            if(_adjNode.navigability == navigabilityStates.nonPlaceable)
+            if(_adjNode.navigability == navigabilityStates.enemySpawn)
             {
                 _validLocation = false;
             }
@@ -236,7 +230,7 @@ public class ValidateBuildingLocation : MonoBehaviour
             return;
         }
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = navigabilityStates.destructible;
+        _targetNode.navigability = navigabilityStates.barracks;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         Vector3 _position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
         Vector3 _rotation = new Vector3(0.0f, _angle, 0.0f);
@@ -259,7 +253,7 @@ public class ValidateBuildingLocation : MonoBehaviour
             return;
         }
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = navigabilityStates.destructible;
+        _targetNode.navigability = navigabilityStates.mine;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         Vector3 _position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
         Vector3 _rotation = new Vector3(0.0f, _angle, 0.0f);
@@ -279,7 +273,7 @@ public class ValidateBuildingLocation : MonoBehaviour
             return;
         }
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = navigabilityStates.destructible;
+        _targetNode.navigability = navigabilityStates.wall;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         GameObject _building = Instantiate(m_walls, _targetNode.hex.transform);
         _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
@@ -370,7 +364,8 @@ public class ValidateBuildingLocation : MonoBehaviour
     {
         bool _result = true;
 
-        _targetNode.navigability = navigabilityStates.destructible;
+        //Assign the target node temporarily as a wall as to test the patfinding.
+        _targetNode.navigability = navigabilityStates.wall;
 
         foreach(EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
         {
@@ -408,6 +403,25 @@ public class ValidateBuildingLocation : MonoBehaviour
         }
         _targetNode.navigability = navigabilityStates.navigable;
         return _result;
+    }
+
+    /// <summary>
+    /// Checks whether the target node is adjacent to any barracks or player units. Prevents placement of lots of barracks next to eachother
+    /// </summary>
+    /// <param name="_targetNode">Node to check</param>
+    /// <returns>Whenther the node is adjacent to a barracks or playerunit</returns>
+    private bool checkAdjecentBarracks(Node _targetNode)
+    {
+        bool _validLocation = true;
+        foreach(Node _node in _targetNode.adjecant)
+        {
+            if(_node.navigability == navigabilityStates.barracks || _node.navigability == navigabilityStates.playerUnit)
+            {
+                _validLocation = false;
+            }
+        }
+        return _validLocation;
+
     }
 
     #endregion

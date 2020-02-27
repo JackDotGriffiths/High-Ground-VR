@@ -79,17 +79,9 @@ public class BarracksBehaviour : MonoBehaviour
         }
         m_currentUnits = m_units.Count;
 
-        if(m_currentUnits == 0)
-        {
-            if(m_respawning == false)
-            {
-                m_respawning = true;
-                StartCoroutine("RespawnUnits");
-            }
-        }
         if(m_currentUnits < m_unitCount)
         {
-            if (m_respawning == false)
+            if(m_respawning == false)
             {
                 m_respawning = true;
                 StartCoroutine("RespawnUnits");
@@ -144,6 +136,12 @@ public class BarracksBehaviour : MonoBehaviour
             {
                 //If it detects an enemy group in any adjecent nodes, start combat
                 EnemyGroupBehaviour _enemy = _node.hex.transform.GetChild(0).GetComponent<EnemyGroupBehaviour>();
+                //If the enemy is currently destroying a wall, stop it from doing so.
+                if(_enemy.inSiege == true)
+                {
+                    Destroy(_enemy.gameObject.GetComponent<SiegeBehaviour>());
+                    _enemy.inSiege = false;
+                }
                 if(_enemy.inCombat == false)
                 {
                     List<Unit> _friendlyUnits = new List<Unit>();
@@ -219,7 +217,7 @@ public class BarracksBehaviour : MonoBehaviour
     /// <returns></returns>
     IEnumerator RespawnUnits()
     {
-        int _difference = m_unitCount - m_currentUnits;
+        m_barracksUnitNode.navigability = navigabilityStates.navigable;
         do
         {
             yield return new WaitForSeconds(m_unitRespawnDelay);
@@ -234,7 +232,7 @@ public class BarracksBehaviour : MonoBehaviour
             {
                 SpawnAUnit();
             }
-        } while (m_currentUnits != m_unitCount);
+        } while (m_currentUnits < m_unitCount-1);
         m_respawning = false;
     }
 

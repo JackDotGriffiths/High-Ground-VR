@@ -108,5 +108,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_health: 100
   m_cooldownTime: 4
-  m_healthRegenAmount: 0.0002
-  m_currentHealth: 0
+  m_healthRegenAmount: 0.02
+  currentHealth: 0

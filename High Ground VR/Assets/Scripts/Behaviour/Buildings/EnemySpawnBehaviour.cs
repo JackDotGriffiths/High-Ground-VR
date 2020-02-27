@@ -16,7 +16,7 @@ public class EnemySpawnBehaviour : MonoBehaviour
         do
         {
             _spawnNode = thisNode.adjecant[Random.Range(0, thisNode.adjecant.Count)];
-            if(_spawnNode.navigability == navigabilityStates.nonPlaceable || _spawnNode.navigability == navigabilityStates.navigable)
+            if(_spawnNode.navigability == navigabilityStates.navigable)
             {
                 _spawnPosition = new Vector3(_spawnNode.hex.transform.position.x, _spawnNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _spawnNode.hex.transform.position.z);
             }

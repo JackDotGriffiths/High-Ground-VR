@@ -102,14 +102,14 @@ public class Search
         //If the aggression is 1, always add the destructible node. This is used for checking of pathfinding and super aggressive enemies.
         if (unitAggression == 1.0f)
         {
-            if (adjacent.navigability == navigabilityStates.destructible)
+            if (adjacent.navigability == navigabilityStates.wall || adjacent.navigability == navigabilityStates.mine)
             {
                 reachable.Add(adjacent);
             }
         }
         else if(unitAggression > _aggressionChance && GameManager.Instance.RoundCounter > GameManager.Instance.spawnAggresiveAfter)
         {
-            if (adjacent.navigability == navigabilityStates.destructible)
+            if (adjacent.navigability == navigabilityStates.wall || adjacent.navigability == navigabilityStates.mine)
             {
                 reachable.Add(adjacent);
             }

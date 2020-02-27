@@ -200,7 +200,7 @@ public class GameBoardGeneration : MonoBehaviour
                     int _rand = Random.Range(0, 100); //Random chance of placing an asset
                     if(_rand < m_ambientNatureFrequency)
                     {
-                        Vector3 _spawnPosition = Random.insideUnitSphere + _hex.transform.position;
+                        Vector3 _spawnPosition = (Random.insideUnitSphere * 0.7f) + _hex.transform.position;
                         _spawnPosition.y = BuildingValidation.buildingHeightOffset;
                         Vector3 _spawnRotation = new Vector3(0, Random.Range(0.0f, 360.0f), 0);
 

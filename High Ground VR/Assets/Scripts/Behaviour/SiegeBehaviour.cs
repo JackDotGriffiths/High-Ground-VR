@@ -89,7 +89,9 @@ public class SiegeBehaviour : MonoBehaviour
         {
             EnemyGroupBehaviour _enemy = enemyGroups[i];
             _enemy.inSiege = false;
-            _enemy.groupAggression = _enemy.groupAggression * 0.75f;
+            //Make the enemies slightly less aggressive after they destroy a building.
+            _enemy.groupAggression = _enemy.groupAggression * 0.85f;
+            _enemy.RunPathfinding(_enemy.groupAggression);
         }
         Destroy(this);
     }

@@ -59,9 +59,11 @@ public class UnitComponent : MonoBehaviour
         //Instantiate a duplicate of the object
         GameObject _deadUnit = Instantiate(this.gameObject, this.gameObject.transform.position, this.gameObject.transform.rotation, null);
         Rigidbody _rigid = _deadUnit.AddComponent<Rigidbody>();
+        _rigid.interpolation = RigidbodyInterpolation.Extrapolate;
+        _rigid.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         Destroy(_deadUnit.GetComponent<UnitComponent>());
         //Destroy the original. This ensures it's appropriately removed from lists.
         Destroy(this.gameObject);
-        Destroy(_deadUnit, 4f);
+        Destroy(_deadUnit, 5f);
     }
 }
