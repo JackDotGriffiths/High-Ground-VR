@@ -81,7 +81,6 @@ public class BarracksBehaviour : MonoBehaviour
 
         if(m_currentUnits == 0)
         {
-            m_barracksUnitNode.navigability = navigabilityStates.navigable;
             if(m_respawning == false)
             {
                 m_respawning = true;
@@ -161,8 +160,8 @@ public class BarracksBehaviour : MonoBehaviour
 
                     BattleBehaviour _battle = this.gameObject.AddComponent<BattleBehaviour>();
                     _battle.StartBattle(_friendlyUnits, _enemyUnits);
-                    _battle.m_friendlyGroups.Add(this);
-                    _battle.m_enemyGroups.Add(_enemy);
+                    _battle.friendlyGroups.Add(this);
+                    _battle.enemyGroups.Add(_enemy);
 
                     _enemy.inCombat = true;
                     inCombat = true;
@@ -197,7 +196,7 @@ public class BarracksBehaviour : MonoBehaviour
                     foreach (Unit _enemyUnit in _enemyUnits)
                     {
                         //If the incoming enemy is already in the battle, it should't be added into the list.
-                        if (_battle.m_enemyUnits.Contains(_enemyUnit))
+                        if (_battle.enemyUnits.Contains(_enemyUnit))
                         {
                             _groupAlreadyInBattle = true;
                         }
@@ -206,7 +205,7 @@ public class BarracksBehaviour : MonoBehaviour
                     if (_groupAlreadyInBattle == false)
                     {
                         _battle.JoinBattle(_enemyUnits);
-                        _battle.m_enemyGroups.Add(_enemy);
+                        _battle.enemyGroups.Add(_enemy);
                         _enemy.inCombat = true;
                     }
                 }
@@ -223,6 +222,7 @@ public class BarracksBehaviour : MonoBehaviour
         int _difference = m_unitCount - m_currentUnits;
         do
         {
+            yield return new WaitForSeconds(m_unitRespawnDelay);
             if (m_barracksUnitNode.hex.transform.childCount != 0)
             {
                 if (m_barracksUnitNode.hex.transform.GetChild(0).GetComponent<EnemyGroupBehaviour>() == null)
@@ -234,7 +234,6 @@ public class BarracksBehaviour : MonoBehaviour
             {
                 SpawnAUnit();
             }
-            yield return new WaitForSeconds(m_unitRespawnDelay);
         } while (m_currentUnits != m_unitCount);
         m_respawning = false;
     }

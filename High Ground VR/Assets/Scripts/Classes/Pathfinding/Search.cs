@@ -87,19 +87,36 @@ public class Search
 
         adjacent.previous = node;
 
+        //---Unit aggression
+        //1.0 = MAX anger
+        //0.0 = MIN anger
+
+
+        if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.gem || adjacent.navigability == navigabilityStates.playerUnit)
+        {
+            reachable.Add(adjacent);
+        }
+
+        //Creates a decreasing value, meaning it's EASIER for a unit to be aggressive as the rounds go on.
+        float _aggressionChance = 1.0f - (GameManager.Instance.aggressionPercentage * (GameManager.Instance.RoundCounter/2.0f));
+        //If the aggression is 1, always add the destructible node. This is used for checking of pathfinding and super aggressive enemies.
         if (unitAggression == 1.0f)
         {
-            if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.destructible || adjacent.navigability == navigabilityStates.gem || adjacent.navigability == navigabilityStates.playerUnit || adjacent.navigability == navigabilityStates.enemyUnit)
+            if (adjacent.navigability == navigabilityStates.destructible)
             {
                 reachable.Add(adjacent);
             }
         }
-        else
+        else if(unitAggression > _aggressionChance && GameManager.Instance.RoundCounter > GameManager.Instance.spawnAggresiveAfter)
         {
-            if (adjacent.navigability == navigabilityStates.navigable  ||  adjacent.navigability == navigabilityStates.gem || adjacent.navigability == navigabilityStates.playerUnit || adjacent.navigability == navigabilityStates.enemyUnit)
+            if (adjacent.navigability == navigabilityStates.destructible)
             {
                 reachable.Add(adjacent);
             }
+        }
+        else if(adjacent.navigability == navigabilityStates.enemyUnit)
+        {
+            reachable.Add(adjacent);
         }
     }
 

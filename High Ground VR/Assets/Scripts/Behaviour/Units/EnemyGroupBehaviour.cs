@@ -17,6 +17,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
     public int goalX;
     public int goalY;
     public bool inCombat;//Tracks whether the unit is in combat or not.
+    public bool inSiege;//Tracks whether the unit is currently sieging a building.
 
     private bool m_unitInstantiated; // Tracks whether the unit has been created and all values appropriately declared.
     private bool m_reachedGoal;
@@ -25,6 +26,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
     private List<Node> m_groupPath; //List of Nodes that lead to the groups goal.
     private int m_currentStepIndex; //Index of the node within the current path.
     private Vector3 m_targetPosition; //Position the node should be moving to.
+    public float groupAggression;
 
 
     public List<GameObject> m_units;
@@ -32,6 +34,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
 
     void Start()
     {
+        groupAggression = Random.Range(0.0f, 1.0f);
         List<GameObject> m_units = new List<GameObject>();
         m_unitInstantiated = false;
         m_validMove = false;
@@ -57,7 +60,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
             Destroy(this.gameObject);
         }
 
-        if (m_unitInstantiated == true && inCombat == false)
+        if (m_unitInstantiated == true && inCombat == false && inSiege == false)
         {
             drawDebugLines();
             //Run on a tick, timePerception allows the speeding up/slowing down of certain units.
@@ -100,11 +103,24 @@ public class EnemyGroupBehaviour : MonoBehaviour
                     currentX = m_groupPath[m_currentStepIndex].x;
                     currentY = m_groupPath[m_currentStepIndex].y;
                 }
+                else if (m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.destructible && inSiege == false)
+                {
+                    inSiege = true;
+                    List<Unit> _enemyUnits = new List<Unit>();
+                    foreach (GameObject _gameObj in m_units)
+                    {
+                        _enemyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
+                    }
+                    SiegeBehaviour _siege = gameObject.AddComponent<SiegeBehaviour>();
+                    _siege.StartSiege(m_groupPath[m_currentStepIndex + 1].hex.GetComponentInChildren<BuildingHealth>(), _enemyUnits);
+                    _siege.enemyGroups.Add(this);
+                }
                 else
                 {
                     //This renavigates if the unit is stuck, will help them go around combat and slower units.
                     //Debug.Log(this + " enemy stuck.");
-                    RunPathfinding(0.0f);
+                    //Start a timer, increasing the aggression and repathfinding after a set time.
+                    StartCoroutine("aggressionTimer");
                     m_validMove = false;
                     return;
                 }
@@ -130,7 +146,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
         GameBoardGeneration.Instance.Graph[currentX,currentY].navigability = navigabilityStates.enemyUnit;
         goalX = GameManager.Instance.GameGemNode.x;
         goalY = GameManager.Instance.GameGemNode.y;
-        RunPathfinding(0.0f);
+        RunPathfinding(groupAggression);
         m_targetPosition = new Vector3(m_groupPath[0].hex.transform.position.x, m_groupPath[0].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[0].hex.transform.position.z);
         m_unitInstantiated = true;
 
@@ -162,7 +178,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
     /// <summary>
     /// Run the A* pathfinding
     /// </summary>
-    void RunPathfinding(float _aggression)
+    public void RunPathfinding(float _aggression)
     {
         if (currentX == goalX && currentY == goalY)
         {
@@ -214,7 +230,9 @@ public class EnemyGroupBehaviour : MonoBehaviour
         RotateEachUnit();
     }
 
-
+    /// <summary>
+    /// Rotate each unit towards the direction they're heading.
+    /// </summary>
     void RotateEachUnit()
     {
         if(inCombat == false)
@@ -261,6 +279,14 @@ public class EnemyGroupBehaviour : MonoBehaviour
 
             Debug.DrawLine(_startPos, _endPos, Color.blue);
         }
+    }
+
+
+    IEnumerator aggressionTimer()
+    {
+        yield return new WaitForSeconds(2.0f);
+        groupAggression += 0.1f;
+        RunPathfinding(groupAggression);
     }
 
 

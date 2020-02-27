@@ -17,7 +17,7 @@ public class UnitComponentEditor : Editor
             GUILayout.Space(3);
             GUILayout.Label("Unit Damage : " + _UnitComp.unit.damage);
             GUILayout.Space(3);
-            GUILayout.Label("Unit Intelligence : " + _UnitComp.unit.intelligence);
+            GUILayout.Label("Unit Aggression (1.0: Angry 0.0: Passive) : " + _UnitComp.unit.aggression);
             GUILayout.Space(3);
         }
         catch

@@ -12,10 +12,13 @@ public class GameManager : MonoBehaviour
     private bool m_gameOver = false;
 
     [Header("Enemy Spawn Management"),Space(10)]
-    [Tooltip("Amount of spawns the game rounds should start with")]public int m_enemyStartingSpawns = 1;
-    [Tooltip("Amount of enemies to spawn at the start")] public int m_enemyAmount;
-    [Tooltip("Enemy Spawn Delay")] public int m_enemySpawnDelay;
-    public List<EnemySpawnBehaviour> enemySpawns;
+    [Tooltip("Amount of spawns the game rounds should start with")]public int enemyStartingSpawns = 1;
+    [Tooltip("Amount of enemies to spawn at the start")] public int enemyAmount = 1;
+    [Tooltip("Enemy Spawn Delay")] public int enemySpawnDelay = 10;
+    [Tooltip("Which round to start spawning enemies after")] public int spawnAggresiveAfter = 2;
+    [Tooltip("Proportion of aggressive enemies. This is multiplied by the round number."),Range(0.0f,1.0f)] public float aggressionPercentage = 0.1f;
+
+    [HideInInspector]public List<EnemySpawnBehaviour> enemySpawns;
     private List<Node> m_outerEdgeNodes; //Set to the nodes on the outer edge of the map, used when spawning enemies.
     private int m_currentEnemies;
 
@@ -48,6 +51,7 @@ public class GameManager : MonoBehaviour
     internal Phases CurrentPhase { get => m_currentPhase; set => m_currentPhase = value; }
     public bool GameOver { get => m_gameOver; set => m_gameOver = value; }
     public int CurrentEnemies { get => m_currentEnemies; set => m_currentEnemies = value; }
+    public int RoundCounter { get => m_roundCounter; set => m_roundCounter = value; }
     #endregion
 
 
@@ -69,10 +73,10 @@ public class GameManager : MonoBehaviour
         currentGold = m_startingGold;
         m_buildingPhaseTimer = m_buildingPhaseTime;
         CurrentPhase = Phases.Building;
-
         //Invoke on a delay so GameBoard Graph has been created.
         Invoke("instantiateGem", 0.05f);
         Invoke("instantiateSpawns", 0.05f);
+        StartBuildingPhase();
 
     }
 
@@ -84,15 +88,15 @@ public class GameManager : MonoBehaviour
             m_gameSpeed = 0;
             return;
         }
-        if(m_currentEnemies <= 0 && CurrentPhase == Phases.Building)
+        if(CurrentPhase == Phases.Building)
         {
             m_buildingPhaseTimer -= Time.deltaTime * m_gameSpeed;
-            if (m_buildingPhaseTimer <= 0.0f)
-            {
-                    StartAttackPhase();
-            }
         }
-        if(m_currentEnemies <=0 && CurrentPhase == Phases.Attack)
+        if (m_currentEnemies <= 0 && CurrentPhase == Phases.Building && m_buildingPhaseTimer <= 0.0f)
+        {
+            StartAttackPhase();
+        }
+        if(m_currentEnemies <=0 && CurrentPhase == Phases.Attack && m_buildingPhaseTimer <= 0.0f)
         {
             StartBuildingPhase();
         }
@@ -209,9 +213,9 @@ public class GameManager : MonoBehaviour
     {
         //Check if the amount of spawns in m_enemyStartingSpawns is too large for the border of the game board.
         int _maximumSpawns = (GameBoardGeneration.Instance.Graph.GetLength(0) + GameBoardGeneration.Instance.Graph.GetLength(1)) / 2;
-        if (m_enemyStartingSpawns > _maximumSpawns)
+        if (enemyStartingSpawns > _maximumSpawns)
         {
-            Debug.LogError("There are too many spawns set in the GameManager. Make the board larger or decrease the amount of spawns from " + m_enemyStartingSpawns + " to " + _maximumSpawns);
+            Debug.LogError("There are too many spawns set in the GameManager. Make the board larger or decrease the amount of spawns from " + enemyStartingSpawns + " to " + _maximumSpawns);
             return;
         }
 
@@ -234,7 +238,7 @@ public class GameManager : MonoBehaviour
 
 
         //For the amount of m_enemyStartingSpawns
-        for (int i = 0; i < m_enemyStartingSpawns; i++)
+        for (int i = 0; i < enemyStartingSpawns; i++)
         {
             //Randomly choose a hex on the OUTSIDE
             Node _chosenNode = m_outerEdgeNodes[Random.Range(0, m_outerEdgeNodes.Count)];
@@ -258,18 +262,15 @@ public class GameManager : MonoBehaviour
         if(m_gameOver == false)
         {
             //Increase the count of enemies based on Enemy Counter;
-            m_enemyAmount += Mathf.RoundToInt(Mathf.Pow((float)m_roundCounter,2.0f)/2);
-
-
-
-            CurrentEnemies = m_enemyAmount;
+            enemyAmount += Mathf.RoundToInt(Mathf.Pow((float)m_roundCounter,2.0f)/2);
+            CurrentEnemies = enemyAmount;
             m_round.text = "Round " + m_roundCounter;
 
             //For each enemy to spawn, randomly choose a spawn and run spawnEnemy
-            for (int i = 0; i < m_enemyAmount; i++)
+            for (int i = 0; i < enemyAmount; i++)
             {
                 if (!enemySpawns[Random.Range(0, enemySpawns.Count)].spawnEnemy()) { i--; }; //If it fails to spawn an enemy, try again.
-                yield return new WaitForSeconds(Random.Range(m_enemySpawnDelay/2,m_enemySpawnDelay));
+                yield return new WaitForSeconds(Random.Range(enemySpawnDelay/2,enemySpawnDelay));
             }
             m_roundCounter++;
         }
