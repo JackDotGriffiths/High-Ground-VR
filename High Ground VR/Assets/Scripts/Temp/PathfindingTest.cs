@@ -70,14 +70,14 @@ public class PathfindingTest : MonoBehaviour
                 {
                     for (int j = 0; j < GameBoardGeneration.Instance.Graph.GetLength(1); j++)
                     {
-                        GameBoardGeneration.Instance.Graph[i, j].navigability = navigabilityStates.navigable;
+                        GameBoardGeneration.Instance.Graph[i, j].navigability =  navigabilityStates.navigable;
                     }
                 }
                 for (int i = 0; i < Random.Range(0, GameBoardGeneration.Instance.Graph.Length); i++)
                 {
                     int RandomX = Random.Range(0, GameBoardGeneration.Instance.Graph.GetLength(0));
                     int RandomY = Random.Range(0, GameBoardGeneration.Instance.Graph.GetLength(1));
-                    GameBoardGeneration.Instance.Graph[RandomX, RandomY].navigability = navigabilityStates.nonPlaceable;
+                    GameBoardGeneration.Instance.Graph[RandomX, RandomY].navigability = navigabilityStates.wall;
                 }
             }
 
@@ -135,17 +135,5 @@ public class PathfindingTest : MonoBehaviour
 
         }
 
-    }
-
-    private void OnDrawGizmos()
-    {
-        foreach(Node _node in GameBoardGeneration.Instance.Graph)
-        {
-            if(_node.navigability == navigabilityStates.nonPlaceable)
-            {
-                Gizmos.color = Color.red;
-                Gizmos.DrawCube(_node.hex.transform.position, Vector3.one);
-            }
-        }
     }
 }

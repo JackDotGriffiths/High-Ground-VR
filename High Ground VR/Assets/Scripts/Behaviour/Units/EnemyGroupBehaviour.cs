@@ -17,6 +17,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
     public int goalX;
     public int goalY;
     public bool inCombat;//Tracks whether the unit is in combat or not.
+    public bool inSiege;//Tracks whether the unit is currently sieging a building.
 
     private bool m_unitInstantiated; // Tracks whether the unit has been created and all values appropriately declared.
     private bool m_reachedGoal;
@@ -25,6 +26,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
     private List<Node> m_groupPath; //List of Nodes that lead to the groups goal.
     private int m_currentStepIndex; //Index of the node within the current path.
     private Vector3 m_targetPosition; //Position the node should be moving to.
+    public float groupAggression;
 
 
     public List<GameObject> m_units;
@@ -32,6 +34,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
 
     void Start()
     {
+        groupAggression = Random.Range(0.0f, 1.0f);
         List<GameObject> m_units = new List<GameObject>();
         m_unitInstantiated = false;
         m_validMove = false;
@@ -41,12 +44,11 @@ public class EnemyGroupBehaviour : MonoBehaviour
 
     void Update()
     {
-        //Remove null objects from m_units so that dead units don't stay in the list.
-        foreach (GameObject _unit in m_units)
+        for (int i = 0; i < m_units.Count; i++)
         {
-            if (_unit == null)
+            if (m_units[i] == null)
             {
-                m_units.Remove(_unit);
+                m_units.Remove(m_units[i]);
             }
         }
         m_currentUnits = m_units.Count;
@@ -58,7 +60,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
             Destroy(this.gameObject);
         }
 
-        if (m_unitInstantiated == true && inCombat == false)
+        if (m_unitInstantiated == true && inCombat == false && inSiege == false)
         {
             drawDebugLines();
             //Run on a tick, timePerception allows the speeding up/slowing down of certain units.
@@ -90,9 +92,9 @@ public class EnemyGroupBehaviour : MonoBehaviour
                 if (m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.navigable && m_groupPath[m_currentStepIndex + 1].hex.transform.childCount == 0)
                 {
                     m_validMove = true;
+                    m_groupPath[m_currentStepIndex + 1].navigability = navigabilityStates.enemyUnit;
                     //Update previous and new node with the correct navigabilityStates
                     m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;
-                    m_groupPath[m_currentStepIndex + 1].navigability = navigabilityStates.enemyUnit;
                     m_currentStepIndex++;
                     //Sets the parent so scaling works correclty.
                     this.transform.SetParent(m_groupPath[m_currentStepIndex].hex.transform);
@@ -101,11 +103,24 @@ public class EnemyGroupBehaviour : MonoBehaviour
                     currentX = m_groupPath[m_currentStepIndex].x;
                     currentY = m_groupPath[m_currentStepIndex].y;
                 }
+                else if ((m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.wall || m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.mine) && inSiege == false)
+                {
+                    inSiege = true;
+                    List<Unit> _enemyUnits = new List<Unit>();
+                    foreach (GameObject _gameObj in m_units)
+                    {
+                        _enemyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
+                    }
+                    SiegeBehaviour _siege = gameObject.AddComponent<SiegeBehaviour>();
+                    _siege.StartSiege(m_groupPath[m_currentStepIndex + 1].hex.GetComponentInChildren<BuildingHealth>(), _enemyUnits);
+                    _siege.enemyGroups.Add(this);
+                }
                 else
                 {
                     //This renavigates if the unit is stuck, will help them go around combat and slower units.
                     //Debug.Log(this + " enemy stuck.");
-                    RunPathfinding(0.0f);
+                    //Start a timer, increasing the aggression and repathfinding after a set time.
+                    StartCoroutine("aggressionTimer");
                     m_validMove = false;
                     return;
                 }
@@ -131,7 +146,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
         GameBoardGeneration.Instance.Graph[currentX,currentY].navigability = navigabilityStates.enemyUnit;
         goalX = GameManager.Instance.GameGemNode.x;
         goalY = GameManager.Instance.GameGemNode.y;
-        RunPathfinding(0.0f);
+        RunPathfinding(groupAggression);
         m_targetPosition = new Vector3(m_groupPath[0].hex.transform.position.x, m_groupPath[0].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[0].hex.transform.position.z);
         m_unitInstantiated = true;
 
@@ -149,17 +164,11 @@ public class EnemyGroupBehaviour : MonoBehaviour
         //Divide the hex into angles, based on the amount of units associated with this barracks.
         float _angleDifference = 360 / (m_currentUnits + 1);
         int _index = 0;
-        float _multiplier = 1;
         foreach (GameObject _gameObj in m_units)
         {
             //Place the unit at a certain position along that angle, dividing the units into equal sectors of the hexagon.
             Quaternion _angle = Quaternion.Euler(0, _angleDifference * (_index + 1), 0);
-
-            if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.small)
-            {
-                _multiplier = InputManager.Instance.LargestScale.y + 20;
-            }
-            _gameObj.transform.position += (_angle * (Vector3.forward * 0.4f) * _multiplier);
+            _gameObj.transform.position += (_angle * (Vector3.forward * 0.4f));
             _index++;
         }
 
@@ -169,7 +178,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
     /// <summary>
     /// Run the A* pathfinding
     /// </summary>
-    void RunPathfinding(float _aggression)
+    public void RunPathfinding(float _aggression)
     {
         if (currentX == goalX && currentY == goalY)
         {
@@ -213,10 +222,27 @@ public class EnemyGroupBehaviour : MonoBehaviour
             float _currentDistance = Vector3.Distance(transform.position, m_targetPosition);
             float _percentage = _currentDistance / _maxDistance;
             //Sin of the percentage creates a 'hop' like movement.
-            _yOffset = Mathf.Pow(Mathf.Sin(_percentage),2);
+            _yOffset = 2 * Mathf.Pow(Mathf.Sin(_percentage),2);
         }
         Vector3 _hopPosition = new Vector3(m_targetPosition.x, m_targetPosition.y + _yOffset, m_targetPosition.z);
         transform.position = Vector3.Lerp(transform.position, _hopPosition, m_movementSpeed * timePerception);
+
+        RotateEachUnit();
+    }
+
+    /// <summary>
+    /// Rotate each unit towards the direction they're heading.
+    /// </summary>
+    void RotateEachUnit()
+    {
+        if(inCombat == false)
+        {
+            foreach (GameObject unit in m_units)
+            {
+                Vector3 _targetRotation = new Vector3(m_groupPath[m_currentStepIndex + 1].hex.transform.position.x, m_groupPath[m_currentStepIndex + 1].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[m_currentStepIndex + 1].hex.transform.position.z);
+                unit.transform.LookAt(_targetRotation);
+            }
+        }
     }
 
     /// <summary>
@@ -238,7 +264,6 @@ public class EnemyGroupBehaviour : MonoBehaviour
     }
 
 
-
     /// <summary>
     /// Draws the lines of this nodes current route towards the gem.
     /// </summary>
@@ -254,6 +279,14 @@ public class EnemyGroupBehaviour : MonoBehaviour
 
             Debug.DrawLine(_startPos, _endPos, Color.blue);
         }
+    }
+
+
+    IEnumerator aggressionTimer()
+    {
+        yield return new WaitForSeconds(2.0f);
+        groupAggression =Mathf.Clamp(groupAggression +  0.1f,0,0.9f);
+        RunPathfinding(groupAggression);
     }
 
 

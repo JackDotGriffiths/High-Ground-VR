@@ -84,7 +84,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     public bool verifyBarracks(Node _targetNode, float _angle)
     {
         bool _validLocation = false;
-        if (!nodeEmpty(_targetNode))
+        if (!nodeEmpty(_targetNode) || !checkAdjecentBarracks(_targetNode))
         {
             return false ;
         }
@@ -140,14 +140,14 @@ public class ValidateBuildingLocation : MonoBehaviour
             }
         }
 
+
+        if (!checkGemAccessible(_targetNode))
+        {
+            _validLocation = false;
+        }
+
+
         return _validLocation;
-
-
-
-
-
-
-
     }
 
     /// <summary>
@@ -158,7 +158,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     public bool verifyMine(Node _targetNode, float _angle)
     {
         bool _validLocation = false;
-        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
+        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode) && checkGemAccessible(_targetNode))
         {
             _validLocation = true;
         }
@@ -174,7 +174,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     public bool verifyWall(Node _targetNode, float _angle)
     {
         bool _validLocation = false;
-        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
+        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode) && checkGemAccessible(_targetNode))
         {
             _validLocation = true;
         }
@@ -203,7 +203,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         //Checks for any nonPlaceable adjecent nodes. This helps with ensuring spawns are spread out.
         foreach (Node _adjNode in _targetNode.adjecant)
         {
-            if(_adjNode.navigability == navigabilityStates.nonPlaceable)
+            if(_adjNode.navigability == navigabilityStates.enemySpawn)
             {
                 _validLocation = false;
             }
@@ -224,13 +224,13 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <param name="_targetNode">Node on which to place a Barracks</param>
     public void placeBarracks(Node _targetNode, float _angle)
     {
-        if (!GameManager.Instance.spendGold(40))
+        if (!GameManager.Instance.spendGold(100))
         {
             Debug.Log("Not Enough Money");
             return;
         }
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = navigabilityStates.destructible;
+        _targetNode.navigability = navigabilityStates.barracks;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         Vector3 _position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
         Vector3 _rotation = new Vector3(0.0f, _angle, 0.0f);
@@ -247,13 +247,13 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <param name="_targetNode">Node on which to place a Mine</param>
     public void placeMine(Node _targetNode, float _angle)
     {
-        if (!GameManager.Instance.spendGold(40))
+        if (!GameManager.Instance.spendGold(50))
         {
             Debug.Log("Not Enough Money");
             return;
         }
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = navigabilityStates.destructible;
+        _targetNode.navigability = navigabilityStates.mine;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         Vector3 _position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
         Vector3 _rotation = new Vector3(0.0f, _angle, 0.0f);
@@ -273,7 +273,7 @@ public class ValidateBuildingLocation : MonoBehaviour
             return;
         }
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = navigabilityStates.destructible;
+        _targetNode.navigability = navigabilityStates.wall;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         GameObject _building = Instantiate(m_walls, _targetNode.hex.transform);
         _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
@@ -353,6 +353,75 @@ public class ValidateBuildingLocation : MonoBehaviour
         }
 
         return false;
+    }
+
+
+    /// <summary>
+    /// Checks whether or not the gem is still accessible.
+    /// </summary>
+    /// <returns></returns>
+    private bool checkGemAccessible(Node _targetNode)
+    {
+        bool _result = true;
+
+        //Assign the target node temporarily as a wall as to test the patfinding.
+        _targetNode.navigability = navigabilityStates.wall;
+
+        foreach(EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
+        {
+            Node _spawnNode = _spawn.thisNode;
+            bool _spawnCanAccessGem = false;
+            int _accessibleNodes = 0;
+            //For each of the nodes adjacent to that spawn, check whether the enemy can reach the gem.
+            foreach (Node _adjecentNode in _spawnNode.adjecant)
+            {
+                List<Node> _path = new List<Node>();
+                var graph = GameBoardGeneration.Instance.Graph;
+                var search = new Search(GameBoardGeneration.Instance.Graph);
+                search.Start(graph[_adjecentNode.x, _adjecentNode.y], graph[GameManager.Instance.GameGemNode.x, GameManager.Instance.GameGemNode.y], 0.0f);
+                while (!search.finished)
+                {
+                    search.Step();
+                }
+                Transform[] _pathPositions = new Transform[search.path.Count];
+                for (int i = 0; i < search.path.Count; i++)
+                {
+                    _path.Add(search.path[i]);
+                }
+                if (search.path.Count != 0)
+                {
+                    _accessibleNodes++;
+                }
+            }
+
+            if(_accessibleNodes == 0)
+            {
+                _result = false;
+            }
+
+
+        }
+        _targetNode.navigability = navigabilityStates.navigable;
+        return _result;
+    }
+
+    /// <summary>
+    /// Checks whether the target node is adjacent to any barracks or player units. Prevents placement of lots of barracks next to eachother
+    /// </summary>
+    /// <param name="_targetNode">Node to check</param>
+    /// <returns>Whenther the node is adjacent to a barracks or playerunit</returns>
+    private bool checkAdjecentBarracks(Node _targetNode)
+    {
+        bool _validLocation = true;
+        foreach(Node _node in _targetNode.adjecant)
+        {
+            if(_node.navigability == navigabilityStates.barracks || _node.navigability == navigabilityStates.playerUnit)
+            {
+                _validLocation = false;
+            }
+        }
+        return _validLocation;
+
     }
 
     #endregion

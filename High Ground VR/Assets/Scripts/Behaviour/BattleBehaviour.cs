@@ -5,15 +5,15 @@ using UnityEngine;
 public class BattleBehaviour : MonoBehaviour
 {
     private bool m_battleStarted = false;
-    private float m_battleTimer = 3.0f; //Time between each attack
+    private float m_battleTimer = 1f; //Time between each attack
     private float m_currentTimer;
 
 
-    public List<EnemyGroupBehaviour> m_enemyGroups;
-    public List<BarracksBehaviour> m_friendlyGroups;
+    public List<EnemyGroupBehaviour> enemyGroups;
+    public List<BarracksBehaviour> friendlyGroups;
 
-    public List<Unit> m_enemyUnits;
-    public List<Unit> m_friendlyUnits;
+    public List<Unit> enemyUnits;
+    public List<Unit> friendlyUnits;
 
 
     /// <summary>
@@ -23,11 +23,11 @@ public class BattleBehaviour : MonoBehaviour
     /// <param name="_enemyUnits">List of enemy units to have in the battle.</param>
     public void StartBattle(List<Unit> _friendlyUnits, List<Unit> _enemyUnits)
     {
-        m_enemyGroups = new List<EnemyGroupBehaviour>();
-        m_friendlyGroups = new List<BarracksBehaviour>();
+        enemyGroups = new List<EnemyGroupBehaviour>();
+        friendlyGroups = new List<BarracksBehaviour>();
 
-        m_friendlyUnits = _friendlyUnits;
-        m_enemyUnits = _enemyUnits;
+        friendlyUnits = _friendlyUnits;
+        enemyUnits = _enemyUnits;
         m_currentTimer = m_battleTimer;
         m_battleStarted = true;
     }
@@ -39,23 +39,23 @@ public class BattleBehaviour : MonoBehaviour
     public void JoinBattle(List<Unit> _enemyUnits)
     {
         //Add incoming enemies into the battle.
-        m_enemyUnits.AddRange(_enemyUnits);
+        enemyUnits.AddRange(_enemyUnits);
     }
     void Update()
     {
-        foreach (EnemyGroupBehaviour _enemy in m_enemyGroups)
+        for (int i = 0; i < enemyGroups.Count; i++)
         {
-            if (_enemy == null)
+            if (enemyGroups[i] == null)
             {
-                m_enemyGroups.Remove(_enemy);
+                enemyGroups.Remove(enemyGroups[i]);
             }
         }
 
-        foreach (BarracksBehaviour _friendly in m_friendlyGroups)
+        for (int i = 0; i < friendlyGroups.Count; i++)
         {
-            if (_friendly == null)
+            if (friendlyGroups[i] == null)
             {
-                m_friendlyGroups.Remove(_friendly);
+                friendlyGroups.Remove(friendlyGroups[i]);
             }
         }
 
@@ -64,25 +64,17 @@ public class BattleBehaviour : MonoBehaviour
 
             drawDebugLines();
             m_currentTimer -= Time.deltaTime * GameManager.Instance.GameSpeed;
-            if (m_currentTimer < 0)
-            {
-                Debug.Log("Attack");
-
-                friendlyAttack();
-                enemyAttack();
-                m_currentTimer = m_battleTimer;
-            }
-            if (m_enemyUnits.Count == 0)
+            if (enemyUnits.Count == 0 || friendlyUnits.Count == 0)
             {
                 //End the battle, Player Won
                 battleOver();
                 Destroy(this);
             }
-            if (m_friendlyUnits.Count == 0)
+            if (m_currentTimer < 0)
             {
-                //End the battle, Enemy Won
-                battleOver();
-                Destroy(this);
+                friendlyAttack();
+                enemyAttack();
+                m_currentTimer = m_battleTimer;
             }
         }
     }
@@ -92,20 +84,23 @@ public class BattleBehaviour : MonoBehaviour
     {
         StartCoroutine("delayFriendlyAttackAnim");
         float _totalDamage = 0;
-        foreach (Unit _unit in m_friendlyUnits)
+
+        for (int i = 0; i < friendlyUnits.Count; i++)
         {
-            _totalDamage += _unit.damage;
+            _totalDamage += friendlyUnits[i].damage;
         }
-        float _distributedDamage = _totalDamage / m_enemyUnits.Count;
-        foreach (Unit _unit in m_enemyUnits)
+        float _distributedDamage = _totalDamage / enemyUnits.Count;
+        for (int i = 0; i < enemyUnits.Count; i++)
         {
-            _unit.health -= _distributedDamage;
-            if (_unit.health < 0)
+
+            enemyUnits[i].health -= _distributedDamage;
+            if (enemyUnits[i].health < 0)
             {
-                m_enemyUnits.Remove(_unit);
-                _unit.unitComp.Die();
+                enemyUnits[i].unitComp.Die();
+                enemyUnits.Remove(enemyUnits[i]);
             }
         }
+
 
 
 
@@ -115,18 +110,19 @@ public class BattleBehaviour : MonoBehaviour
     {
         StartCoroutine("delayEnemyAttackAnim");
         float _totalDamage = 0;
-        foreach (Unit _unit in m_enemyUnits)
+        for (int i = 0; i < enemyUnits.Count; i++)
         {
-            _totalDamage += _unit.damage;
+            _totalDamage += enemyUnits[i].damage;
         }
-        float _distributedDamage = _totalDamage / m_friendlyUnits.Count;
-        foreach (Unit _unit in m_friendlyUnits)
+        float _distributedDamage = _totalDamage / friendlyUnits.Count;
+        for (int i = 0; i < friendlyUnits.Count; i++)
         {
-            _unit.health -= _distributedDamage;
-            if (_unit.health < 0)
+
+            friendlyUnits[i].health -= _distributedDamage;
+            if (friendlyUnits[i].health < 0)
             {
-                m_friendlyUnits.Remove(_unit);
-                _unit.unitComp.Die();
+                friendlyUnits[i].unitComp.Die();
+                friendlyUnits.Remove(friendlyUnits[i]);
             }
         }
     }
@@ -136,11 +132,14 @@ public class BattleBehaviour : MonoBehaviour
     /// </summary>
     void battleOver()
     {
-        foreach (EnemyGroupBehaviour _enemy in m_enemyGroups)
+
+        for (int i = 0; i < enemyGroups.Count; i++)
         {
+            EnemyGroupBehaviour _enemy = enemyGroups[i];
             _enemy.inCombat = false;
         }
-        foreach (BarracksBehaviour _friendy in m_friendlyGroups)
+
+        foreach (BarracksBehaviour _friendy in friendlyGroups)
         {
             _friendy.inCombat = false;
         }
@@ -149,12 +148,15 @@ public class BattleBehaviour : MonoBehaviour
 
     void drawDebugLines()
     {
-        foreach (BarracksBehaviour _friendly in m_friendlyGroups)
+        for (int i = 0; i < friendlyGroups.Count; i++)
         {
-            foreach(EnemyGroupBehaviour _enemy in m_enemyGroups)
+            BarracksBehaviour _friendly = friendlyGroups[i];
+            for (int j = 0; j < enemyGroups.Count; j++)
             {
-                Debug.DrawLine(_friendly.transform.position, _enemy.transform.position, Color.red);
+                Debug.DrawLine(_friendly.transform.position, enemyGroups[j].transform.position, Color.red);
             }
+
+
         }
     }
 
@@ -164,19 +166,22 @@ public class BattleBehaviour : MonoBehaviour
     /// <returns></returns>
     IEnumerator delayFriendlyAttackAnim()
     {
-        foreach (Unit _unit in m_friendlyUnits)
+        for (int i = 0; i < friendlyUnits.Count; i++)
         {
-            //Rotate towards a random target
-            Vector3 _randomTarget = m_enemyUnits[Random.Range(0, m_enemyUnits.Count)].unitComp.transform.position;
-            _unit.unitComp.transform.LookAt(_randomTarget);
+            yield return new WaitForSeconds(Random.Range(0, 0.2f));
+            //All units may be dead by this point.
+            try
+            {
+                //Rotate towards a random target
+                Vector3 _randomTarget = enemyUnits[Random.Range(0, enemyUnits.Count)].unitComp.transform.position;
+                friendlyUnits[i].unitComp.transform.LookAt(_randomTarget);
 
-            //Run attack animation
-            _unit.unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
-            yield return new WaitForSeconds(Random.Range(0, 0.4f));
-
-            //Play an appropriate sound
-            AudioManager.Instance.PlaySound(SoundLists.weaponClashes, true, 1, _unit.unitComp.gameObject, true, false, true);
-
+                //Run attack animation
+                friendlyUnits[i].unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
+                //Play an appropriate sound
+                AudioManager.Instance.PlaySound(SoundLists.weaponClashes, true, 1, friendlyUnits[i].unitComp.gameObject, true, false, true);
+            }
+            catch { }
         }
     }
 
@@ -186,18 +191,23 @@ public class BattleBehaviour : MonoBehaviour
     /// <returns></returns>
     IEnumerator delayEnemyAttackAnim()
     {
-        foreach (Unit _unit in m_enemyUnits)
+        for (int i = 0; i < enemyUnits.Count; i++)
         {
-            //Rotate towards a random target
-            Vector3 _randomTarget = m_friendlyUnits[Random.Range(0, m_friendlyUnits.Count)].unitComp.transform.position;
-            _unit.unitComp.transform.LookAt(_randomTarget);
+            yield return new WaitForSeconds(Random.Range(0, 0.2f));
+            //All units may be dead by this point.
+            try
+            {
+                //Rotate towards a random target
+                Vector3 _randomTarget = friendlyUnits[Random.Range(0, friendlyUnits.Count)].unitComp.transform.position;
+                enemyUnits[i].unitComp.transform.LookAt(_randomTarget);
 
-            //Run attack animation
-            _unit.unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
-            yield return new WaitForSeconds(Random.Range(0, 0.6f));
+                //Run attack animation
+                enemyUnits[i].unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
 
-            //Play an appropriate sound
-            AudioManager.Instance.PlaySound(SoundLists.weaponClashes, true, 1, _unit.unitComp.gameObject, true, false, true);
+                //Play an appropriate sound
+                AudioManager.Instance.PlaySound(SoundLists.weaponClashes, true, 1, enemyUnits[i].unitComp.gameObject, true, false, true);
+            }
+            catch { }
         }
     }
 }

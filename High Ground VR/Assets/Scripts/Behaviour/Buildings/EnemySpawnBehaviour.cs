@@ -16,7 +16,7 @@ public class EnemySpawnBehaviour : MonoBehaviour
         do
         {
             _spawnNode = thisNode.adjecant[Random.Range(0, thisNode.adjecant.Count)];
-            if(_spawnNode.navigability == navigabilityStates.nonPlaceable || _spawnNode.navigability == navigabilityStates.navigable)
+            if(_spawnNode.navigability == navigabilityStates.navigable)
             {
                 _spawnPosition = new Vector3(_spawnNode.hex.transform.position.x, _spawnNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _spawnNode.hex.transform.position.z);
             }
@@ -34,7 +34,7 @@ public class EnemySpawnBehaviour : MonoBehaviour
             _enemy.GetComponent<EnemyGroupBehaviour>().currentY = _spawnNode.y;
             _enemy.GetComponent<EnemyGroupBehaviour>().goalX = GameManager.Instance.GameGemNode.x;
             _enemy.GetComponent<EnemyGroupBehaviour>().goalY = GameManager.Instance.GameGemNode.y;
-
+            AudioManager.Instance.PlaySound(SoundLists.enemySpawning, false, 0, _enemy, true, false, true);
             return true; //Succeeded spawning an enemy, continuing spawning.
         }
         else

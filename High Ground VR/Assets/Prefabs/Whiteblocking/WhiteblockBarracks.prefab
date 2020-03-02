@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2891801558545738532}
   - component: {fileID: 6159438356729368850}
   - component: {fileID: 7781859567711127640}
+  - component: {fileID: -7364125800721151951}
   m_Layer: 0
   m_Name: WhiteblockBarracks
   m_TagString: Untagged
@@ -56,8 +57,24 @@ MonoBehaviour:
   m_unitPrefab: {fileID: 3167704458864864438, guid: 88eeb47fc39224545bd570cecfd88105,
     type: 3}
   m_unitCount: 3
-  m_unitRespawnDelay: 3
+  m_unitRespawnDelay: 10
   inCombat: 0
+--- !u!114 &-7364125800721151951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2196322764222945591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38259d2caaaff6c4387ffafae9a2a137, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_health: 100
+  m_cooldownTime: 4
+  m_healthRegenAmount: 0.02
+  currentHealth: 0
 --- !u!1001 &5553423508389417461
 PrefabInstance:
   m_ObjectHideFlags: 0

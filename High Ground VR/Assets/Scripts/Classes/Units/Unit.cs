@@ -9,7 +9,7 @@ public class Unit
     public UnitComponent unitComp;
     public float health;
     public float damage;
-    public float intelligence;
+    public float aggression;
     public GameObject helmet;
     public GameObject weapon;
 
@@ -23,13 +23,12 @@ public class Unit
     /// <param name="_intelligence">Intelligence of the unit. Used for deciding if they fall into traps. 0 : none 1: full intelligence</param>
     /// <param name="_helmet"> Helmet Gameobject to spawn on the unit</param>
     /// <param name="_weapon">Weapon Gameobject to spawn on the unit</param>
-    public Unit(unitTypes _unit, UnitComponent _unitComp, float _health, float _damage, float _intelligence, GameObject _helmet, GameObject _weapon)
+    public Unit(unitTypes _unit, UnitComponent _unitComp, float _health, float _damage, GameObject _helmet, GameObject _weapon)
     {
         unitType = _unit;
         unitComp = _unitComp;
         health = _health;
         damage = _damage;
-        intelligence = _intelligence;
         helmet = _helmet;
         weapon = _weapon;
     }

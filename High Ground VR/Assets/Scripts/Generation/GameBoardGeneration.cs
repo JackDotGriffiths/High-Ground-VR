@@ -179,7 +179,8 @@ public class GameBoardGeneration : MonoBehaviour
         Node _gemNode = Graph[ Mathf.RoundToInt(m_length / 2f), Mathf.RoundToInt(m_width / 2f)];
         _gemNode.navigability = navigabilityStates.gem;
         Vector3 _gemPosition = new Vector3(_gemNode.hex.transform.position.x, _gemNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _gemNode.hex.transform.position.z);
-        Instantiate(m_gem, _gemPosition, Quaternion.identity, _gemNode.hex.transform);
+        Quaternion _gemRotation = Quaternion.Euler(45, 45, 45);
+        Instantiate(m_gem, _gemPosition, _gemRotation, _gemNode.hex.transform);
         GameManager.Instance.GameGemNode = _gemNode;
     }
 
@@ -199,7 +200,7 @@ public class GameBoardGeneration : MonoBehaviour
                     int _rand = Random.Range(0, 100); //Random chance of placing an asset
                     if(_rand < m_ambientNatureFrequency)
                     {
-                        Vector3 _spawnPosition = Random.insideUnitSphere + _hex.transform.position;
+                        Vector3 _spawnPosition = (Random.insideUnitSphere * 0.7f) + _hex.transform.position;
                         _spawnPosition.y = BuildingValidation.buildingHeightOffset;
                         Vector3 _spawnRotation = new Vector3(0, Random.Range(0.0f, 360.0f), 0);
 

@@ -17,7 +17,7 @@ public class NodeComponent : MonoBehaviour
         }
         else
         {
-            Debug.Log("Node Occupied");
+            Debug.Log("Node not Valid");
         }
     }
     public void PlaceMine()
@@ -30,7 +30,7 @@ public class NodeComponent : MonoBehaviour
         }
         else
         {
-            Debug.Log("Node Occupied");
+            Debug.Log("Node not Valid");
         }
     }
     public void PlaceWalls()

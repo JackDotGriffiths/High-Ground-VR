@@ -2,11 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using TMPro;
 
 public enum buildingTypes { Barracks, Mine, Wall };
 public class BookManager : MonoBehaviour
 {
     private static BookManager s_instance;
+
+
+
+    public TextMeshProUGUI moneyText;
+    public TextMeshProUGUI timerText;
+
 
     [SerializeField, Tooltip("Object within which the colliders, buttons and displays for the actions is held")] private GameObject m_actionsMenu;
     [Tooltip("All available buildings from the book menu")]public BuildingOption[] buildingOptions; //A list of all available buildings from the player's menu.

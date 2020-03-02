@@ -5,7 +5,7 @@
       "app_key": "application.generated.unity.highground.exe",
       "launch_type": "url",
       "url": "steam://launch/",
-      "action_manifest_path": "C:\\Users\\jack-\\Documents\\Current Repository\\PRCO304-High-Ground\\High Ground VR\\Assets\\StreamingAssets\\SteamVR\\actions.json",
+      "action_manifest_path": "C:\\Users\\jgriffiths6.SOCNET\\Documents\\GitHub\\PRCO304-High-Ground\\High Ground VR\\Assets\\StreamingAssets\\SteamVR\\actions.json",
       "strings": {
         "en_us": {
           "name": "High Ground [Testing]"
