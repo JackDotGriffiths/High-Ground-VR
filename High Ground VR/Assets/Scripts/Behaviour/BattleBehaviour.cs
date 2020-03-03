@@ -179,7 +179,7 @@ public class BattleBehaviour : MonoBehaviour
                 //Run attack animation
                 friendlyUnits[i].unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
                 //Play an appropriate sound
-                AudioManager.Instance.PlaySound(SoundLists.weaponClashes, true, 1, friendlyUnits[i].unitComp.gameObject, true, false, true);
+                AudioManager.Instance.Play3DSound(SoundLists.weaponClashes, true, 1, friendlyUnits[i].unitComp.gameObject, true, false, true);
             }
             catch { }
         }
@@ -205,7 +205,7 @@ public class BattleBehaviour : MonoBehaviour
                 enemyUnits[i].unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
 
                 //Play an appropriate sound
-                AudioManager.Instance.PlaySound(SoundLists.weaponClashes, true, 1, enemyUnits[i].unitComp.gameObject, true, false, true);
+                AudioManager.Instance.Play3DSound(SoundLists.weaponClashes, true, 1, enemyUnits[i].unitComp.gameObject, true, false, true);
             }
             catch { }
         }

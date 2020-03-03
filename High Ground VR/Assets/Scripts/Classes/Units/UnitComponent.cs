@@ -28,7 +28,9 @@ public class UnitComponent : MonoBehaviour
     [SerializeField, Tooltip("All possible weapons for the units to spawn with.")] private List<GameObject> m_weapons;
 
     public Unit unit;
-    // Start is called before the first frame update
+
+
+
     public void playerUnitConstructor()
     {
         unitTypes _unitType = unitTypes.player;

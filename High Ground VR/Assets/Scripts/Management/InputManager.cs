@@ -25,6 +25,7 @@ public class InputManager : MonoBehaviour
     [SerializeField, Space(10),Tooltip("Material to be used as the Line Renderer")] private Material m_pointerMaterial;
     [SerializeField, Tooltip("Grass Material of the Hexagons. Used when replacing the highlight.")] private Material m_grassMaterial; //Grass Material of the Hex
     [SerializeField, Tooltip("Material to be used when highlighting a Hexagon.")] private Material m_outlineMaterial; //Outline or Highlight Material to apply when hexagon is pointed at.
+    [SerializeField, Tooltip("Interaction Manager script. This is used for shooting enemies")] private InteractionManager m_interactionManager;
     private GameObject m_currentlySelectedHex; //The currently pointed at Hexagon. This is used for teleporting and building.
 
     //
@@ -162,6 +163,20 @@ public class InputManager : MonoBehaviour
                 //Removes highlight from all objects not in the m_objectMeshes list
                 updateObjectList(_hitMesh);
 
+
+                //Show the laser
+                if (m_currentSize == SizeOptions.large)
+                {
+                    m_mainPointer.startWidth = 0.05f;
+                    m_mainPointer.endWidth = 0.00f;
+                }
+                else
+                {
+                    m_mainPointer.startWidth = 0.003f;
+                    m_mainPointer.endWidth = 0.00f;
+                }
+
+
                 //Turn laser colour to blue when you correctly collided with environment.
                 m_mainPointer.startColor = Color.blue;
                 m_mainPointer.endColor = Color.blue;
@@ -221,8 +236,8 @@ public class InputManager : MonoBehaviour
             m_currentlySelectedHex = null;
             m_enlargePlayer = true;
             //Turn the laser colour red.
-            m_mainPointer.startColor = Color.red;
-            m_mainPointer.endColor = Color.red;
+            m_mainPointer.startWidth = 0.0f;
+            m_mainPointer.endWidth = 0.0f;
 
             ////Removes highlight from all objects
             updateObjectList();
@@ -240,6 +255,13 @@ public class InputManager : MonoBehaviour
             RightTrigger = false;
         }
 
+        #endregion
+
+        #region Enemy Interaction Manager
+        if(m_mainTrigger == true && m_currentlySelectedBuilding == null)
+        {
+            m_interactionManager.regularAttack(MainController);
+        }
         #endregion
 
         #region Teleporting

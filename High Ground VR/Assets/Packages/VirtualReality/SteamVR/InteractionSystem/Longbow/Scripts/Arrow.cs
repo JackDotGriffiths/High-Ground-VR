@@ -27,7 +27,7 @@ namespace Valve.VR.InteractionSystem
 		public SoundPlayOneshot airReleaseSound;
 		public SoundPlayOneshot hitTargetSound;
 
-		public PlaySound hitGroundSound;
+		public Play3DSound hitGroundSound;
 
 		private bool inFlight;
 		private bool released;
