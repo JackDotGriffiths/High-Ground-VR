@@ -7,16 +7,18 @@ public class BuildingHealth : MonoBehaviour
 {
     [SerializeField,Tooltip("Health of the building.")]private float m_health = 100;
     [SerializeField, Tooltip("Time after taking damage in which the building can regen health.")] private float m_cooldownTime = 4.0f;
-    [SerializeField, Tooltip("Amount of health to regen. Usually a very small amount")] private float m_healthRegenAmount = 0.0002f;
+    [SerializeField, Tooltip("Amount of health to regen. Usually a very small amount")] private float m_healthRegenAmount = 0.04f;
+    [SerializeField, Tooltip("Whether or not this component is attatched to the gem. Acts differently when it's destroyed")] private bool m_isGem = false;
     public float currentHealth; //Current Health of the building.
     private bool m_canRegenHealth; //Tracks whether the building can regenerate health.
+
     private void Start()
     {
         currentHealth = m_health;
     }
 
 
-    private void Update()
+    void FixedUpdate()
     {
         if (m_canRegenHealth && currentHealth < m_health)
         {
@@ -36,9 +38,16 @@ public class BuildingHealth : MonoBehaviour
         StopAllCoroutines();
         StartCoroutine("healthCooldown");
 
-        if (currentHealth < 0)
+        if (currentHealth < 0 && m_isGem == false)
         {
-            Die();
+            if (m_isGem)
+            {
+                GemDie();
+            }
+            else
+            {
+                Die();
+            }
         }
     }
 
@@ -48,6 +57,16 @@ public class BuildingHealth : MonoBehaviour
     void Die()
     {
         this.GetComponentInParent<NodeComponent>().node.navigability = navigabilityStates.navigable;
+        Destroy(this.gameObject);
+    }
+
+    /// <summary>
+    /// Destroys the gem
+    /// </summary>
+    void GemDie()
+    {
+        this.GetComponentInParent<NodeComponent>().node.navigability = navigabilityStates.navigable;
+        GameManager.Instance.GameOver = true;
         Destroy(this.gameObject);
     }
 

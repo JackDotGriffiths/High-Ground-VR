@@ -77,10 +77,19 @@ public class EnemyGroupBehaviour : MonoBehaviour
                 if (m_groupPath[m_currentStepIndex + 1] == GameManager.Instance.GameGemNode)
                 {
                     //Unit is in an adjecent node to the gem, initiate combat
-                    m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;
                     Debug.Log(this + "reached Gem");
-                    GameManager.Instance.GameOver = true;
-                    Destroy(this.gameObject);
+
+                    inSiege = true;
+                    List<Unit> _enemyUnits = new List<Unit>();
+                    foreach (GameObject _gameObj in m_units)
+                    {
+                        _enemyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
+                    }
+                    SiegeBehaviour _siege = gameObject.AddComponent<SiegeBehaviour>();
+                    _siege.StartSiege(m_groupPath[m_currentStepIndex + 1].hex.GetComponentInChildren<BuildingHealth>(), _enemyUnits);
+                    _siege.enemyGroups.Add(this);
+
+
                 }
 
                 //Reset the timer
@@ -89,7 +98,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
                 //RunPathfinding();
 
                 //If the next node is navigable, move the node forward
-                if (m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.navigable && m_groupPath[m_currentStepIndex + 1].hex.transform.childCount == 0)
+                if (m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.navigable && m_groupPath[m_currentStepIndex + 1].hex.transform.childCount == 0 && inSiege == false)
                 {
                     m_validMove = true;
                     m_groupPath[m_currentStepIndex + 1].navigability = navigabilityStates.enemyUnit;
@@ -105,6 +114,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
                 }
                 else if ((m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.wall || m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.mine) && inSiege == false)
                 {
+                    //Start combat with the building in the way.
                     inSiege = true;
                     List<Unit> _enemyUnits = new List<Unit>();
                     foreach (GameObject _gameObj in m_units)

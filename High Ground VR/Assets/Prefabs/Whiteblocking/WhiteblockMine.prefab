@@ -59,7 +59,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_health: 100
   m_cooldownTime: 4
-  m_healthRegenAmount: 0.02
+  m_healthRegenAmount: 0.04
   currentHealth: 0
 --- !u!1001 &11880390300620910
 PrefabInstance:

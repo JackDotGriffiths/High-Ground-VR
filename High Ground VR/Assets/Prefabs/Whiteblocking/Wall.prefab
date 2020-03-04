@@ -106,7 +106,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38259d2caaaff6c4387ffafae9a2a137, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_health: 100
+  m_health: 200
   m_cooldownTime: 4
-  m_healthRegenAmount: 0.02
+  m_healthRegenAmount: 0.1
+  m_isGem: 0
   currentHealth: 0
