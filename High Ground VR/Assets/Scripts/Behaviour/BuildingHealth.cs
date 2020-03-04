@@ -38,7 +38,7 @@ public class BuildingHealth : MonoBehaviour
         StopAllCoroutines();
         StartCoroutine("healthCooldown");
 
-        if (currentHealth < 0 && m_isGem == false)
+        if (currentHealth < 0)
         {
             if (m_isGem)
             {

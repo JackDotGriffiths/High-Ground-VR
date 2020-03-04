@@ -55,7 +55,7 @@ public class UnitComponent : MonoBehaviour
     }
 
 
-    //Kills the player
+    //Kills the unit
     public void Die()
     {
         //Instantiate a duplicate of the object

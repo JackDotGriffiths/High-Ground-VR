@@ -44,6 +44,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
 
     void Update()
     {
+        //Clear destroyed units from the list of units associated with this group.
         for (int i = 0; i < m_units.Count; i++)
         {
             if (m_units[i] == null)
@@ -52,6 +53,9 @@ public class EnemyGroupBehaviour : MonoBehaviour
             }
         }
         m_currentUnits = m_units.Count;
+
+
+
         if(m_currentUnits == 0 && m_unitInstantiated == true)
         {
             m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;

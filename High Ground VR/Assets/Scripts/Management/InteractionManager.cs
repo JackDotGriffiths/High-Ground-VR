@@ -8,6 +8,7 @@ public class InteractionManager : MonoBehaviour
 
     [Header("Regular Attack Effects"),Space(10)]
     [SerializeField, Tooltip("Damage that should be dealt when player is large.This is PER enemy.")] private float m_playerLargeDamage;
+    [SerializeField, Tooltip("Damage that should be dealt when player is small.This is PER enemy.")] private float m_playerSmallDamage;
     //Need to make damage work when player is small.
 
 
@@ -31,40 +32,64 @@ public class InteractionManager : MonoBehaviour
         {
             return;
         }
-
-        //This currently only works if the player is large.
-        RaycastHit _hit;
-        if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - _controller.transform.up, out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
+        //Player is large, attack a hex.
+        if(InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
         {
-            StartCoroutine(regularAttackEffect(_controller, _hit.point));
-
-
-            //If it's a unit;
-            if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large && _hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.enemyUnit)
+            RaycastHit _hit;
+            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - _controller.transform.up, out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
             {
-                EnemyGroupBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyGroupBehaviour>();
-                List<Unit> _enemyUnits = new List<Unit>();
-                foreach(GameObject _go in _enemies.m_units)
+                StartCoroutine(regularAttackEffect(1.0f, _controller, _hit.point));
+                //If it's a unit;
+                if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.enemyUnit)
                 {
-                    _enemyUnits.Add(_go.GetComponent<UnitComponent>().unit);
+                    EnemyGroupBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyGroupBehaviour>();
+                    List<Unit> _enemyUnits = new List<Unit>();
+                    foreach (GameObject _go in _enemies.m_units)
+                    {
+                        _enemyUnits.Add(_go.GetComponent<UnitComponent>().unit);
+                    }
+                    foreach (Unit _unit in _enemyUnits)
+                    {
+                        _unit.health -= m_playerLargeDamage;
+                        if (_unit.health < 0)
+                        {
+                            _unit.unitComp.Die();
+                        }
+                    }
                 }
-                foreach(Unit _unit in _enemyUnits)
+            }
+            else
+            {
+                //Miss 
+            }
+        }
+        else
+        {
+            RaycastHit _hit;
+
+            StartCoroutine(regularAttackEffect(0.5f, _controller, _controller.transform.position + _controller.transform.forward * 20f));
+            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward, out _hit, 1000))
+            {
+                //If it's a unit;
+                if ( _hit.collider.gameObject.GetComponentInParent<UnitComponent>()!= null)
                 {
-                    _unit.health -= m_playerLargeDamage;
-                    if(_unit.health < 0)
+                    Unit _unit = _hit.collider.gameObject.GetComponentInParent<UnitComponent>().unit;
+                    _unit.health -= m_playerSmallDamage;
+                    if (_unit.health < 0)
                     {
                         _unit.unitComp.Die();
                     }
                 }
             }
+            else
+            {
+                //Miss 
+            }
         }
-        else
-        {
-            //Miss 
-        }
+        
     }
 
-    IEnumerator regularAttackEffect(GameObject _controller, Vector3 _hitPos)
+    IEnumerator regularAttackEffect(float _playerScale, GameObject _controller, Vector3 _hitPos)
     {
         m_currentlyAttacking = true;
         AudioManager.Instance.Play2DSound(SoundLists.zapSounds, false, 0, true, false, true);
@@ -80,8 +105,8 @@ public class InteractionManager : MonoBehaviour
             Destroy(_go, m_lightningTiming * m_lightningOccurance);
             _lightningLines.Add(new GameObject("regularAttackEffect").AddComponent<LineRenderer>());
             _lightningLines[i].material = m_regularAttackMaterial;
-            _lightningLines[i].startWidth = 0.1f;
-            _lightningLines[i].endWidth = 0.1f;
+            _lightningLines[i].startWidth = 0.1f * _playerScale;
+            _lightningLines[i].endWidth = 0.1f * _playerScale;
         }
 
         ///Break the line down into positions
@@ -108,7 +133,7 @@ public class InteractionManager : MonoBehaviour
                 _linePositions[0] = _controller.transform.position;
                 for (int j = 1; j < _breakPositions.Count; j++)
                 {
-                    _linePositions[j] = _breakPositions[j] + Random.insideUnitSphere * m_lightningWidth;
+                    _linePositions[j] = _breakPositions[j] + Random.insideUnitSphere * m_lightningWidth * _playerScale;
                 }
                 _linePositions[_breakPositions.Count-1] = _hitPos;
                 _line.SetPositions(_linePositions);
