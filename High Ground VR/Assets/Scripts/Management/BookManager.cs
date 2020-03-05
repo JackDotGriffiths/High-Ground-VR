@@ -4,7 +4,6 @@ using UnityEngine;
 using System;
 using TMPro;
 
-public enum buildingTypes { Barracks, Mine, Wall };
 public class BookManager : MonoBehaviour
 {
     private static BookManager s_instance;
@@ -37,22 +36,19 @@ public class BookManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Pass in a collider and will return the BuildingOption. Will return null if there isn't a building associated
+    /// Sets the current building through a button press.
     /// </summary>
-    /// <param name="_collider">Collider chosen by the player. Collider must have a BuildingOption associated with it in the User Interface.</param>
-    /// <returns>The Chosen Building</returns>
-    public BuildingOption GetBuilding(Collider _collider)
+    /// <param name="_building">Sets the current building to this option.</param>
+    public void SetBuilding(int _index)
     {
-        //From the passed in collider, return the type of building the player has chosen.
-        BuildingOption _selectedBuilding = new BuildingOption();
-        for (int i = 0; i < buildingOptions.Length; i++)
+            try
         {
-            if (buildingOptions[i].buttonCollider == _collider)
-            {
-                _selectedBuilding = buildingOptions[i];
-            }
+            InputManager.Instance.CurrentlySelectedBuilding = buildingOptions[_index];
         }
-        return _selectedBuilding;
+        catch
+        {
+            Debug.LogWarning("Error trying to find the InputManager.");
+        }
     }
 
 

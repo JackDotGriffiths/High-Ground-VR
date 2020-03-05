@@ -67,6 +67,7 @@ public class InputManager : MonoBehaviour
     public Vector3 LargestScale { get => m_largestScale; set => m_largestScale = value; }
     public SizeOptions CurrentSize { get => m_currentSize; set => m_currentSize = value; }
     public Vector3 SmallestScale { get => m_smallestScale; set => m_smallestScale = value; }
+    public BuildingOption CurrentlySelectedBuilding { get => m_currentlySelectedBuilding; set => m_currentlySelectedBuilding = value; }
     #endregion
 
     void Start()
@@ -189,32 +190,6 @@ public class InputManager : MonoBehaviour
                 }
             }
 
-            //If the laser hits a UIButton
-            if (_hit.collider.gameObject.tag == "UIButton")
-            {
-                
-                //Turn laser colour to blue when you correctly collided with environment.
-                m_mainPointer.startColor = Color.blue;
-                m_mainPointer.endColor = Color.blue;
-
-                m_currentlySelectedHex = null;
-                updateObjectList();
-
-                //If the player clicks, get the building associated with that button and set it as m_currentlySelectedBuilding
-                if (m_mainTrigger == true)
-                {
-                    //Try/Catch to check for any missing references
-                    try
-                    {
-                        m_currentlySelectedBuilding = BookManager.Instance.GetBuilding(_hit.collider);
-                        Debug.Log("Selected " + m_currentlySelectedBuilding.type);
-                    }
-                    catch { Debug.LogError("Does the button have an option available in BuildingManager on BookUI?"); }
-                }
-
-            }
-
-
 
             //Update the laser position so it continues to update.
             m_mainPointer.SetPosition(0, MainController.transform.position);
@@ -268,30 +243,6 @@ public class InputManager : MonoBehaviour
                 }
             }
 
-            //If the laser hits a UIButton
-            if (_hit.collider.gameObject.tag == "UIButton")
-            {
-
-                //Turn laser colour to blue when you correctly collided with environment.
-                m_mainPointer.startColor = Color.blue;
-                m_mainPointer.endColor = Color.blue;
-
-                m_currentlySelectedHex = null;
-                updateObjectList();
-
-                //If the player clicks, get the building associated with that button and set it as m_currentlySelectedBuilding
-                if (m_mainTrigger == true)
-                {
-                    //Try/Catch to check for any missing references
-                    try
-                    {
-                        m_currentlySelectedBuilding = BookManager.Instance.GetBuilding(_hit.collider);
-                        Debug.Log("Selected " + m_currentlySelectedBuilding.type);
-                    }
-                    catch { Debug.LogError("Does the button have an option available in BuildingManager on BookUI?"); }
-                }
-
-            }
             //Update the laser position so it continues to update.
             m_mainPointer.SetPosition(0, MainController.transform.position);
             m_mainPointer.SetPosition(1, _hit.point);
@@ -309,11 +260,13 @@ public class InputManager : MonoBehaviour
 
             if(m_currentSize == SizeOptions.large)
             {
-                m_mainPointer.SetPosition(0, MainController.transform.position);
-                m_mainPointer.SetPosition(1, MainController.transform.position + (MainController.transform.forward - MainController.transform.up) * 20f);
+                m_mainPointer.startWidth = 0;
+                m_mainPointer.endWidth = 0;
             }
             else
             {
+                m_mainPointer.startWidth = 0.003f;
+                m_mainPointer.endWidth = 0;
                 m_mainPointer.SetPosition(0, MainController.transform.position);
                 m_mainPointer.SetPosition(1, MainController.transform.position + MainController.transform.forward * 20f);
 
@@ -382,15 +335,6 @@ public class InputManager : MonoBehaviour
             {
                 //Debug.Log("Teleported");
                 m_teleporterPrimed = false;
-
-
-                //Scale the game environment
-                //m_gameEnvironment.transform.localScale = m_largestScale;
-                //if (m_gameEnvironment.transform.position.y != -m_largestScale.y)
-                //{
-                //    m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, -m_largestScale.y - 20, m_gameEnvironment.transform.position.z);
-                //}
-
 
                 m_vrRig.transform.localScale = m_smallestScale;
                 m_newPosition = new Vector3(m_currentlySelectedHex.transform.position.x, m_currentlySelectedHex.transform.position.y + m_buildingValidation.CurrentHeightOffset, m_currentlySelectedHex.transform.position.z);
