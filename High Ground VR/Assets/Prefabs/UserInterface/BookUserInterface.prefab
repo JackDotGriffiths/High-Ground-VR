@@ -1142,7 +1142,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2721971569594022184}
-  - component: {fileID: 3095635179190441778}
   m_Layer: 0
   m_Name: SlowDownTime
   m_TagString: UIButton
@@ -1166,19 +1165,6 @@ Transform:
   m_Father: {fileID: 7689942131879835931}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &3095635179190441778
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2042131103146902221}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.34438032, y: 0.5040626, z: 2.9000015}
-  m_Center: {x: 0.731201, y: 0.004088074, z: 14.89998}
 --- !u!1 &2149349176027514523
 GameObject:
   m_ObjectHideFlags: 0
@@ -1291,9 +1277,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Speed Up
-
-    Time'
+  m_text: Speed Up Unit Group
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1672,7 +1656,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3960860606331740345}
-  - component: {fileID: 6729427495009300633}
   m_Layer: 0
   m_Name: SpeedUpTime
   m_TagString: UIButton
@@ -1696,19 +1679,6 @@ Transform:
   m_Father: {fileID: 7689942131879835931}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &6729427495009300633
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3144208020604329086}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.34438032, y: 0.5040626, z: 2.9000015}
-  m_Center: {x: 0.731201, y: 0.004088074, z: 14.89998}
 --- !u!1 &3275632612502173263
 GameObject:
   m_ObjectHideFlags: 0
@@ -1922,7 +1892,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8118654037677706910}
-  - component: {fileID: 4444078459556414264}
   m_Layer: 0
   m_Name: RegularAttack
   m_TagString: UIButton
@@ -1946,19 +1915,6 @@ Transform:
   m_Father: {fileID: 7689942131879835931}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &4444078459556414264
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3293345999659882605}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.34438032, y: 0.5040626, z: 2.9000015}
-  m_Center: {x: 0.731201, y: 0.004088074, z: 14.89998}
 --- !u!1 &3748463143575783718
 GameObject:
   m_ObjectHideFlags: 0
@@ -2049,7 +2005,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2718927116155439344}
-  - component: {fileID: 6487455230178087917}
   m_Layer: 0
   m_Name: WallButton
   m_TagString: UIButton
@@ -2074,19 +2029,6 @@ Transform:
   m_Father: {fileID: 276134168787277689}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &6487455230178087917
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4116749638895056229}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.34438032, y: 0.5040626, z: 2.9000015}
-  m_Center: {x: 0.731201, y: 0.004088074, z: 14.89998}
 --- !u!1 &4678310241243277445
 GameObject:
   m_ObjectHideFlags: 0
@@ -2253,7 +2195,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3489568598687011833}
-  - component: {fileID: 1503051353114638500}
   m_Layer: 0
   m_Name: Mine Button
   m_TagString: UIButton
@@ -2278,19 +2219,6 @@ Transform:
   m_Father: {fileID: 8145908687146545655}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &1503051353114638500
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4723083781819530951}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.35817057, y: 0.45330048, z: 5.9286857}
-  m_Center: {x: -0.19862747, y: 0.033454895, z: -6.715438}
 --- !u!33 &1334458603232544156
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -2675,7 +2603,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8302324352822610682}
-  - component: {fileID: 5585867051226381123}
   m_Layer: 0
   m_Name: BuildingsButton
   m_TagString: UIButton
@@ -2699,19 +2626,6 @@ Transform:
   m_Father: {fileID: 276134168787277689}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 194.99998, z: 0}
---- !u!65 &5585867051226381123
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6885658937162410262}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.34438032, y: 0.5040626, z: 2.9000015}
-  m_Center: {x: 0.731201, y: 0.004088074, z: 14.89998}
 --- !u!1 &6889433291715238321
 GameObject:
   m_ObjectHideFlags: 0
@@ -2824,9 +2738,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Slow Down
-
-    Time'
+  m_text: Slow Down Unit Group
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3498,13 +3410,13 @@ MonoBehaviour:
     type: 1
     prefab: {fileID: 1520805154033128243, guid: 7c71aa389d9dbdb4499b2eefa4610f0d,
       type: 3}
-    buttonCollider: {fileID: 1503051353114638500}
+    buttonCollider: {fileID: 0}
     price: 2
   - name: Walls
     type: 2
     prefab: {fileID: 4868457414673182371, guid: 253a0d6ff0eefcb4d8355a400840743a,
       type: 3}
-    buttonCollider: {fileID: 6487455230178087917}
+    buttonCollider: {fileID: 0}
     price: 2
   moneyText: {fileID: 2655426896851327135}
   timerText: {fileID: 1812000633748174690}
@@ -4911,15 +4823,15 @@ PrefabInstance:
     - {fileID: 2549027201484338367, guid: f56f2a61c7a97814b9285ca40acf4578, type: 3}
     - {fileID: 2549027201484338364, guid: f56f2a61c7a97814b9285ca40acf4578, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: f56f2a61c7a97814b9285ca40acf4578, type: 3}
---- !u!1 &4773787104991099531 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2549027201484338338, guid: f56f2a61c7a97814b9285ca40acf4578,
-    type: 3}
-  m_PrefabInstance: {fileID: 7016626534544674345}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4773787104991099543 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2549027201484338366, guid: f56f2a61c7a97814b9285ca40acf4578,
+    type: 3}
+  m_PrefabInstance: {fileID: 7016626534544674345}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &4773787104991099531 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2549027201484338338, guid: f56f2a61c7a97814b9285ca40acf4578,
     type: 3}
   m_PrefabInstance: {fileID: 7016626534544674345}
   m_PrefabAsset: {fileID: 0}

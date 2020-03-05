@@ -81,16 +81,17 @@ public class BookManager : MonoBehaviour
     /// </summary>
     public void TurnToSpells()
     {
-        gameObject.GetComponent<Animator>().speed = 1;
-        gameObject.GetComponent<Animator>().Play("TurnPage");
+        gameObject.GetComponent<Animator>().Play("TurnPageToSpells");
         m_isShowingSpells = true;
     }
 
-    //Turns the book to show the buildings
+    /// <summary>
+    /// Turns the book to show the buildings
+    /// </summary>
     public void TurnToBuildings()
     {
-        gameObject.GetComponent<Animator>().speed = -1;
-        gameObject.GetComponent<Animator>().Play("TurnPage");
+        gameObject.GetComponent<Animator>().Play("TurnPageToBuildings");
+        Debug.Log("Show Buildings");
         m_isShowingSpells = false;
     }
 }
