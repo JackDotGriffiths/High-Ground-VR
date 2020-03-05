@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour
     private int m_mineCount;
 
 
-    [HideInInspector] public TextMeshProUGUI moneyBookText, timerBookText;
+    [HideInInspector] public TextMeshProUGUI moneyBookText, timerBookText, moneyBookText2, timerBookText2;
 
     [Header ("Debug Wall Displays"), Space(10)]
     [SerializeField] private TextMeshProUGUI m_goldValue; //Debug Wall Text object that temporarily displays money
@@ -109,6 +109,8 @@ public class GameManager : MonoBehaviour
         {
             moneyBookText.text = currentGold.ToString();
             timerBookText.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString();
+            moneyBookText2.text = currentGold.ToString();
+            timerBookText2.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString();
         }
         catch { }
     }
