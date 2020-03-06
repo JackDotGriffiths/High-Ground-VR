@@ -1346,10 +1346,10 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0.0014701784, z: 0, w: 0}
   m_textInfo:
     textComponent: {fileID: 6198769156459864425}
-    characterCount: 13
+    characterCount: 19
     spriteCount: 0
-    spaceCount: 2
-    wordCount: 3
+    spaceCount: 3
+    wordCount: 4
     linkCount: 0
     lineCount: 2
     pageCount: 1
@@ -2807,10 +2807,10 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0.0014701784, z: 0, w: 0}
   m_textInfo:
     textComponent: {fileID: 1606343617245162982}
-    characterCount: 14
+    characterCount: 20
     spriteCount: 0
-    spaceCount: 2
-    wordCount: 3
+    spaceCount: 3
+    wordCount: 4
     linkCount: 0
     lineCount: 2
     pageCount: 1
@@ -3734,12 +3734,12 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressDistance
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonReturnSpeed
-      value: 15
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -3759,7 +3759,7 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressMethod.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SetBuilding
+      value: SetSpell
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -3769,7 +3769,7 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressMethod.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338366, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -3784,7 +3784,7 @@ PrefabInstance:
     - target: {fileID: 2549027201484338366, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 14.1
+      value: 13.1
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338366, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -3869,12 +3869,12 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressDistance
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonReturnSpeed
-      value: 15
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -3894,7 +3894,7 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressMethod.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SetBuilding
+      value: SetSpell
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -3904,8 +3904,13 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressMethod.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 2549027201484338364, guid: f56f2a61c7a97814b9285ca40acf4578,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: f54b052c7de06ba4bb47584e4fe9ab56, type: 2}
     - target: {fileID: 2549027201484338366, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -3919,7 +3924,7 @@ PrefabInstance:
     - target: {fileID: 2549027201484338366, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 14.1
+      value: 13.1
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338366, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -4004,12 +4009,12 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressDistance
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonReturnSpeed
-      value: 15
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -4153,12 +4158,12 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressDistance
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonReturnSpeed
-      value: 15
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -4203,7 +4208,7 @@ PrefabInstance:
     - target: {fileID: 2549027201484338366, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -5.9
+      value: -6.84
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338366, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -4294,12 +4299,12 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressDistance
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonReturnSpeed
-      value: 15
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -4319,7 +4324,7 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressMethod.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SetBuilding
+      value: SetSpell
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -4331,6 +4336,11 @@ PrefabInstance:
       propertyPath: m_buttonPressMethod.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 2549027201484338364, guid: f56f2a61c7a97814b9285ca40acf4578,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: f54b052c7de06ba4bb47584e4fe9ab56, type: 2}
     - target: {fileID: 2549027201484338366, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -4344,7 +4354,7 @@ PrefabInstance:
     - target: {fileID: 2549027201484338366, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 14.1
+      value: 13.1
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338366, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -4429,12 +4439,12 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressDistance
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonReturnSpeed
-      value: 15
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -4474,7 +4484,7 @@ PrefabInstance:
     - target: {fileID: 2549027201484338366, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -5.9000006
+      value: -6.8400006
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338366, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -4565,12 +4575,12 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressDistance
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonReturnSpeed
-      value: 15
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -4706,12 +4716,12 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressDistance
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonReturnSpeed
-      value: 15
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}

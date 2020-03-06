@@ -2,17 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum spellTypes { none, regularAttack, slowDownUnit, speedUpUnit };
+
 public class InteractionManager : MonoBehaviour
 {
     [SerializeField, Tooltip("Time before being able to attack again")] private float m_attackCooldown;
 
-    [Header("Regular Attack Effects"),Space(10)]
+    [Header("Regular Attack Effects"), Space(10)]
     [SerializeField, Tooltip("Damage that should be dealt when player is large.This is PER enemy.")] private float m_playerLargeDamage;
     [SerializeField, Tooltip("Damage that should be dealt when player is small.This is PER enemy.")] private float m_playerSmallDamage;
     //Need to make damage work when player is small.
 
 
-    [SerializeField, Tooltip("Number of LineRenderers to make up Lightning"),Space(3)] private int m_lightningStrikes;
+    [SerializeField, Tooltip("Number of LineRenderers to make up Lightning"), Space(3)] private int m_lightningStrikes;
     [SerializeField, Tooltip("Number of points in the Lightning that change angle.")] private int m_lightningStrikeBreakPoints;
     [SerializeField, Tooltip("Width in the Lightning effect. Size of the unit sphere used for random placement.")] private float m_lightningWidth;
     [SerializeField, Tooltip("Time between chaning the lightning position.")] private float m_lightningTiming;
@@ -26,14 +28,35 @@ public class InteractionManager : MonoBehaviour
     {
         m_breakPoints = new List<Vector3>();
     }
-    public void regularAttack(GameObject _controller)
+
+
+    public void castSpell(spellTypes _spell)
+    {
+        switch (_spell)
+        {
+            case spellTypes.regularAttack:
+                regularAttack(InputManager.Instance.MainController);
+                break;
+            case spellTypes.slowDownUnit:
+                Debug.Log("Slow Down Spell Not Yet Defined.");
+                break;
+            case spellTypes.speedUpUnit:
+                Debug.Log("Speed Up Spell Not Yet Defined.");
+                break;
+        }
+
+    }
+
+
+
+    private void regularAttack(GameObject _controller)
     {
         if (m_currentlyAttacking == true)
         {
             return;
         }
         //Player is large, attack a hex.
-        if(InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
+        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
         {
             RaycastHit _hit;
             if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - _controller.transform.up, out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
@@ -71,7 +94,7 @@ public class InteractionManager : MonoBehaviour
             if (Physics.Raycast(_controller.transform.position, _controller.transform.forward, out _hit, 1000))
             {
                 //If it's a unit;
-                if ( _hit.collider.gameObject.GetComponentInParent<UnitComponent>()!= null)
+                if (_hit.collider.gameObject.GetComponentInParent<UnitComponent>() != null)
                 {
                     Unit _unit = _hit.collider.gameObject.GetComponentInParent<UnitComponent>().unit;
                     _unit.health -= m_playerSmallDamage;
@@ -86,7 +109,7 @@ public class InteractionManager : MonoBehaviour
                 //Miss 
             }
         }
-        
+
     }
 
     IEnumerator regularAttackEffect(float _playerScale, GameObject _controller, Vector3 _hitPos)
@@ -135,7 +158,7 @@ public class InteractionManager : MonoBehaviour
                 {
                     _linePositions[j] = _breakPositions[j] + Random.insideUnitSphere * m_lightningWidth * _playerScale;
                 }
-                _linePositions[_breakPositions.Count-1] = _hitPos;
+                _linePositions[_breakPositions.Count - 1] = _hitPos;
                 _line.SetPositions(_linePositions);
             }
             yield return new WaitForSeconds(m_lightningTiming);
@@ -150,8 +173,6 @@ public class InteractionManager : MonoBehaviour
         yield return new WaitForSeconds(m_attackCooldown);
         m_currentlyAttacking = false;
     }
-
-
 
     IEnumerator destroyEffect(GameObject _effect)
     {

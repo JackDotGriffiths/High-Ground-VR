@@ -45,9 +45,27 @@ public class BookManager : MonoBehaviour
     /// <param name="_building">Sets the current building to this option.</param>
     public void SetBuilding(int _index)
     {
-            try
+        try
         {
             InputManager.Instance.CurrentlySelectedBuilding = buildingOptions[_index];
+            InputManager.Instance.CurrentlySelectedSpell = (spellTypes)0;
+        }
+        catch
+        {
+            Debug.LogWarning("Error trying to find the InputManager or error with the chosen index.");
+        }
+    }
+
+    /// <summary>
+    /// Sets the current spell through a button press.
+    /// </summary>
+    /// <param name="_spell"></param>
+    public void SetSpell(int _spellIndex)
+    {
+        try
+        {
+            InputManager.Instance.CurrentlySelectedBuilding = null;
+            InputManager.Instance.CurrentlySelectedSpell = (spellTypes)_spellIndex;
         }
         catch
         {
@@ -70,7 +88,8 @@ public class BookManager : MonoBehaviour
     public void HideActions()
     {
         m_actionsMenu.SetActive(false);
-        if(m_isShowingSpells == true)
+        InputManager.Instance.CurrentlySelectedSpell = (spellTypes)0;
+        if (m_isShowingSpells == true)
         {
             TurnToBuildings();
         }

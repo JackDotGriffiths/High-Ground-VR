@@ -41,10 +41,11 @@ public class InputManager : MonoBehaviour
     private Vector3 m_newPosition; //Position at which to move the player to.
 
     //
-    [Header("User Interface & Building")]
+    [Header("User Interface,Spells & Building")]
     [SerializeField, Space(10), Tooltip("Prefab of the Book UI Object")] private GameObject m_bookPrefab; //Book UI Object, used for correct handedness placement and spawning buildings;
     [SerializeField, Tooltip("Distance from the hand on which to spawn the book.")] private float m_bookHandOffset = 0.6f; //Float that is added to the hand position so that it floats off the hand slightly.
     private GameObject m_bookObject = null; //Tracks the book Object itself.
+    private spellTypes m_currentlySelectedSpell; //The currently selected building option, used in conjuction with the point and click functionality.
     private BuildingOption m_currentlySelectedBuilding = null; //The currently selected building option, used in conjuction with the point and click functionality.
 
     //
@@ -71,6 +72,7 @@ public class InputManager : MonoBehaviour
     public SizeOptions CurrentSize { get => m_currentSize; set => m_currentSize = value; }
     public Vector3 SmallestScale { get => m_smallestScale; set => m_smallestScale = value; }
     public BuildingOption CurrentlySelectedBuilding { get => m_currentlySelectedBuilding; set => m_currentlySelectedBuilding = value; }
+    public spellTypes CurrentlySelectedSpell { get => m_currentlySelectedSpell; set => m_currentlySelectedSpell = value; }
     #endregion
 
     void Start()
@@ -317,7 +319,7 @@ public class InputManager : MonoBehaviour
         #region Enemy Interaction Manager
         if (m_mainTrigger == true &&  m_currentlySelectedBuilding == null)
         {
-            m_interactionManager.regularAttack(MainController);
+            m_interactionManager.castSpell(CurrentlySelectedSpell);
         }
         #endregion
 
@@ -371,41 +373,32 @@ public class InputManager : MonoBehaviour
         //Place the book in the Player's hand
         if (m_bookObject == null)
         {
-            if(m_bookControllerChoice == BookOptions.offHandController)
+            float _zOffset;
+            //Rotate based on Handedness
+            if (m_handedness == HandTypes.right)
             {
-                m_bookObject = Instantiate(m_bookPrefab, OffHandController.transform.position, OffHandController.transform.rotation, OffHandController.transform);
-
-
-                float _zOffset;
-                //Rotate based on Handedness
-                if (m_handedness == HandTypes.right)
-                {
-                    _zOffset = 90;
-                }
-                else
-                {
-                    _zOffset = -90;
-                }
-                m_bookObject.transform.localEulerAngles = new Vector3(90, 0, _zOffset);
-                m_bookObject.transform.position = new Vector3(m_bookObject.transform.position.x, m_bookHandOffset, m_bookObject.transform.position.z - 0.13f);
+                _zOffset = 90;
             }
             else
             {
-                float _zOffset;
-                //Rotate based on Handedness
-                if (m_handedness == HandTypes.right)
-                {
-                    _zOffset = 180;
-                }
-                else
-                {
-                    _zOffset = -180;
-                }
-
-
-                m_bookObject = Instantiate(m_bookPrefab, m_viveTracker.transform.position, m_viveTracker.transform.rotation, m_viveTracker.transform);
-                m_bookObject.transform.localEulerAngles = new Vector3(0, _zOffset, 0);
-                m_bookObject.transform.position = new Vector3(m_bookObject.transform.position.x, m_bookObject.transform.position.y, m_bookObject.transform.position.z - 0.13f);
+                _zOffset = -90;
+            }
+            if (m_bookControllerChoice == BookOptions.offHandController)
+            {
+                Destroy(m_viveTracker);
+                Destroy(OffHandController.transform.GetChild(0).gameObject);
+                m_bookObject = Instantiate(m_bookPrefab,OffHandController.transform);
+                //m_bookObject.transform.localPosition = Vector3.zero;
+                m_bookObject.transform.localEulerAngles = new Vector3(90, 0, _zOffset);
+                m_bookObject.transform.localPosition = new Vector3(0, 0, -m_bookHandOffset);
+            }
+            else if (m_bookControllerChoice == BookOptions.ViveTracker)
+            {
+                Destroy(OffHandController);
+                m_bookObject = Instantiate(m_bookPrefab, m_viveTracker.transform);
+                //m_bookObject.transform.localPosition = Vector3.zero;
+                m_bookObject.transform.localEulerAngles = new Vector3(0, 0, _zOffset);
+                m_bookObject.transform.localPosition = new Vector3(0, 0, -m_bookHandOffset);
             }
 
             GameManager.Instance.moneyBookText = m_bookObject.GetComponent<BookManager>().moneyText;

@@ -14,30 +14,30 @@ namespace Valve.VR
     using UnityEngine;
     
     
-    public class SteamVR_Input_ActionSet_High_GroundControlSet : Valve.VR.SteamVR_ActionSet
+    public class SteamVR_Input_ActionSet_HighGroundControlSet : Valve.VR.SteamVR_ActionSet
     {
         
-        public virtual SteamVR_Action_Boolean GrabButton
+        public virtual SteamVR_Action_Boolean GripButton
         {
             get
             {
-                return SteamVR_Actions.high_GroundControlSet_GrabButton;
+                return SteamVR_Actions.highGroundControlSet_GripButton;
             }
         }
         
-        public virtual SteamVR_Action_Boolean TrackpadClick
+        public virtual SteamVR_Action_Boolean TriggerButton
         {
             get
             {
-                return SteamVR_Actions.high_GroundControlSet_TrackpadClick;
+                return SteamVR_Actions.highGroundControlSet_TriggerButton;
             }
         }
         
-        public virtual SteamVR_Action_Boolean TriggerClick
+        public virtual SteamVR_Action_Boolean TrackpadButton
         {
             get
             {
-                return SteamVR_Actions.high_GroundControlSet_TriggerClick;
+                return SteamVR_Actions.highGroundControlSet_TrackpadButton;
             }
         }
         
@@ -45,23 +45,15 @@ namespace Valve.VR
         {
             get
             {
-                return SteamVR_Actions.high_GroundControlSet_HandPos;
+                return SteamVR_Actions.highGroundControlSet_HandPos;
             }
         }
         
-        public virtual SteamVR_Action_Boolean HeadsetOn
+        public virtual SteamVR_Action_Vibration Rumble
         {
             get
             {
-                return SteamVR_Actions.high_GroundControlSet_HeadsetOn;
-            }
-        }
-        
-        public virtual SteamVR_Action_Vibration Haptic
-        {
-            get
-            {
-                return SteamVR_Actions.high_GroundControlSet_Haptic;
+                return SteamVR_Actions.highGroundControlSet_Rumble;
             }
         }
     }

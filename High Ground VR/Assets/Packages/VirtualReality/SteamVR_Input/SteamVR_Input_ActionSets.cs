@@ -17,21 +17,21 @@ namespace Valve.VR
     public partial class SteamVR_Actions
     {
         
-        private static SteamVR_Input_ActionSet_High_GroundControlSet p_High_GroundControlSet;
+        private static SteamVR_Input_ActionSet_HighGroundControlSet p_HighGroundControlSet;
         
-        public static SteamVR_Input_ActionSet_High_GroundControlSet High_GroundControlSet
+        public static SteamVR_Input_ActionSet_HighGroundControlSet HighGroundControlSet
         {
             get
             {
-                return SteamVR_Actions.p_High_GroundControlSet.GetCopy<SteamVR_Input_ActionSet_High_GroundControlSet>();
+                return SteamVR_Actions.p_HighGroundControlSet.GetCopy<SteamVR_Input_ActionSet_HighGroundControlSet>();
             }
         }
         
         private static void StartPreInitActionSets()
         {
-            SteamVR_Actions.p_High_GroundControlSet = ((SteamVR_Input_ActionSet_High_GroundControlSet)(SteamVR_ActionSet.Create<SteamVR_Input_ActionSet_High_GroundControlSet>("/actions/High_GroundControlSet")));
+            SteamVR_Actions.p_HighGroundControlSet = ((SteamVR_Input_ActionSet_HighGroundControlSet)(SteamVR_ActionSet.Create<SteamVR_Input_ActionSet_HighGroundControlSet>("/actions/HighGroundControlSet")));
             Valve.VR.SteamVR_Input.actionSets = new Valve.VR.SteamVR_ActionSet[] {
-                    SteamVR_Actions.High_GroundControlSet};
+                    SteamVR_Actions.HighGroundControlSet};
         }
     }
 }

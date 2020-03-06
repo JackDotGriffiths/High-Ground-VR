@@ -1,0 +1,120 @@
+{
+   "action_manifest_version" : 0,
+   "alias_info" : {},
+   "app_key" : "application.generated.unity.highground.exe",
+   "bindings" : {
+      "/actions/buggy" : {
+         "chords" : [],
+         "haptics" : [],
+         "poses" : [],
+         "skeleton" : [],
+         "sources" : []
+      },
+      "/actions/default" : {
+         "chords" : [],
+         "haptics" : [],
+         "poses" : [],
+         "skeleton" : [],
+         "sources" : []
+      },
+      "/actions/highgroundcontrolset" : {
+         "haptics" : [
+            {
+               "output" : "/actions/highgroundcontrolset/out/rumble",
+               "path" : "/user/hand/left/output/haptic"
+            },
+            {
+               "output" : "/actions/highgroundcontrolset/out/rumble",
+               "path" : "/user/hand/right/output/haptic"
+            }
+         ],
+         "poses" : [
+            {
+               "output" : "/actions/highgroundcontrolset/in/handpos",
+               "path" : "/user/hand/left/pose/raw"
+            },
+            {
+               "output" : "/actions/highgroundcontrolset/in/handpos",
+               "path" : "/user/hand/right/pose/raw"
+            },
+            {
+               "output" : "/actions/highgroundcontrolset/in/handpos",
+               "path" : "/user/hand/left/pose/pistol"
+            },
+            {
+               "output" : "/actions/highgroundcontrolset/in/handpos",
+               "path" : "/user/hand/right/pose/pistol"
+            }
+         ],
+         "sources" : [
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/highgroundcontrolset/in/gripbutton"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/grip"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/highgroundcontrolset/in/gripbutton"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/grip"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/highgroundcontrolset/in/triggerbutton"
+                  }
+               },
+               "mode" : "trigger",
+               "path" : "/user/hand/left/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/highgroundcontrolset/in/triggerbutton"
+                  }
+               },
+               "mode" : "trigger",
+               "path" : "/user/hand/right/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/highgroundcontrolset/in/trackpadbutton"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/left/input/trackpad"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/highgroundcontrolset/in/trackpadbutton"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/right/input/trackpad"
+            }
+         ]
+      },
+      "/actions/platformer" : {
+         "chords" : [],
+         "haptics" : [],
+         "poses" : [],
+         "skeleton" : [],
+         "sources" : []
+      }
+   },
+   "category" : "steamvr_input",
+   "controller_type" : "vive_tracker_handed",
+   "description" : "",
+   "name" : "My High Ground [Testing] configuration for Vive Tracker in Hand",
+   "options" : {},
+   "simulated_actions" : []
+}
