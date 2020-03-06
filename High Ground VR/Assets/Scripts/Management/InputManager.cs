@@ -7,10 +7,12 @@ public class InputManager : MonoBehaviour
 {
     private static InputManager s_instance;
     public enum HandTypes { left, right }; // Handedness
+    public enum BookOptions { offHandController, ViveTracker }; // Handedness
     public enum SizeOptions { small, large }; //Whether the player is currently Large or Small.
 
     [Header ("Player Config"),Space(5)]
     public HandTypes m_handedness; //The handedness of the player, used to place the book and the laser pointer in the correct hand
+    public BookOptions m_bookControllerChoice = BookOptions.offHandController; // The tracking object from the controller.
     [SerializeField, Tooltip("The height at which the game board should sit relative to the player's height."),Range(0f,1f)] private float m_playerHeightMultiplier = 0.5f;
 
     [Header("Input Config"), Space(5)]
@@ -18,6 +20,7 @@ public class InputManager : MonoBehaviour
     [SerializeField, Tooltip("The Gameobject of the players camera.")] private GameObject m_camera;
     [SerializeField, Tooltip("The Gameobject of the players left controller.")] private GameObject m_leftController;
     [SerializeField, Tooltip("The Gameobject of the players right controller.")] private GameObject m_rightController;
+    [SerializeField, Tooltip("The Gameobject of the Vive tracker.")] private GameObject m_viveTracker;
     [SerializeField, Tooltip("The Gameobject of the game environment. Used for scaling and positioning.")] private GameObject m_gameEnvironment;
 
     //
@@ -368,25 +371,49 @@ public class InputManager : MonoBehaviour
         //Place the book in the Player's hand
         if (m_bookObject == null)
         {
-            m_bookObject = Instantiate(m_bookPrefab, OffHandController.transform.position, OffHandController.transform.rotation, OffHandController.transform);
+            if(m_bookControllerChoice == BookOptions.offHandController)
+            {
+                m_bookObject = Instantiate(m_bookPrefab, OffHandController.transform.position, OffHandController.transform.rotation, OffHandController.transform);
+
+
+                float _zOffset;
+                //Rotate based on Handedness
+                if (m_handedness == HandTypes.right)
+                {
+                    _zOffset = 90;
+                }
+                else
+                {
+                    _zOffset = -90;
+                }
+                m_bookObject.transform.localEulerAngles = new Vector3(90, 0, _zOffset);
+                m_bookObject.transform.position = new Vector3(m_bookObject.transform.position.x, m_bookHandOffset, m_bookObject.transform.position.z - 0.13f);
+            }
+            else
+            {
+                float _zOffset;
+                //Rotate based on Handedness
+                if (m_handedness == HandTypes.right)
+                {
+                    _zOffset = 180;
+                }
+                else
+                {
+                    _zOffset = -180;
+                }
+
+
+                m_bookObject = Instantiate(m_bookPrefab, m_viveTracker.transform.position, m_viveTracker.transform.rotation, m_viveTracker.transform);
+                m_bookObject.transform.localEulerAngles = new Vector3(0, _zOffset, 0);
+                m_bookObject.transform.position = new Vector3(m_bookObject.transform.position.x, m_bookObject.transform.position.y, m_bookObject.transform.position.z - 0.13f);
+            }
+
             GameManager.Instance.moneyBookText = m_bookObject.GetComponent<BookManager>().moneyText;
             GameManager.Instance.timerBookText = m_bookObject.GetComponent<BookManager>().timerText;
             GameManager.Instance.moneyBookText2 = m_bookObject.GetComponent<BookManager>().moneyText2;
             GameManager.Instance.timerBookText2 = m_bookObject.GetComponent<BookManager>().timerText2;
 
 
-            float _zOffset;
-            //Rotate based on Handedness
-            if (m_handedness == HandTypes.right)
-            {
-                _zOffset = 90;
-            }
-            else
-            {
-                _zOffset = -90;
-            }
-            m_bookObject.transform.localEulerAngles = new Vector3(90, 0, _zOffset);
-            m_bookObject.transform.position =new Vector3(m_bookObject.transform.position.x, m_bookHandOffset, m_bookObject.transform.position.z-0.13f);
         }
         #endregion
 
