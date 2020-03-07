@@ -8,7 +8,6 @@ public class HandCollision : MonoBehaviour
     public Vector3 enterPosition;
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log(other.gameObject);
         enterPosition = this.transform.position;
         inCollider = true;
     }
