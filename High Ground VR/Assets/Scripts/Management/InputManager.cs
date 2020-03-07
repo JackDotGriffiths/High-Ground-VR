@@ -14,7 +14,6 @@ public class InputManager : MonoBehaviour
     public HandTypes m_handedness; //The handedness of the player, used to place the book and the laser pointer in the correct hand
     public BookOptions m_bookControllerChoice = BookOptions.offHandController; // The tracking object from the controller.
     [SerializeField, Tooltip("The height at which the game board should sit relative to the player's height."),Range(0f,1f)] private float m_playerHeightMultiplier = 0.5f;
-    [SerializeField, Tooltip("Zoffset of the environment. Allows for the player to have some room infront of them.")] private float m_worldZOffset = 10f;
 
     [Header("Input Config"), Space(5)]
     [SerializeField, Tooltip("The GameObject of the entire Rig. Used for scaling and positioning.")] private GameObject m_vrRig; 
@@ -440,7 +439,7 @@ public class InputManager : MonoBehaviour
         for (int i = 0; i < m_gameEnvironment.transform.childCount; i++)
         {
             Transform _targetHex = m_gameEnvironment.transform.GetChild(i).transform;
-            _targetHex.position = new Vector3(_targetHex.position.x, m_maxWorldHeight, _targetHex.position.z + m_worldZOffset);
+            _targetHex.position = new Vector3(_targetHex.position.x, m_maxWorldHeight, _targetHex.position.z);
         }
     }
 

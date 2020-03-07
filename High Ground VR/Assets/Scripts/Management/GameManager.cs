@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     [Header("Game Config")]
     [SerializeField, Range(0.0f, 2.0f), Tooltip("The speed of objects in the game on a scale of 0-1")] private float m_gameSpeed = 1.0f; //Game speed multiplier used across the game for allowing for slowmo/pausing etc.
     [SerializeField, Tooltip("How long in seconds the building phase should be")] private float m_buildingPhaseTime; //Length of time the player should be allowed to build.
+    [SerializeField, Tooltip("The animator of the Main Menu. Used to show/hide it.")] private Animator m_mainMenuAnim;
     private bool m_gameOver = false;
 
     [Header("Enemy Spawn Management"),Space(10)]
@@ -40,8 +41,10 @@ public class GameManager : MonoBehaviour
 
     public int currentGold; //The current gold of the player.
     private int m_roundCounter;
-    private Phases m_currentPhase;
     private float m_buildingPhaseTimer; //Track the current value of the countdown timer.
+    private bool m_menuVisible;
+
+    private Phases m_currentPhase;
     private Node m_gameGemNode; // The Gem Gameobject, set by GameBoardGeneration.
 
     #region Accessors
@@ -86,6 +89,11 @@ public class GameManager : MonoBehaviour
         {
             m_round.text = "GAME OVER";
             m_gameSpeed = 0;
+            if(m_menuVisible == false)
+            {
+                m_menuVisible = true;
+                m_mainMenuAnim.Play("ShowMenu");
+            }
             return;
         }
         if(CurrentPhase == Phases.Building)
@@ -271,8 +279,38 @@ public class GameManager : MonoBehaviour
     }
 
 
-  
 
+
+    #endregion
+
+    #region Main Menu Controls
+
+    public void ExitGame()
+    {
+        Debug.Log("Exit Game");
+        Application.Quit();
+    }
+
+
+    public void restartGame()
+    {
+        Debug.Log("Restarting Game");
+        m_mainMenuAnim.Play("HideMenu");
+        m_gameOver = false;
+        m_currentEnemies = 0;
+        enemySpawns = new List<EnemySpawnBehaviour>();
+        GameBoardGeneration.Instance.generate();
+        InputManager.Instance.updateWorldHeight();
+        m_roundCounter = 1;
+        m_gameSpeed = 1;
+        currentGold = m_startingGold;
+        m_buildingPhaseTimer = m_buildingPhaseTime;
+        CurrentPhase = Phases.Building;
+        //Invoke on a delay so GameBoard Graph has been created.
+        Invoke("instantiateGem", 0.05f);
+        Invoke("instantiateSpawns", 0.05f);
+        StartBuildingPhase();
+    }
     #endregion
 
 

@@ -59,6 +59,7 @@ public class GameBoardGeneration : MonoBehaviour
 
     public void generate()
     {
+        nodes = new List<GameObject>();
         try{InputManager.Instance.updateWorldHeight();}
         catch
         {
