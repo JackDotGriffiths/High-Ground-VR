@@ -239,7 +239,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
             _yOffset = 2 * Mathf.Pow(Mathf.Sin(_percentage),2);
         }
         Vector3 _hopPosition = new Vector3(m_targetPosition.x, m_targetPosition.y + _yOffset, m_targetPosition.z);
-        transform.position = Vector3.Lerp(transform.position, _hopPosition, m_movementSpeed * timePerception);
+        transform.position = Vector3.Lerp(transform.position, _hopPosition, m_movementSpeed * GameManager.Instance.GameSpeed * timePerception);
 
         RotateEachUnit();
     }

@@ -14,6 +14,7 @@ public class InputManager : MonoBehaviour
     public HandTypes m_handedness; //The handedness of the player, used to place the book and the laser pointer in the correct hand
     public BookOptions m_bookControllerChoice = BookOptions.offHandController; // The tracking object from the controller.
     [SerializeField, Tooltip("The height at which the game board should sit relative to the player's height."),Range(0f,1f)] private float m_playerHeightMultiplier = 0.5f;
+    [SerializeField, Tooltip("Zoffset of the environment. Allows for the player to have some room infront of them.")] private float m_worldZOffset = 10f;
 
     [Header("Input Config"), Space(5)]
     [SerializeField, Tooltip("The GameObject of the entire Rig. Used for scaling and positioning.")] private GameObject m_vrRig; 
@@ -373,26 +374,27 @@ public class InputManager : MonoBehaviour
         //Place the book in the Player's hand
         if (m_bookObject == null)
         {
-            float _zOffset;
-            //Rotate based on Handedness
-            if (m_handedness == HandTypes.right)
-            {
-                _zOffset = 90;
-            }
-            else
-            {
-                _zOffset = -90;
-            }
             if (m_bookControllerChoice == BookOptions.offHandController)
             {
                 Destroy(m_viveTracker);
+                Destroy(OffHandController.transform.GetChild(0).gameObject);
                 m_bookObject = Instantiate(m_bookPrefab,OffHandController.transform);
                 //m_bookObject.transform.localPosition = Vector3.zero;
-                m_bookObject.transform.localEulerAngles = new Vector3(90, 0, _zOffset);
-                m_bookObject.transform.localPosition = new Vector3(0, 0, -m_bookHandOffset);
+                m_bookObject.transform.localEulerAngles = new Vector3(90, 0, 0);
+                m_bookObject.transform.localPosition = new Vector3(0, 0, m_bookHandOffset* 0.75f);
             }
             else if (m_bookControllerChoice == BookOptions.ViveTracker)
             {
+                float _zOffset;
+                //Rotate based on Handedness
+                if (m_handedness == HandTypes.right)
+                {
+                    _zOffset = 90;
+                }
+                else
+                {
+                    _zOffset = -90;
+                }
                 Destroy(OffHandController);
                 m_bookObject = Instantiate(m_bookPrefab, m_viveTracker.transform);
                 //m_bookObject.transform.localPosition = Vector3.zero;
@@ -438,7 +440,7 @@ public class InputManager : MonoBehaviour
         for (int i = 0; i < m_gameEnvironment.transform.childCount; i++)
         {
             Transform _targetHex = m_gameEnvironment.transform.GetChild(i).transform;
-            _targetHex.position = new Vector3(_targetHex.position.x, m_maxWorldHeight, _targetHex.position.z);
+            _targetHex.position = new Vector3(_targetHex.position.x, m_maxWorldHeight, _targetHex.position.z + m_worldZOffset);
         }
     }
 

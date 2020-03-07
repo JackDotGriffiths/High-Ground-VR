@@ -101,6 +101,8 @@ public class BookManager : MonoBehaviour
     public void TurnToSpells()
     {
         gameObject.GetComponent<Animator>().Play("TurnPageToSpells");
+        InputManager.Instance.CurrentlySelectedBuilding = null;
+        InputManager.Instance.CurrentlySelectedSpell = (spellTypes)0;
         m_isShowingSpells = true;
     }
 
@@ -110,6 +112,8 @@ public class BookManager : MonoBehaviour
     public void TurnToBuildings()
     {
         gameObject.GetComponent<Animator>().Play("TurnPageToBuildings");
+        InputManager.Instance.CurrentlySelectedBuilding = null;
+        InputManager.Instance.CurrentlySelectedSpell = (spellTypes)0;
         Debug.Log("Show Buildings");
         m_isShowingSpells = false;
     }

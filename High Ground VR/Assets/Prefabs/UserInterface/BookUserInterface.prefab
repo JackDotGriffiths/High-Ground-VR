@@ -2236,7 +2236,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5204907554016733247}
-  - component: {fileID: 852579680851846570}
   m_Layer: 0
   m_Name: SpellsButton
   m_TagString: UIButton
@@ -2260,19 +2259,6 @@ Transform:
   m_Father: {fileID: 276134168787277689}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &852579680851846570
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6193987428068305672}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.34438032, y: 0.5040626, z: 2.9000015}
-  m_Center: {x: 0.731201, y: 0.004088074, z: 14.89998}
 --- !u!1 &6199695129606111435
 GameObject:
   m_ObjectHideFlags: 0
@@ -3776,6 +3762,11 @@ PrefabInstance:
       propertyPath: m_buttonPressMethod.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2549027201484338364, guid: f56f2a61c7a97814b9285ca40acf4578,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: e42917581948cd64fb540ee504c9d77d, type: 2}
     - target: {fileID: 2549027201484338366, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -3920,7 +3911,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: f54b052c7de06ba4bb47584e4fe9ab56, type: 2}
+      objectReference: {fileID: 2100000, guid: e42917581948cd64fb540ee504c9d77d, type: 2}
     - target: {fileID: 2549027201484338366, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -4365,7 +4356,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: f54b052c7de06ba4bb47584e4fe9ab56, type: 2}
+      objectReference: {fileID: 2100000, guid: e42917581948cd64fb540ee504c9d77d, type: 2}
     - target: {fileID: 2549027201484338366, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_LocalPosition.x
