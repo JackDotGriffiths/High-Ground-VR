@@ -386,7 +386,6 @@ public class InputManager : MonoBehaviour
             if (m_bookControllerChoice == BookOptions.offHandController)
             {
                 Destroy(m_viveTracker);
-                Destroy(OffHandController.transform.GetChild(0).gameObject);
                 m_bookObject = Instantiate(m_bookPrefab,OffHandController.transform);
                 //m_bookObject.transform.localPosition = Vector3.zero;
                 m_bookObject.transform.localEulerAngles = new Vector3(90, 0, _zOffset);
