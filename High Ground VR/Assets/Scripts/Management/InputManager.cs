@@ -180,7 +180,6 @@ public class InputManager : MonoBehaviour
                 Material[] _matArray = _hitMesh.materials;
                 List<Material> _matList = new List<Material>();
                 _matList = new List<Material>();
-                _matList.Add(_matArray[0]);
                 _matList.Add(m_outlineMaterial);
                 _hitMesh.materials = _matList.ToArray();
 

@@ -296,6 +296,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Restarting Game");
         m_mainMenuAnim.Play("HideMenu");
+        m_menuVisible = false;
         m_gameOver = false;
         m_currentEnemies = 0;
         enemySpawns = new List<EnemySpawnBehaviour>();
