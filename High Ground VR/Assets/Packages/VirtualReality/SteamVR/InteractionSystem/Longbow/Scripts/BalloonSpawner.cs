@@ -20,7 +20,7 @@ namespace Valve.VR.InteractionSystem
 		public bool autoSpawn = true;
 		public bool spawnAtStartup = true;
 
-		public bool playSounds = true;
+		public bool Play3DSounds = true;
 		public SoundPlayOneshot inflateSound;
 		public SoundPlayOneshot stretchSound;
 
@@ -90,7 +90,7 @@ namespace Valve.VR.InteractionSystem
 				}
 			}
 
-			if ( playSounds )
+			if ( Play3DSounds )
 			{
 				if ( inflateSound != null )
 				{

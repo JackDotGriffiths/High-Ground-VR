@@ -44,6 +44,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
 
     void Update()
     {
+        //Clear destroyed units from the list of units associated with this group.
         for (int i = 0; i < m_units.Count; i++)
         {
             if (m_units[i] == null)
@@ -52,6 +53,9 @@ public class EnemyGroupBehaviour : MonoBehaviour
             }
         }
         m_currentUnits = m_units.Count;
+
+
+
         if(m_currentUnits == 0 && m_unitInstantiated == true)
         {
             m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;
@@ -77,10 +81,19 @@ public class EnemyGroupBehaviour : MonoBehaviour
                 if (m_groupPath[m_currentStepIndex + 1] == GameManager.Instance.GameGemNode)
                 {
                     //Unit is in an adjecent node to the gem, initiate combat
-                    m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;
                     Debug.Log(this + "reached Gem");
-                    GameManager.Instance.GameOver = true;
-                    Destroy(this.gameObject);
+
+                    inSiege = true;
+                    List<Unit> _enemyUnits = new List<Unit>();
+                    foreach (GameObject _gameObj in m_units)
+                    {
+                        _enemyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
+                    }
+                    SiegeBehaviour _siege = gameObject.AddComponent<SiegeBehaviour>();
+                    _siege.StartSiege(m_groupPath[m_currentStepIndex + 1].hex.GetComponentInChildren<BuildingHealth>(), _enemyUnits);
+                    _siege.enemyGroups.Add(this);
+
+
                 }
 
                 //Reset the timer
@@ -89,7 +102,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
                 //RunPathfinding();
 
                 //If the next node is navigable, move the node forward
-                if (m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.navigable && m_groupPath[m_currentStepIndex + 1].hex.transform.childCount == 0)
+                if (m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.navigable && m_groupPath[m_currentStepIndex + 1].hex.transform.childCount == 0 && inSiege == false)
                 {
                     m_validMove = true;
                     m_groupPath[m_currentStepIndex + 1].navigability = navigabilityStates.enemyUnit;
@@ -105,6 +118,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
                 }
                 else if ((m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.wall || m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.mine) && inSiege == false)
                 {
+                    //Start combat with the building in the way.
                     inSiege = true;
                     List<Unit> _enemyUnits = new List<Unit>();
                     foreach (GameObject _gameObj in m_units)
@@ -225,7 +239,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
             _yOffset = 2 * Mathf.Pow(Mathf.Sin(_percentage),2);
         }
         Vector3 _hopPosition = new Vector3(m_targetPosition.x, m_targetPosition.y + _yOffset, m_targetPosition.z);
-        transform.position = Vector3.Lerp(transform.position, _hopPosition, m_movementSpeed * timePerception);
+        transform.position = Vector3.Lerp(transform.position, _hopPosition, m_movementSpeed * GameManager.Instance.GameSpeed * timePerception);
 
         RotateEachUnit();
     }

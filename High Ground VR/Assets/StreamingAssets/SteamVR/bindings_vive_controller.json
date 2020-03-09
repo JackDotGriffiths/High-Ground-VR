@@ -17,14 +17,21 @@
     },
     "/actions/high_groundcontrolset": {
       "chords": [],
+      "poses": [],
+      "haptics": [],
+      "sources": [],
+      "skeleton": []
+    },
+    "/actions/highgroundcontrolset": {
+      "chords": [],
       "poses": [
         {
-          "output": "/actions/high_groundcontrolset/in/handpos",
-          "path": "/user/hand/left/pose/raw"
+          "output": "/actions/highgroundcontrolset/in/handpos",
+          "path": "/user/hand/left/pose/tip"
         },
         {
-          "output": "/actions/high_groundcontrolset/in/handpos",
-          "path": "/user/hand/right/pose/raw"
+          "output": "/actions/highgroundcontrolset/in/handpos",
+          "path": "/user/hand/right/pose/tip"
         }
       ],
       "haptics": [],
@@ -35,7 +42,7 @@
           "parameters": {},
           "inputs": {
             "click": {
-              "output": "/actions/high_groundcontrolset/in/grabbutton"
+              "output": "/actions/highgroundcontrolset/in/gripbutton"
             }
           }
         },
@@ -45,7 +52,7 @@
           "parameters": {},
           "inputs": {
             "click": {
-              "output": "/actions/high_groundcontrolset/in/grabbutton"
+              "output": "/actions/highgroundcontrolset/in/gripbutton"
             }
           }
         },
@@ -55,7 +62,7 @@
           "parameters": {},
           "inputs": {
             "click": {
-              "output": "/actions/high_groundcontrolset/in/triggerclick"
+              "output": "/actions/highgroundcontrolset/in/triggerbutton"
             }
           }
         },
@@ -65,7 +72,7 @@
           "parameters": {},
           "inputs": {
             "click": {
-              "output": "/actions/high_groundcontrolset/in/triggerclick"
+              "output": "/actions/highgroundcontrolset/in/triggerbutton"
             }
           }
         },
@@ -75,7 +82,7 @@
           "parameters": {},
           "inputs": {
             "click": {
-              "output": "/actions/high_groundcontrolset/in/trackpadclick"
+              "output": "/actions/highgroundcontrolset/in/trackpadbutton"
             }
           }
         },
@@ -85,7 +92,7 @@
           "parameters": {},
           "inputs": {
             "click": {
-              "output": "/actions/high_groundcontrolset/in/trackpadclick"
+              "output": "/actions/highgroundcontrolset/in/trackpadbutton"
             }
           }
         }

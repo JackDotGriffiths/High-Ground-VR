@@ -17,111 +17,96 @@ namespace Valve.VR
     public partial class SteamVR_Actions
     {
         
-        private static SteamVR_Action_Boolean p_high_GroundControlSet_GrabButton;
+        private static SteamVR_Action_Boolean p_highGroundControlSet_GripButton;
         
-        private static SteamVR_Action_Boolean p_high_GroundControlSet_TrackpadClick;
+        private static SteamVR_Action_Boolean p_highGroundControlSet_TriggerButton;
         
-        private static SteamVR_Action_Boolean p_high_GroundControlSet_TriggerClick;
+        private static SteamVR_Action_Boolean p_highGroundControlSet_TrackpadButton;
         
-        private static SteamVR_Action_Pose p_high_GroundControlSet_HandPos;
+        private static SteamVR_Action_Pose p_highGroundControlSet_HandPos;
         
-        private static SteamVR_Action_Boolean p_high_GroundControlSet_HeadsetOn;
+        private static SteamVR_Action_Vibration p_highGroundControlSet_Rumble;
         
-        private static SteamVR_Action_Vibration p_high_GroundControlSet_Haptic;
-        
-        public static SteamVR_Action_Boolean high_GroundControlSet_GrabButton
+        public static SteamVR_Action_Boolean highGroundControlSet_GripButton
         {
             get
             {
-                return SteamVR_Actions.p_high_GroundControlSet_GrabButton.GetCopy<SteamVR_Action_Boolean>();
+                return SteamVR_Actions.p_highGroundControlSet_GripButton.GetCopy<SteamVR_Action_Boolean>();
             }
         }
         
-        public static SteamVR_Action_Boolean high_GroundControlSet_TrackpadClick
+        public static SteamVR_Action_Boolean highGroundControlSet_TriggerButton
         {
             get
             {
-                return SteamVR_Actions.p_high_GroundControlSet_TrackpadClick.GetCopy<SteamVR_Action_Boolean>();
+                return SteamVR_Actions.p_highGroundControlSet_TriggerButton.GetCopy<SteamVR_Action_Boolean>();
             }
         }
         
-        public static SteamVR_Action_Boolean high_GroundControlSet_TriggerClick
+        public static SteamVR_Action_Boolean highGroundControlSet_TrackpadButton
         {
             get
             {
-                return SteamVR_Actions.p_high_GroundControlSet_TriggerClick.GetCopy<SteamVR_Action_Boolean>();
+                return SteamVR_Actions.p_highGroundControlSet_TrackpadButton.GetCopy<SteamVR_Action_Boolean>();
             }
         }
         
-        public static SteamVR_Action_Pose high_GroundControlSet_HandPos
+        public static SteamVR_Action_Pose highGroundControlSet_HandPos
         {
             get
             {
-                return SteamVR_Actions.p_high_GroundControlSet_HandPos.GetCopy<SteamVR_Action_Pose>();
+                return SteamVR_Actions.p_highGroundControlSet_HandPos.GetCopy<SteamVR_Action_Pose>();
             }
         }
         
-        public static SteamVR_Action_Boolean high_GroundControlSet_HeadsetOn
+        public static SteamVR_Action_Vibration highGroundControlSet_Rumble
         {
             get
             {
-                return SteamVR_Actions.p_high_GroundControlSet_HeadsetOn.GetCopy<SteamVR_Action_Boolean>();
-            }
-        }
-        
-        public static SteamVR_Action_Vibration high_GroundControlSet_Haptic
-        {
-            get
-            {
-                return SteamVR_Actions.p_high_GroundControlSet_Haptic.GetCopy<SteamVR_Action_Vibration>();
+                return SteamVR_Actions.p_highGroundControlSet_Rumble.GetCopy<SteamVR_Action_Vibration>();
             }
         }
         
         private static void InitializeActionArrays()
         {
             Valve.VR.SteamVR_Input.actions = new Valve.VR.SteamVR_Action[] {
-                    SteamVR_Actions.high_GroundControlSet_GrabButton,
-                    SteamVR_Actions.high_GroundControlSet_TrackpadClick,
-                    SteamVR_Actions.high_GroundControlSet_TriggerClick,
-                    SteamVR_Actions.high_GroundControlSet_HandPos,
-                    SteamVR_Actions.high_GroundControlSet_HeadsetOn,
-                    SteamVR_Actions.high_GroundControlSet_Haptic};
+                    SteamVR_Actions.highGroundControlSet_GripButton,
+                    SteamVR_Actions.highGroundControlSet_TriggerButton,
+                    SteamVR_Actions.highGroundControlSet_TrackpadButton,
+                    SteamVR_Actions.highGroundControlSet_HandPos,
+                    SteamVR_Actions.highGroundControlSet_Rumble};
             Valve.VR.SteamVR_Input.actionsIn = new Valve.VR.ISteamVR_Action_In[] {
-                    SteamVR_Actions.high_GroundControlSet_GrabButton,
-                    SteamVR_Actions.high_GroundControlSet_TrackpadClick,
-                    SteamVR_Actions.high_GroundControlSet_TriggerClick,
-                    SteamVR_Actions.high_GroundControlSet_HandPos,
-                    SteamVR_Actions.high_GroundControlSet_HeadsetOn};
+                    SteamVR_Actions.highGroundControlSet_GripButton,
+                    SteamVR_Actions.highGroundControlSet_TriggerButton,
+                    SteamVR_Actions.highGroundControlSet_TrackpadButton,
+                    SteamVR_Actions.highGroundControlSet_HandPos};
             Valve.VR.SteamVR_Input.actionsOut = new Valve.VR.ISteamVR_Action_Out[] {
-                    SteamVR_Actions.high_GroundControlSet_Haptic};
+                    SteamVR_Actions.highGroundControlSet_Rumble};
             Valve.VR.SteamVR_Input.actionsVibration = new Valve.VR.SteamVR_Action_Vibration[] {
-                    SteamVR_Actions.high_GroundControlSet_Haptic};
+                    SteamVR_Actions.highGroundControlSet_Rumble};
             Valve.VR.SteamVR_Input.actionsPose = new Valve.VR.SteamVR_Action_Pose[] {
-                    SteamVR_Actions.high_GroundControlSet_HandPos};
+                    SteamVR_Actions.highGroundControlSet_HandPos};
             Valve.VR.SteamVR_Input.actionsBoolean = new Valve.VR.SteamVR_Action_Boolean[] {
-                    SteamVR_Actions.high_GroundControlSet_GrabButton,
-                    SteamVR_Actions.high_GroundControlSet_TrackpadClick,
-                    SteamVR_Actions.high_GroundControlSet_TriggerClick,
-                    SteamVR_Actions.high_GroundControlSet_HeadsetOn};
+                    SteamVR_Actions.highGroundControlSet_GripButton,
+                    SteamVR_Actions.highGroundControlSet_TriggerButton,
+                    SteamVR_Actions.highGroundControlSet_TrackpadButton};
             Valve.VR.SteamVR_Input.actionsSingle = new Valve.VR.SteamVR_Action_Single[0];
             Valve.VR.SteamVR_Input.actionsVector2 = new Valve.VR.SteamVR_Action_Vector2[0];
             Valve.VR.SteamVR_Input.actionsVector3 = new Valve.VR.SteamVR_Action_Vector3[0];
             Valve.VR.SteamVR_Input.actionsSkeleton = new Valve.VR.SteamVR_Action_Skeleton[0];
             Valve.VR.SteamVR_Input.actionsNonPoseNonSkeletonIn = new Valve.VR.ISteamVR_Action_In[] {
-                    SteamVR_Actions.high_GroundControlSet_GrabButton,
-                    SteamVR_Actions.high_GroundControlSet_TrackpadClick,
-                    SteamVR_Actions.high_GroundControlSet_TriggerClick,
-                    SteamVR_Actions.high_GroundControlSet_HeadsetOn};
+                    SteamVR_Actions.highGroundControlSet_GripButton,
+                    SteamVR_Actions.highGroundControlSet_TriggerButton,
+                    SteamVR_Actions.highGroundControlSet_TrackpadButton};
         }
         
         private static void PreInitActions()
         {
-            SteamVR_Actions.p_high_GroundControlSet_GrabButton = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/High_GroundControlSet/in/GrabButton")));
-            SteamVR_Actions.p_high_GroundControlSet_TrackpadClick = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/High_GroundControlSet/in/TrackpadClick")));
-            SteamVR_Actions.p_high_GroundControlSet_TriggerClick = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/High_GroundControlSet/in/TriggerClick")));
-            SteamVR_Actions.p_high_GroundControlSet_HandPos = ((SteamVR_Action_Pose)(SteamVR_Action.Create<SteamVR_Action_Pose>("/actions/High_GroundControlSet/in/HandPos")));
-            SteamVR_Actions.p_high_GroundControlSet_HeadsetOn = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/High_GroundControlSet/in/HeadsetOn")));
-            SteamVR_Actions.p_high_GroundControlSet_Haptic = ((SteamVR_Action_Vibration)(SteamVR_Action.Create<SteamVR_Action_Vibration>("/actions/High_GroundControlSet/out/Haptic")));
+            SteamVR_Actions.p_highGroundControlSet_GripButton = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/HighGroundControlSet/in/GripButton")));
+            SteamVR_Actions.p_highGroundControlSet_TriggerButton = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/HighGroundControlSet/in/TriggerButton")));
+            SteamVR_Actions.p_highGroundControlSet_TrackpadButton = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/HighGroundControlSet/in/TrackpadButton")));
+            SteamVR_Actions.p_highGroundControlSet_HandPos = ((SteamVR_Action_Pose)(SteamVR_Action.Create<SteamVR_Action_Pose>("/actions/HighGroundControlSet/in/HandPos")));
+            SteamVR_Actions.p_highGroundControlSet_Rumble = ((SteamVR_Action_Vibration)(SteamVR_Action.Create<SteamVR_Action_Vibration>("/actions/HighGroundControlSet/out/Rumble")));
         }
     }
 }

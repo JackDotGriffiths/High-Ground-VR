@@ -28,7 +28,9 @@ public class UnitComponent : MonoBehaviour
     [SerializeField, Tooltip("All possible weapons for the units to spawn with.")] private List<GameObject> m_weapons;
 
     public Unit unit;
-    // Start is called before the first frame update
+
+
+
     public void playerUnitConstructor()
     {
         unitTypes _unitType = unitTypes.player;
@@ -53,7 +55,7 @@ public class UnitComponent : MonoBehaviour
     }
 
 
-    //Kills the player
+    //Kills the unit
     public void Die()
     {
         //Instantiate a duplicate of the object

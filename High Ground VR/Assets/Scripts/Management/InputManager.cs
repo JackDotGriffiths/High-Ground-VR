@@ -7,10 +7,12 @@ public class InputManager : MonoBehaviour
 {
     private static InputManager s_instance;
     public enum HandTypes { left, right }; // Handedness
+    public enum BookOptions { offHandController, ViveTracker }; // Handedness
     public enum SizeOptions { small, large }; //Whether the player is currently Large or Small.
 
     [Header ("Player Config"),Space(5)]
     public HandTypes m_handedness; //The handedness of the player, used to place the book and the laser pointer in the correct hand
+    public BookOptions m_bookControllerChoice = BookOptions.offHandController; // The tracking object from the controller.
     [SerializeField, Tooltip("The height at which the game board should sit relative to the player's height."),Range(0f,1f)] private float m_playerHeightMultiplier = 0.5f;
 
     [Header("Input Config"), Space(5)]
@@ -18,6 +20,7 @@ public class InputManager : MonoBehaviour
     [SerializeField, Tooltip("The Gameobject of the players camera.")] private GameObject m_camera;
     [SerializeField, Tooltip("The Gameobject of the players left controller.")] private GameObject m_leftController;
     [SerializeField, Tooltip("The Gameobject of the players right controller.")] private GameObject m_rightController;
+    [SerializeField, Tooltip("The Gameobject of the Vive tracker.")] private GameObject m_viveTracker;
     [SerializeField, Tooltip("The Gameobject of the game environment. Used for scaling and positioning.")] private GameObject m_gameEnvironment;
 
     //
@@ -25,6 +28,7 @@ public class InputManager : MonoBehaviour
     [SerializeField, Space(10),Tooltip("Material to be used as the Line Renderer")] private Material m_pointerMaterial;
     [SerializeField, Tooltip("Grass Material of the Hexagons. Used when replacing the highlight.")] private Material m_grassMaterial; //Grass Material of the Hex
     [SerializeField, Tooltip("Material to be used when highlighting a Hexagon.")] private Material m_outlineMaterial; //Outline or Highlight Material to apply when hexagon is pointed at.
+    [SerializeField, Tooltip("Interaction Manager script. This is used for shooting enemies")] private InteractionManager m_interactionManager;
     private GameObject m_currentlySelectedHex; //The currently pointed at Hexagon. This is used for teleporting and building.
 
     //
@@ -37,10 +41,11 @@ public class InputManager : MonoBehaviour
     private Vector3 m_newPosition; //Position at which to move the player to.
 
     //
-    [Header("User Interface & Building")]
+    [Header("User Interface,Spells & Building")]
     [SerializeField, Space(10), Tooltip("Prefab of the Book UI Object")] private GameObject m_bookPrefab; //Book UI Object, used for correct handedness placement and spawning buildings;
     [SerializeField, Tooltip("Distance from the hand on which to spawn the book.")] private float m_bookHandOffset = 0.6f; //Float that is added to the hand position so that it floats off the hand slightly.
     private GameObject m_bookObject = null; //Tracks the book Object itself.
+    private spellTypes m_currentlySelectedSpell; //The currently selected building option, used in conjuction with the point and click functionality.
     private BuildingOption m_currentlySelectedBuilding = null; //The currently selected building option, used in conjuction with the point and click functionality.
 
     //
@@ -65,6 +70,9 @@ public class InputManager : MonoBehaviour
     public GameObject MainController { get; set; } //GameObject of the mainHand controller
     public Vector3 LargestScale { get => m_largestScale; set => m_largestScale = value; }
     public SizeOptions CurrentSize { get => m_currentSize; set => m_currentSize = value; }
+    public Vector3 SmallestScale { get => m_smallestScale; set => m_smallestScale = value; }
+    public BuildingOption CurrentlySelectedBuilding { get => m_currentlySelectedBuilding; set => m_currentlySelectedBuilding = value; }
+    public spellTypes CurrentlySelectedSpell { get => m_currentlySelectedSpell; set => m_currentlySelectedSpell = value; }
     #endregion
 
     void Start()
@@ -130,19 +138,6 @@ public class InputManager : MonoBehaviour
         else { m_mainTeleport = false; }
 
 
-
-        #region Trigger Button Handling
-
-        m_mainControllerPos = MainController.transform.position;
-        ////Rotating the Game Board
-        if (m_mainTrigger == true && m_currentlySelectedHex == null && !(RightTrigger == true && LeftTrigger == true) && CurrentSize == SizeOptions.large)
-        {
-            //Main trigger pressed and not pointing at any hex - Was used for rotation but may be useful later on.
-
-        }
-        m_mainControllerPreviousPos = m_mainControllerPos;
-        #endregion
-
         #region Pointer Handling
 
         //Raycasting from the controllers
@@ -150,8 +145,61 @@ public class InputManager : MonoBehaviour
 
         //Debug.DrawRay(MainController.transform.position, MainController.transform.forward * 1000);
 
+
         //Raycast from the mainController forward.
-        if (Physics.Raycast(MainController.transform.position, MainController.transform.forward - MainController.transform.up, out _hit, 1000))
+        if (Physics.Raycast(MainController.transform.position, MainController.transform.forward - MainController.transform.up, out _hit, 1000) && m_currentSize == SizeOptions.large)
+        { 
+            //If it hits an environment Hex, highlight.
+            if (_hit.collider.gameObject.tag == "Environment")
+            {
+                m_enlargePlayer = false;
+                MeshRenderer _hitMesh = _hit.collider.gameObject.GetComponent<MeshRenderer>();
+                m_currentlySelectedHex = _hit.collider.gameObject;
+                //Removes highlight from all objects not in the m_objectMeshes list
+                updateObjectList(_hitMesh);
+
+
+                //Show the laser
+                if (m_currentSize == SizeOptions.large)
+                {
+                    m_mainPointer.startWidth = 0.05f;
+                    m_mainPointer.endWidth = 0.00f;
+                }
+                else
+                {
+                    m_mainPointer.startWidth = 0.003f;
+                    m_mainPointer.endWidth = 0.00f;
+                }
+
+
+                //Turn laser colour to blue when you correctly collided with environment.
+                m_mainPointer.startColor = Color.blue;
+                m_mainPointer.endColor = Color.blue;
+
+                //Apply outline material to the selected object
+                Material[] _matArray = _hitMesh.materials;
+                List<Material> _matList = new List<Material>();
+                _matList = new List<Material>();
+                _matList.Add(m_outlineMaterial);
+                _hitMesh.materials = _matList.ToArray();
+
+                //If the user is selecting a hex, and they have a building selected, verify it's location and then place the building if it's verified 
+                if (m_mainTrigger == true && m_currentlySelectedBuilding != null && m_currentSize == SizeOptions.large)
+                {
+                    float _angle = headsetToHexAngle();
+                    if (m_buildingValidation.verifyBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node, _angle))
+                    {
+                        m_buildingValidation.placeBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node, _angle);
+                    }
+                }
+            }
+
+
+            //Update the laser position so it continues to update.
+            m_mainPointer.SetPosition(0, MainController.transform.position);
+            m_mainPointer.SetPosition(1, _hit.point);
+        }
+        else if (Physics.Raycast(MainController.transform.position, MainController.transform.forward, out _hit, 1000) && m_currentSize == SizeOptions.small)
         {
             //If it hits an environment Hex, highlight.
             if (_hit.collider.gameObject.tag == "Environment")
@@ -161,6 +209,20 @@ public class InputManager : MonoBehaviour
                 m_currentlySelectedHex = _hit.collider.gameObject;
                 //Removes highlight from all objects not in the m_objectMeshes list
                 updateObjectList(_hitMesh);
+
+
+                //Show the laser
+                if (m_currentSize == SizeOptions.large)
+                {
+                    m_mainPointer.startWidth = 0.05f;
+                    m_mainPointer.endWidth = 0.00f;
+                }
+                else
+                {
+                    m_mainPointer.startWidth = 0.003f;
+                    m_mainPointer.endWidth = 0.00f;
+                }
+
 
                 //Turn laser colour to blue when you correctly collided with environment.
                 m_mainPointer.startColor = Color.blue;
@@ -175,7 +237,7 @@ public class InputManager : MonoBehaviour
                 _hitMesh.materials = _matList.ToArray();
 
                 //If the user is selecting a hex, and they have a building selected, verify it's location and then place the building if it's verified 
-                if (m_mainTrigger == true && m_currentlySelectedBuilding != null)
+                if (m_mainTrigger == true && m_currentlySelectedBuilding != null && m_currentSize == SizeOptions.large)
                 {
                     float _angle = headsetToHexAngle();
                     if (m_buildingValidation.verifyBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node, _angle))
@@ -185,42 +247,35 @@ public class InputManager : MonoBehaviour
                 }
             }
 
-            //If the laser hits a UIButton
-            if (_hit.collider.gameObject.tag == "UIButton")
-            {
-                
-                //Turn laser colour to blue when you correctly collided with environment.
-                m_mainPointer.startColor = Color.blue;
-                m_mainPointer.endColor = Color.blue;
-
-                m_currentlySelectedHex = null;
-                updateObjectList();
-
-                //If the player clicks, get the building associated with that button and set it as m_currentlySelectedBuilding
-                if (m_mainTrigger == true)
-                {
-                    //Try/Catch to check for any missing references
-                    try
-                    {
-                        m_currentlySelectedBuilding = BookManager.Instance.GetBuilding(_hit.collider);
-                        Debug.Log("Selected " + m_currentlySelectedBuilding.type);
-                    }
-                    catch { Debug.LogError("Does the button have an option available in BuildingManager on BookUI?"); }
-                }
-
-            }
             //Update the laser position so it continues to update.
             m_mainPointer.SetPosition(0, MainController.transform.position);
             m_mainPointer.SetPosition(1, _hit.point);
         }
         else
         {
-            //If the player doesn't hit anything with a relevant tag, Just update the laser.
-            m_mainPointer.SetPosition(0, MainController.transform.position);
-            m_mainPointer.SetPosition(1, MainController.transform.position + (MainController.transform.forward - MainController.transform.up) * 100);
+
             m_currentlySelectedHex = null;
             m_enlargePlayer = true;
-            //Turn the laser colour red.
+
+            if(m_mainTrigger == true)
+            {
+                m_currentlySelectedBuilding = null;
+            }
+
+            if(m_currentSize == SizeOptions.large)
+            {
+                m_mainPointer.startWidth = 0;
+                m_mainPointer.endWidth = 0;
+            }
+            else
+            {
+                m_mainPointer.startWidth = 0.003f;
+                m_mainPointer.endWidth = 0;
+                m_mainPointer.SetPosition(0, MainController.transform.position);
+                m_mainPointer.SetPosition(1, MainController.transform.position + MainController.transform.forward * 20f);
+
+            }
+
             m_mainPointer.startColor = Color.red;
             m_mainPointer.endColor = Color.red;
 
@@ -242,6 +297,31 @@ public class InputManager : MonoBehaviour
 
         #endregion
 
+        #region Trigger Button Handling
+
+                    //m_mainControllerPos = MainController.transform.position;
+                    //if (m_mainTrigger == true && m_currentlySelectedHex == null && !(RightTrigger == true && LeftTrigger == true) && CurrentSize == SizeOptions.large)
+                    //{
+                    //    //Main trigger pressed and not pointing at any hex - Was used for rotation but may be useful later on.
+                    //}
+                    //m_mainControllerPreviousPos = m_mainControllerPos;
+
+        if(m_currentlySelectedHex == null && m_mainTrigger == true)
+        {
+            m_currentlySelectedBuilding = null;
+        }
+
+
+
+        #endregion
+
+        #region Enemy Interaction Manager
+        if (m_mainTrigger == true &&  m_currentlySelectedBuilding == null)
+        {
+            m_interactionManager.castSpell(CurrentlySelectedSpell);
+        }
+        #endregion
+
         #region Teleporting
         //Teleporting down to tiny size
         if (m_mainTeleport == true && m_teleporterPrimed == false)
@@ -259,15 +339,6 @@ public class InputManager : MonoBehaviour
             {
                 //Debug.Log("Teleported");
                 m_teleporterPrimed = false;
-
-
-                //Scale the game environment
-                //m_gameEnvironment.transform.localScale = m_largestScale;
-                //if (m_gameEnvironment.transform.position.y != -m_largestScale.y)
-                //{
-                //    m_gameEnvironment.transform.position = new Vector3(m_gameEnvironment.transform.position.x, -m_largestScale.y - 20, m_gameEnvironment.transform.position.z);
-                //}
-
 
                 m_vrRig.transform.localScale = m_smallestScale;
                 m_newPosition = new Vector3(m_currentlySelectedHex.transform.position.x, m_currentlySelectedHex.transform.position.y + m_buildingValidation.CurrentHeightOffset, m_currentlySelectedHex.transform.position.z);
@@ -301,31 +372,58 @@ public class InputManager : MonoBehaviour
         //Place the book in the Player's hand
         if (m_bookObject == null)
         {
-            m_bookObject = Instantiate(m_bookPrefab, OffHandController.transform.position, OffHandController.transform.rotation, OffHandController.transform);
+            if (m_bookControllerChoice == BookOptions.offHandController)
+            {
+                Destroy(m_viveTracker);
+                Destroy(OffHandController.transform.GetChild(0).gameObject);
+                m_bookObject = Instantiate(m_bookPrefab,OffHandController.transform);
+                //m_bookObject.transform.localPosition = Vector3.zero;
+                m_bookObject.transform.localEulerAngles = new Vector3(90, 0, 0);
+                m_bookObject.transform.localPosition = new Vector3(0, 0, m_bookHandOffset* 0.75f);
+            }
+            else if (m_bookControllerChoice == BookOptions.ViveTracker)
+            {
+                float _zOffset;
+                //Rotate based on Handedness
+                if (m_handedness == HandTypes.right)
+                {
+                    _zOffset = 90;
+                }
+                else
+                {
+                    _zOffset = -90;
+                }
+                Destroy(OffHandController);
+                m_bookObject = Instantiate(m_bookPrefab, m_viveTracker.transform);
+                //m_bookObject.transform.localPosition = Vector3.zero;
+                m_bookObject.transform.localEulerAngles = new Vector3(0, 0, _zOffset);
+                m_bookObject.transform.localPosition = new Vector3(0, 0, -m_bookHandOffset);
+            }
+
             GameManager.Instance.moneyBookText = m_bookObject.GetComponent<BookManager>().moneyText;
             GameManager.Instance.timerBookText = m_bookObject.GetComponent<BookManager>().timerText;
-            float _zOffset;
-            //Rotate based on Handedness
-            if (m_handedness == HandTypes.right)
-            {
-                _zOffset = 90;
-            }
-            else
-            {
-                _zOffset = -90;
-            }
-            m_bookObject.transform.localEulerAngles = new Vector3(90, 0, _zOffset);
-            m_bookObject.transform.position =new Vector3(m_bookObject.transform.position.x, m_bookHandOffset, m_bookObject.transform.position.z-0.13f);
+            GameManager.Instance.moneyBookText2 = m_bookObject.GetComponent<BookManager>().moneyText2;
+            GameManager.Instance.timerBookText2 = m_bookObject.GetComponent<BookManager>().timerText2;
+
+
         }
         #endregion
 
-        //Lerp the Rig to it's new position
+        //Lerp the Rig to it's new position - Teleportation
         m_vrRig.transform.position = Vector3.Lerp(m_vrRig.transform.position, m_newPosition, m_rigTeleportationSpeed);
+
+
+        if(RightGripped == true && LeftGripped == true)
+        {
+            updateWorldHeight();
+        }
 
         LeftTeleport = false;
         RightTeleport = false;
         LeftTrigger = false;
         RightTrigger = false;
+        RightGripped = false;
+        LeftGripped = false;
     }
     
     /// <summary>

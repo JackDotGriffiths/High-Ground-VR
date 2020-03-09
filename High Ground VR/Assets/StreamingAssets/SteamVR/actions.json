@@ -1,33 +1,29 @@
 {
   "actions": [
     {
-      "name": "/actions/High_GroundControlSet/in/GrabButton",
+      "name": "/actions/HighGroundControlSet/in/GripButton",
       "type": "boolean"
     },
     {
-      "name": "/actions/High_GroundControlSet/in/TrackpadClick",
+      "name": "/actions/HighGroundControlSet/in/TriggerButton",
       "type": "boolean"
     },
     {
-      "name": "/actions/High_GroundControlSet/in/TriggerClick",
+      "name": "/actions/HighGroundControlSet/in/TrackpadButton",
       "type": "boolean"
     },
     {
-      "name": "/actions/High_GroundControlSet/in/HandPos",
+      "name": "/actions/HighGroundControlSet/in/HandPos",
       "type": "pose"
     },
     {
-      "name": "/actions/High_GroundControlSet/in/HeadsetOn",
-      "type": "boolean"
-    },
-    {
-      "name": "/actions/High_GroundControlSet/out/Haptic",
+      "name": "/actions/HighGroundControlSet/out/Rumble",
       "type": "vibration"
     }
   ],
   "action_sets": [
     {
-      "name": "/actions/High_GroundControlSet",
+      "name": "/actions/HighGroundControlSet",
       "usage": "single"
     }
   ],
@@ -79,6 +75,10 @@
     {
       "controller_type": "vive_tracker_camera",
       "binding_url": "binding_vive_tracker_camera.json"
+    },
+    {
+      "controller_type": "vive_tracker",
+      "binding_url": "application_generated_unity_highground_exe_binding_vive_tracker.json"
     },
     {
       "controller_type": "vive_tracker_handed",

@@ -43,6 +43,7 @@ public class BattleBehaviour : MonoBehaviour
     }
     void Update()
     {
+        //Clear lists of units that may have been destroyed by the player.
         for (int i = 0; i < enemyGroups.Count; i++)
         {
             if (enemyGroups[i] == null)
@@ -58,6 +59,26 @@ public class BattleBehaviour : MonoBehaviour
                 friendlyGroups.Remove(friendlyGroups[i]);
             }
         }
+
+        for (int i = 0; i < enemyUnits.Count; i++)
+        {
+            if (enemyUnits[i] == null)
+            {
+                enemyUnits.Remove(enemyUnits[i]);
+            }
+        }
+
+        for (int i = 0; i < friendlyUnits.Count; i++)
+        {
+            if (friendlyUnits[i] == null)
+            {
+                friendlyUnits.Remove(friendlyUnits[i]);
+            }
+        }
+
+
+
+
 
         if (m_battleStarted == true)
         {
@@ -94,7 +115,7 @@ public class BattleBehaviour : MonoBehaviour
         {
 
             enemyUnits[i].health -= _distributedDamage;
-            if (enemyUnits[i].health < 0)
+            if (enemyUnits[i].health < 0 && enemyUnits[i].unitComp != null)
             {
                 enemyUnits[i].unitComp.Die();
                 enemyUnits.Remove(enemyUnits[i]);
@@ -119,7 +140,7 @@ public class BattleBehaviour : MonoBehaviour
         {
 
             friendlyUnits[i].health -= _distributedDamage;
-            if (friendlyUnits[i].health < 0)
+            if (friendlyUnits[i].health < 0 && friendlyUnits[i].unitComp != null)
             {
                 friendlyUnits[i].unitComp.Die();
                 friendlyUnits.Remove(friendlyUnits[i]);
@@ -179,7 +200,7 @@ public class BattleBehaviour : MonoBehaviour
                 //Run attack animation
                 friendlyUnits[i].unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
                 //Play an appropriate sound
-                AudioManager.Instance.PlaySound(SoundLists.weaponClashes, true, 1, friendlyUnits[i].unitComp.gameObject, true, false, true);
+                AudioManager.Instance.Play3DSound(SoundLists.weaponClashes, true, 1, friendlyUnits[i].unitComp.gameObject, true, false, true);
             }
             catch { }
         }
@@ -205,7 +226,7 @@ public class BattleBehaviour : MonoBehaviour
                 enemyUnits[i].unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
 
                 //Play an appropriate sound
-                AudioManager.Instance.PlaySound(SoundLists.weaponClashes, true, 1, enemyUnits[i].unitComp.gameObject, true, false, true);
+                AudioManager.Instance.Play3DSound(SoundLists.weaponClashes, true, 1, enemyUnits[i].unitComp.gameObject, true, false, true);
             }
             catch { }
         }

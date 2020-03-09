@@ -11,7 +11,7 @@ namespace Valve.VR.InteractionSystem
 {
 	//-------------------------------------------------------------------------
 	[RequireComponent( typeof( AudioSource ) )]
-	public class PlaySound : MonoBehaviour
+	public class Play3DSound : MonoBehaviour
 	{
 		[Tooltip( "List of audio clips to play." )]
 		public AudioClip[] waveFile;
@@ -79,7 +79,7 @@ namespace Valve.VR.InteractionSystem
 			audioSource = GetComponent<AudioSource>();
 			clip = audioSource.clip;
 
-			// audio source play on awake is true, just play the PlaySound immediately
+			// audio source play on awake is true, just play the Play3DSound immediately
 			if ( audioSource.playOnAwake )
 			{
 				if ( useRetriggerTime )
@@ -88,7 +88,7 @@ namespace Valve.VR.InteractionSystem
 					Play();
 			}
 
-			// if playOnAwake is false, but the playOnAwakeWithDelay on the PlaySound is true, play the sound on away but with a delay
+			// if playOnAwake is false, but the playOnAwakeWithDelay on the Play3DSound is true, play the sound on away but with a delay
 			else if ( !audioSource.playOnAwake && playOnAwakeWithDelay )
 			{
 				PlayWithDelay( delayOffsetTime );

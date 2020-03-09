@@ -59,6 +59,7 @@ public class GameBoardGeneration : MonoBehaviour
 
     public void generate()
     {
+        nodes = new List<GameObject>();
         try{InputManager.Instance.updateWorldHeight();}
         catch
         {
@@ -179,8 +180,7 @@ public class GameBoardGeneration : MonoBehaviour
         Node _gemNode = Graph[ Mathf.RoundToInt(m_length / 2f), Mathf.RoundToInt(m_width / 2f)];
         _gemNode.navigability = navigabilityStates.gem;
         Vector3 _gemPosition = new Vector3(_gemNode.hex.transform.position.x, _gemNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _gemNode.hex.transform.position.z);
-        Quaternion _gemRotation = Quaternion.Euler(45, 45, 45);
-        Instantiate(m_gem, _gemPosition, _gemRotation, _gemNode.hex.transform);
+        Instantiate(m_gem, _gemPosition, Quaternion.identity, _gemNode.hex.transform);
         GameManager.Instance.GameGemNode = _gemNode;
     }
 

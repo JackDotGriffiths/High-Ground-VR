@@ -1,0 +1,106 @@
+{
+  "app_key": "application.generated.unity.highground.exe",
+  "bindings": {
+    "/actions/buggy": {
+      "chords": [],
+      "poses": [],
+      "haptics": [],
+      "sources": [],
+      "skeleton": []
+    },
+    "/actions/default": {
+      "chords": [],
+      "poses": [],
+      "haptics": [],
+      "sources": [],
+      "skeleton": []
+    },
+    "/actions/high_groundcontrolset": {
+      "chords": [],
+      "poses": [
+        {
+          "output": "/actions/high_groundcontrolset/in/handpos",
+          "path": "/user/hand/left/pose/raw"
+        },
+        {
+          "output": "/actions/high_groundcontrolset/in/handpos",
+          "path": "/user/hand/right/pose/raw"
+        }
+      ],
+      "haptics": [],
+      "sources": [
+        {
+          "path": "/user/hand/left/input/grip",
+          "mode": "button",
+          "parameters": {},
+          "inputs": {
+            "click": {
+              "output": "/actions/high_groundcontrolset/in/grabbutton"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/right/input/grip",
+          "mode": "button",
+          "parameters": {},
+          "inputs": {
+            "click": {
+              "output": "/actions/high_groundcontrolset/in/grabbutton"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/left/input/trigger",
+          "mode": "trigger",
+          "parameters": {},
+          "inputs": {
+            "click": {
+              "output": "/actions/high_groundcontrolset/in/triggerclick"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/right/input/trigger",
+          "mode": "trigger",
+          "parameters": {},
+          "inputs": {
+            "click": {
+              "output": "/actions/high_groundcontrolset/in/triggerclick"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/left/input/trackpad",
+          "mode": "trackpad",
+          "parameters": {},
+          "inputs": {
+            "click": {
+              "output": "/actions/high_groundcontrolset/in/trackpadclick"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/right/input/trackpad",
+          "mode": "trackpad",
+          "parameters": {},
+          "inputs": {
+            "click": {
+              "output": "/actions/high_groundcontrolset/in/trackpadclick"
+            }
+          }
+        }
+      ],
+      "skeleton": []
+    },
+    "/actions/platformer": {
+      "chords": [],
+      "poses": [],
+      "haptics": [],
+      "sources": [],
+      "skeleton": []
+    }
+  },
+  "controller_type": "vive_controller",
+  "description": "",
+  "name": "My High Ground [Testing] configuration for Vive Controller"
+}
