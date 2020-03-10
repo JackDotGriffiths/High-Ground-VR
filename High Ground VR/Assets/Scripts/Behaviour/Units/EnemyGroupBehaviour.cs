@@ -299,7 +299,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
     IEnumerator aggressionTimer()
     {
         yield return new WaitForSeconds(2.0f);
-        groupAggression =Mathf.Clamp(groupAggression +  0.1f,0,0.9f);
+        groupAggression = Mathf.Clamp(groupAggression +  0.05f,0,0.9f);
         RunPathfinding(groupAggression);
     }
 

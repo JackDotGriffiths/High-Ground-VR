@@ -8,15 +8,17 @@ public class InteractionManager : MonoBehaviour
 {
     [SerializeField, Tooltip("Time before being able to attack again")] private float m_attackCooldown;
 
-    [Header("Regular Attack Effects"), Space(10)]
-    [SerializeField, Tooltip("Damage that should be dealt when player is large.This is PER enemy.")] private float m_playerLargeDamage;
-    [SerializeField, Tooltip("Damage that should be dealt when player is small.This is PER enemy.")] private float m_playerSmallDamage;
+    [Header("Lightning Effect Config"), Space(10)]
     [SerializeField, Tooltip("Number of LineRenderers to make up Lightning"), Space(3)] private int m_lightningStrikes;
     [SerializeField, Tooltip("Number of points in the Lightning that change angle.")] private int m_lightningStrikeBreakPoints;
     [SerializeField, Tooltip("Width in the Lightning effect. Size of the unit sphere used for random placement.")] private float m_lightningWidth;
     [SerializeField, Tooltip("Time between chaning the lightning position.")] private float m_lightningTiming;
     [SerializeField, Tooltip("Number of times the lightning changes position.")] private float m_lightningOccurance;
-    [SerializeField, Tooltip("The material to use for the regularAttackEffect.")] private Material m_regularAttackMaterial;
+    [SerializeField, Tooltip("The material to use for the regularAttackEffect.")] private Material m_lightningMaterial;
+
+    [Header("Regular Attack Effects"), Space(10)]
+    [SerializeField, Tooltip("Damage that should be dealt when player is large.This is PER enemy.")] private float m_playerLargeDamage;
+    [SerializeField, Tooltip("Damage that should be dealt when player is small.This is PER enemy.")] private float m_playerSmallDamage;
 
 
     [Header("Slow Down Attack Effects"), Space(10)]
@@ -151,7 +153,7 @@ public class InteractionManager : MonoBehaviour
             _go.transform.parent = _goLine.transform;
             Destroy(_go, m_lightningTiming * m_lightningOccurance);
             _lightningLines.Add(new GameObject("regularAttackEffect").AddComponent<LineRenderer>());
-            _lightningLines[i].material = m_regularAttackMaterial;
+            _lightningLines[i].material = m_lightningMaterial;
             _lightningLines[i].startWidth = 0.1f * _playerScale;
             _lightningLines[i].endWidth = 0.1f * _playerScale;
         }
@@ -281,7 +283,7 @@ public class InteractionManager : MonoBehaviour
             _go.transform.parent = _goLine.transform;
             Destroy(_go, m_lightningTiming * m_lightningOccurance);
             _lightningLines.Add(new GameObject("regularAttackEffect").AddComponent<LineRenderer>());
-            _lightningLines[i].material = m_regularAttackMaterial;
+            _lightningLines[i].material = m_lightningMaterial;
             _lightningLines[i].startWidth = 0.1f * _playerScale;
             _lightningLines[i].endWidth = 0.1f * _playerScale;
             _lightningLines[i].startColor = Color.blue;
@@ -412,7 +414,7 @@ public class InteractionManager : MonoBehaviour
             _go.transform.parent = _goLine.transform;
             Destroy(_go, m_lightningTiming * m_lightningOccurance);
             _lightningLines.Add(new GameObject("regularAttackEffect").AddComponent<LineRenderer>());
-            _lightningLines[i].material = m_regularAttackMaterial;
+            _lightningLines[i].material = m_lightningMaterial;
             _lightningLines[i].startWidth = 0.1f * _playerScale;
             _lightningLines[i].endWidth = 0.1f * _playerScale;
             _lightningLines[i].startColor = Color.magenta;
