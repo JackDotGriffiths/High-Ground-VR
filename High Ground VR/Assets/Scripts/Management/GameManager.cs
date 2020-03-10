@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 enum Phases { Building, Attack };
+public enum enemyTargets {Gem,randomMine,randomDestructableBuilding};
 public class GameManager : MonoBehaviour
 {
+    #region Variables
     private static GameManager s_instance;
     [Header("Game Config")]
     [SerializeField, Range(0.0f, 2.0f), Tooltip("The speed of objects in the game on a scale of 0-1")] private float m_gameSpeed = 1.0f; //Game speed multiplier used across the game for allowing for slowmo/pausing etc.
@@ -47,6 +49,7 @@ public class GameManager : MonoBehaviour
     private Phases m_currentPhase;
     private Node m_gameGemNode; // The Gem Gameobject, set by GameBoardGeneration.
 
+    #endregion
     #region Accessors
     public static GameManager Instance { get => s_instance; set => s_instance = value; }
     public float GameSpeed { get => m_gameSpeed; set => m_gameSpeed = value; }
@@ -313,6 +316,122 @@ public class GameManager : MonoBehaviour
         StartBuildingPhase();
     }
     #endregion
+
+
+    #region Pathfinding Control
+
+    public List<Node> RunPathfinding(enemyTargets _target, float _aggression,int _currentX,int _currentY)
+    {
+        //Find the X & Y of a goal node.
+
+        int _goalX = 0;
+        int _goalY = 0;
+
+        switch (_target)
+        {
+            case enemyTargets.Gem:
+                _goalX = GameGemNode.x;
+                _goalY = GameGemNode.y;
+                break;
+            case enemyTargets.randomDestructableBuilding:
+                //Search all adjacent nodes for a building, if not, search adjecent of those. 
+                Node _targetNode = null;
+                //Search all nodes and adjacent nodes until it finds a mine.
+                for (int i = 0; i < GameBoardGeneration.Instance.Graph.GetLength(0); i++)
+                {
+                    for (int j = 0; j < GameBoardGeneration.Instance.Graph.GetLength(1); j++)
+                    {
+                        if (GameBoardGeneration.Instance.Graph[i, j].navigability == navigabilityStates.mine || GameBoardGeneration.Instance.Graph[i, j].navigability == navigabilityStates.wall)
+                        {
+                            _targetNode = GameBoardGeneration.Instance.Graph[i, j];
+                            break;
+                        }
+                    }
+                    if (_targetNode != null)
+                    {
+                        break;
+                    }
+                }
+
+                //If there are no buildings, head for the gem.
+                if (_targetNode == null)
+                {
+                    _goalX = GameGemNode.x;
+                    _goalY = GameGemNode.y;
+                }
+                else
+                {
+                    _goalX = _targetNode.x;
+                    _goalY = _targetNode.y;
+                }
+                break;
+            case enemyTargets.randomMine:
+                //Search all adjacent nodes for a building, if not, search adjecent of those. 
+                _targetNode = null;
+                //Search all nodes and adjacent nodes until it finds a mine.
+                for (int i = 0; i < GameBoardGeneration.Instance.Graph.GetLength(0); i++)
+                {
+                    for (int j = 0; j < GameBoardGeneration.Instance.Graph.GetLength(1); j++)
+                    {
+                        if(GameBoardGeneration.Instance.Graph[i,j].navigability == navigabilityStates.mine)
+                        {
+                            _targetNode = GameBoardGeneration.Instance.Graph[i, j];
+                            break;
+                        }
+                    }
+                    if(_targetNode != null)
+                    {
+                        break;
+                    }
+                }
+
+                //If there are no buildings, head for the gem.
+                if (_targetNode == null)
+                {
+                    _goalX = GameGemNode.x;
+                    _goalY = GameGemNode.y;
+                }
+                else
+                {
+                    _goalX = _targetNode.x;
+                    _goalY = _targetNode.y;
+                }
+                break;
+        }
+
+        
+
+        if (_currentX == _goalX && _currentY == _goalY)
+        {
+            return null;
+        }
+        List <Node> _groupPath = new List<Node>();
+        var graph = GameBoardGeneration.Instance.Graph;
+        var search = new Search(GameBoardGeneration.Instance.Graph);
+        search.Start(graph[_currentX, _currentY], graph[_goalX, _goalY], _aggression);
+        while (!search.finished)
+        {
+            search.Step();
+        }
+
+        Transform[] _pathPositions = new Transform[search.path.Count];
+        for (int i = 0; i < search.path.Count; i++)
+        {
+            _groupPath.Add(search.path[i]);
+        }
+
+        if (search.path.Count == 0)
+        {
+            Debug.Log("Search Failed");
+            return null;
+        }
+
+        return _groupPath;
+    }
+
+
+    #endregion
+
 
 
 }

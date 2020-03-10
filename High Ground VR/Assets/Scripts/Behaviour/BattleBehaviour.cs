@@ -6,7 +6,9 @@ public class BattleBehaviour : MonoBehaviour
 {
     private bool m_battleStarted = false;
     private float m_battleTimer = 1f; //Time between each attack
-    private float m_currentTimer;
+    private float m_currentFriendlyTimer;
+    private float m_currentEnemyTimer;
+    private float m_enemyTimePerception;
 
 
     public List<EnemyGroupBehaviour> enemyGroups;
@@ -28,7 +30,8 @@ public class BattleBehaviour : MonoBehaviour
 
         friendlyUnits = _friendlyUnits;
         enemyUnits = _enemyUnits;
-        m_currentTimer = m_battleTimer;
+        m_currentFriendlyTimer = m_battleTimer;
+        m_currentEnemyTimer = m_battleTimer;
         m_battleStarted = true;
     }
 
@@ -83,19 +86,33 @@ public class BattleBehaviour : MonoBehaviour
         if (m_battleStarted == true)
         {
 
+            float _totalTimePerception = 0;
+            for (int i = 0; i < enemyGroups.Count; i++)
+            {
+                _totalTimePerception += enemyGroups[i].timePerception;
+            }
+            m_enemyTimePerception = _totalTimePerception / enemyGroups.Count;
+
             drawDebugLines();
-            m_currentTimer -= Time.deltaTime * GameManager.Instance.GameSpeed;
+            m_currentFriendlyTimer -= Time.deltaTime * GameManager.Instance.GameSpeed;
+            m_currentEnemyTimer -= Time.deltaTime * GameManager.Instance.GameSpeed * m_enemyTimePerception;
+
+
             if (enemyUnits.Count == 0 || friendlyUnits.Count == 0)
             {
                 //End the battle, Player Won
                 battleOver();
                 Destroy(this);
             }
-            if (m_currentTimer < 0)
+            if (m_currentFriendlyTimer < 0)
             {
                 friendlyAttack();
+                m_currentFriendlyTimer = m_battleTimer;
+            }
+            if(m_currentEnemyTimer < 0)
+            {
                 enemyAttack();
-                m_currentTimer = m_battleTimer;
+                m_currentEnemyTimer = m_battleTimer;
             }
         }
     }

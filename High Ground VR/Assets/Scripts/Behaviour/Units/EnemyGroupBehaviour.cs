@@ -14,8 +14,6 @@ public class EnemyGroupBehaviour : MonoBehaviour
 
     public int currentX;
     public int currentY;
-    public int goalX;
-    public int goalY;
     public bool inCombat;//Tracks whether the unit is in combat or not.
     public bool inSiege;//Tracks whether the unit is currently sieging a building.
 
@@ -24,10 +22,9 @@ public class EnemyGroupBehaviour : MonoBehaviour
     private bool m_validMove; //Tracks whether the unit should be moving to the next node or staying still.
     private float m_currentTimer; //Value of the timer on the enemy.
     private List<Node> m_groupPath; //List of Nodes that lead to the groups goal.
-    private int m_currentStepIndex; //Index of the node within the current path.
     private Vector3 m_targetPosition; //Position the node should be moving to.
     public float groupAggression;
-
+    public int currentStepIndex; //Index of the node within the current path.
 
     public List<GameObject> m_units;
     private int m_currentUnits;
@@ -58,7 +55,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
 
         if(m_currentUnits == 0 && m_unitInstantiated == true)
         {
-            m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;
+            m_groupPath[currentStepIndex].navigability = navigabilityStates.navigable;
             GameManager.Instance.CurrentEnemies -= 1;
             GameManager.Instance.enemyGold();
             Destroy(this.gameObject);
@@ -71,14 +68,14 @@ public class EnemyGroupBehaviour : MonoBehaviour
             m_currentTimer -= Time.deltaTime * GameManager.Instance.GameSpeed * timePerception;
             if (m_currentTimer < 0.0f)
             {
-                if(m_groupPath.Count == 0)
+                if(m_groupPath.Count == 0 || m_groupPath.Count == 1)
                 {
                     m_validMove = false;
                     return;
                 }
 
                 //If the next node is the gem, enter into combat with the gem.
-                if (m_groupPath[m_currentStepIndex + 1] == GameManager.Instance.GameGemNode)
+                if (m_groupPath[currentStepIndex + 1] == GameManager.Instance.GameGemNode && inSiege == false)
                 {
                     //Unit is in an adjecent node to the gem, initiate combat
                     Debug.Log(this + "reached Gem");
@@ -90,7 +87,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
                         _enemyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
                     }
                     SiegeBehaviour _siege = gameObject.AddComponent<SiegeBehaviour>();
-                    _siege.StartSiege(m_groupPath[m_currentStepIndex + 1].hex.GetComponentInChildren<BuildingHealth>(), _enemyUnits);
+                    _siege.StartSiege(m_groupPath[currentStepIndex + 1].hex.GetComponentInChildren<BuildingHealth>(), _enemyUnits);
                     _siege.enemyGroups.Add(this);
 
 
@@ -102,21 +99,21 @@ public class EnemyGroupBehaviour : MonoBehaviour
                 //RunPathfinding();
 
                 //If the next node is navigable, move the node forward
-                if (m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.navigable && m_groupPath[m_currentStepIndex + 1].hex.transform.childCount == 0 && inSiege == false)
+                if (m_groupPath[currentStepIndex + 1].navigability == navigabilityStates.navigable && m_groupPath[currentStepIndex + 1].hex.transform.childCount == 0 && inSiege == false)
                 {
                     m_validMove = true;
-                    m_groupPath[m_currentStepIndex + 1].navigability = navigabilityStates.enemyUnit;
+                    m_groupPath[currentStepIndex + 1].navigability = navigabilityStates.enemyUnit;
                     //Update previous and new node with the correct navigabilityStates
-                    m_groupPath[m_currentStepIndex].navigability = navigabilityStates.navigable;
-                    m_currentStepIndex++;
+                    m_groupPath[currentStepIndex].navigability = navigabilityStates.navigable;
+                    currentStepIndex++;
                     //Sets the parent so scaling works correclty.
-                    this.transform.SetParent(m_groupPath[m_currentStepIndex].hex.transform);
+                    this.transform.SetParent(m_groupPath[currentStepIndex].hex.transform);
                     //Set the new target Position
-                    m_targetPosition = new Vector3(m_groupPath[m_currentStepIndex].hex.transform.position.x, m_groupPath[m_currentStepIndex].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[m_currentStepIndex].hex.transform.position.z);
-                    currentX = m_groupPath[m_currentStepIndex].x;
-                    currentY = m_groupPath[m_currentStepIndex].y;
+                    m_targetPosition = new Vector3(m_groupPath[currentStepIndex].hex.transform.position.x, m_groupPath[currentStepIndex].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[currentStepIndex].hex.transform.position.z);
+                    currentX = m_groupPath[currentStepIndex].x;
+                    currentY = m_groupPath[currentStepIndex].y;
                 }
-                else if ((m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.wall || m_groupPath[m_currentStepIndex + 1].navigability == navigabilityStates.mine) && inSiege == false)
+                else if ((m_groupPath[currentStepIndex + 1].navigability == navigabilityStates.wall || m_groupPath[currentStepIndex + 1].navigability == navigabilityStates.mine) && inSiege == false)
                 {
                     //Start combat with the building in the way.
                     inSiege = true;
@@ -126,7 +123,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
                         _enemyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
                     }
                     SiegeBehaviour _siege = gameObject.AddComponent<SiegeBehaviour>();
-                    _siege.StartSiege(m_groupPath[m_currentStepIndex + 1].hex.GetComponentInChildren<BuildingHealth>(), _enemyUnits);
+                    _siege.StartSiege(m_groupPath[currentStepIndex + 1].hex.GetComponentInChildren<BuildingHealth>(), _enemyUnits);
                     _siege.enemyGroups.Add(this);
                 }
                 else
@@ -138,6 +135,13 @@ public class EnemyGroupBehaviour : MonoBehaviour
                     m_validMove = false;
                     return;
                 }
+
+
+
+
+
+
+
             }
         }
 
@@ -155,12 +159,32 @@ public class EnemyGroupBehaviour : MonoBehaviour
     void InstantiateUnit()
     {
         m_currentTimer = m_tickTimer;
-        m_currentStepIndex = 0;
+        currentStepIndex = 0;
         inCombat = false;
         GameBoardGeneration.Instance.Graph[currentX,currentY].navigability = navigabilityStates.enemyUnit;
-        goalX = GameManager.Instance.GameGemNode.x;
-        goalY = GameManager.Instance.GameGemNode.y;
-        RunPathfinding(groupAggression);
+        //Run pathfinding, randomly choosing how the unit navigates based on their aggression and some random factors.
+        float _aggressionChance = 1.0f - (GameManager.Instance.aggressionPercentage * (GameManager.Instance.RoundCounter / 2.0f));
+        if (groupAggression > _aggressionChance)
+        {
+            float _rand = Random.Range(0.0f, 1.0f);
+            if(_rand < 0.3f)
+            {
+                RunPathfinding(enemyTargets.randomDestructableBuilding, groupAggression);
+            }
+            else if (_rand > 0.3f && _rand < 0.5f)
+            {
+                RunPathfinding(enemyTargets.randomMine, groupAggression);
+            }
+            else
+            {
+                RunPathfinding(enemyTargets.Gem, groupAggression);
+            }
+        }
+        else
+        {
+            RunPathfinding(enemyTargets.Gem,groupAggression);
+        }
+
         m_targetPosition = new Vector3(m_groupPath[0].hex.transform.position.x, m_groupPath[0].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[0].hex.transform.position.z);
         m_unitInstantiated = true;
 
@@ -192,35 +216,10 @@ public class EnemyGroupBehaviour : MonoBehaviour
     /// <summary>
     /// Run the A* pathfinding
     /// </summary>
-    public void RunPathfinding(float _aggression)
+    public void RunPathfinding(enemyTargets _target, float _aggression)
     {
-        if (currentX == goalX && currentY == goalY)
-        {
-            return;
-        }
-        m_groupPath = new List<Node>();
-        m_currentStepIndex = 0;
-        var graph = GameBoardGeneration.Instance.Graph;
-        var search = new Search(GameBoardGeneration.Instance.Graph);
-        search.Start(graph[currentX, currentY], graph[goalX, goalY],_aggression);
-        while (!search.finished)
-        {
-            search.Step();
-        }
-
-        Transform[] _pathPositions = new Transform[search.path.Count];
-        for (int i = 0; i < search.path.Count; i++)
-        {
-            m_groupPath.Add(search.path[i]);
-        }
-
-        if (search.path.Count == 0)
-        {
-            Debug.Log("Search Failed");
-            return;
-        }
-
-        //Debug.Log("Search done. Path length : " + search.path.Count + ". Iterations : " + search.iterations);
+        currentStepIndex = 0;
+        m_groupPath = GameManager.Instance.RunPathfinding(_target, _aggression, currentX, currentY);
     }
 
     /// <summary>
@@ -229,10 +228,10 @@ public class EnemyGroupBehaviour : MonoBehaviour
     void MoveEnemy()
     {
         float _yOffset = 0;
-        if(m_currentStepIndex != 0)
+        if(currentStepIndex != 0)
         {
             //Move the enemy along it's path. Calculate distance from the goal as a percentage.
-            float _maxDistance = Vector3.Distance(m_groupPath[m_currentStepIndex - 1].hex.transform.position, m_targetPosition);
+            float _maxDistance = Vector3.Distance(m_groupPath[currentStepIndex - 1].hex.transform.position, m_targetPosition);
             float _currentDistance = Vector3.Distance(transform.position, m_targetPosition);
             float _percentage = _currentDistance / _maxDistance;
             //Sin of the percentage creates a 'hop' like movement.
@@ -253,7 +252,7 @@ public class EnemyGroupBehaviour : MonoBehaviour
         {
             foreach (GameObject unit in m_units)
             {
-                Vector3 _targetRotation = new Vector3(m_groupPath[m_currentStepIndex + 1].hex.transform.position.x, m_groupPath[m_currentStepIndex + 1].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[m_currentStepIndex + 1].hex.transform.position.z);
+                Vector3 _targetRotation = new Vector3(m_groupPath[currentStepIndex + 1].hex.transform.position.x, m_groupPath[currentStepIndex + 1].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[currentStepIndex + 1].hex.transform.position.z);
                 unit.transform.LookAt(_targetRotation);
             }
         }
@@ -296,11 +295,15 @@ public class EnemyGroupBehaviour : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// Increases the aggression of the enemy. This is used when the enemy is stuck.
+    /// </summary>
+    /// <returns></returns>
     IEnumerator aggressionTimer()
     {
         yield return new WaitForSeconds(2.0f);
         groupAggression = Mathf.Clamp(groupAggression +  0.05f,0,0.9f);
-        RunPathfinding(groupAggression);
+        RunPathfinding(enemyTargets.Gem,groupAggression);
     }
 
 

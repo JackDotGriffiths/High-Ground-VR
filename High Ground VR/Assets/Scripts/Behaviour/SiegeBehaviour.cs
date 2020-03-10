@@ -7,7 +7,7 @@ public class SiegeBehaviour : MonoBehaviour
     private bool m_siegeStarted = false;
     private float m_siegeTimer = 1f; //Time between each attack
     private float m_currentTimer;
-
+    private float m_timePerception;
 
     public List<EnemyGroupBehaviour> enemyGroups;
     public BuildingHealth buildingHealth;
@@ -54,9 +54,14 @@ public class SiegeBehaviour : MonoBehaviour
 
         if (m_siegeStarted == true)
         {
-
+            float _totalTimePerception = 0;
+            for (int i = 0; i < enemyGroups.Count; i++)
+            {
+                _totalTimePerception += enemyGroups[i].timePerception;
+            }
+            m_timePerception = _totalTimePerception / enemyGroups.Count;
             drawDebugLines();
-            m_currentTimer -= Time.deltaTime * GameManager.Instance.GameSpeed;
+            m_currentTimer -= Time.deltaTime * GameManager.Instance.GameSpeed * m_timePerception;
             if (buildingHealth == null)
             {
                 siegeOver();
@@ -90,8 +95,34 @@ public class SiegeBehaviour : MonoBehaviour
             EnemyGroupBehaviour _enemy = enemyGroups[i];
             _enemy.inSiege = false;
             //Make the enemies slightly less aggressive after they destroy a building.
-            _enemy.groupAggression = _enemy.groupAggression * 0.85f;
-            _enemy.RunPathfinding(_enemy.groupAggression);
+            _enemy.groupAggression = _enemy.groupAggression * 0.7f;
+            _enemy.currentStepIndex = 0;
+            //Run pathfinding, randomly choosing how the unit navigates based on their aggression and some random factors.
+            float _aggressionChance = 1.0f - (GameManager.Instance.aggressionPercentage * (GameManager.Instance.RoundCounter / 2.0f));
+            if (_enemy.groupAggression > _aggressionChance)
+            {
+                float _rand = Random.Range(0.0f, 1.0f);
+                if (_rand < 0.3f)
+                {
+                    _enemy.RunPathfinding(enemyTargets.randomDestructableBuilding, _enemy.groupAggression);
+                }
+                else if (_rand > 0.3f && _rand < 0.5f)
+                {
+                    _enemy.RunPathfinding(enemyTargets.randomMine, _enemy.groupAggression);
+                }
+                else
+                {
+                    _enemy.RunPathfinding(enemyTargets.Gem, _enemy.groupAggression);
+                }
+            }
+            else
+            {
+                _enemy.RunPathfinding(enemyTargets.Gem, _enemy.groupAggression);
+            }
+
+
+
+
         }
         Destroy(this);
     }

@@ -109,7 +109,7 @@ public class Search
         }
         else if(unitAggression > _aggressionChance && GameManager.Instance.RoundCounter > GameManager.Instance.spawnAggresiveAfter)
         {
-            if (adjacent.navigability == navigabilityStates.wall || adjacent.navigability == navigabilityStates.mine)
+            if (adjacent.navigability == navigabilityStates.wall || adjacent.navigability == navigabilityStates.mine || adjacent.navigability == navigabilityStates.enemyUnit)
             {
                 reachable.Add(adjacent);
             }
