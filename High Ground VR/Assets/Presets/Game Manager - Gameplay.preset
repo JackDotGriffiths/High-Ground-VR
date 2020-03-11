@@ -31,7 +31,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_buildingPhaseTime
-    value: 30
+    value: 40
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_mainMenuAnim
@@ -39,7 +39,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: enemyStartingSpawns
-    value: 4
+    value: 3
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: enemyAmount

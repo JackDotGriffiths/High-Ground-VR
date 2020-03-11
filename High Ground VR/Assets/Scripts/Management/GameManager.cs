@@ -92,6 +92,17 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        //Update Book Display
+        try
+        {
+            moneyBookText.text = currentGold.ToString();
+            timerBookText.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString();
+            moneyBookText2.text = currentGold.ToString();
+            timerBookText2.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString();
+        }
+        catch { }
+
+
         if (m_gameOver == true)
         {
             m_round.text = "GAME OVER";
@@ -119,15 +130,6 @@ public class GameManager : MonoBehaviour
         m_goldValue.text = currentGold.ToString();
         m_timerLeft.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString() + "s";
 
-        //Update Book Display
-        try
-        {
-            moneyBookText.text = currentGold.ToString();
-            timerBookText.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString();
-            moneyBookText2.text = currentGold.ToString();
-            timerBookText2.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString();
-        }
-        catch { }
     }
 
     #region Phase Control
@@ -365,6 +367,7 @@ public class GameManager : MonoBehaviour
         GameBoardGeneration.Instance.generate();
         InputManager.Instance.updateWorldHeight();
         m_roundCounter = 1;
+        m_tankCount = 1;
         m_gameSpeed = 1;
         currentGold = m_startingGold;
         m_buildingPhaseTimer = m_buildingPhaseTime;

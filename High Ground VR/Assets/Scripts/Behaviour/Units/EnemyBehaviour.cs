@@ -259,7 +259,11 @@ public class EnemyBehaviour : MonoBehaviour
         Vector3 _hopPosition = new Vector3(m_targetPosition.x, m_targetPosition.y + _yOffset, m_targetPosition.z);
         transform.position = Vector3.Lerp(transform.position, _hopPosition, m_movementSpeed * GameManager.Instance.GameSpeed * timePerception);
 
-        RotateEachUnit();
+        try
+        {
+            RotateEachUnit();
+        }
+        catch { }
     }
 
     /// <summary>
@@ -267,7 +271,7 @@ public class EnemyBehaviour : MonoBehaviour
     /// </summary>
     void RotateEachUnit()
     {
-        if(inCombat == false)
+        if(inCombat == false && inSiege == false)
         {
             for (int i = 0; i < m_units.Count; i++)
             {
