@@ -370,37 +370,26 @@ public class ValidateBuildingLocation : MonoBehaviour
         foreach(EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
         {
             Node _spawnNode = _spawn.thisNode;
-            bool _spawnCanAccessGem = false;
-            int _accessibleNodes = 0;
-            //For each of the nodes adjacent to that spawn, check whether the enemy can reach the gem.
-            foreach (Node _adjecentNode in _spawnNode.adjecant)
-            {
-                List<Node> _path = new List<Node>();
-                var graph = GameBoardGeneration.Instance.Graph;
-                var search = new Search(GameBoardGeneration.Instance.Graph);
-                search.Start(graph[_adjecentNode.x, _adjecentNode.y], graph[GameManager.Instance.GameGemNode.x, GameManager.Instance.GameGemNode.y], 0.0f);
-                while (!search.finished)
-                {
-                    search.Step();
-                }
-                Transform[] _pathPositions = new Transform[search.path.Count];
-                for (int i = 0; i < search.path.Count; i++)
-                {
-                    _path.Add(search.path[i]);
-                }
-                if (search.path.Count != 0)
-                {
-                    _accessibleNodes++;
-                }
-            }
 
-            if(_accessibleNodes == 0)
+            List<Node> _path = new List<Node>();
+            var graph = GameBoardGeneration.Instance.Graph;
+            var search = new Search(GameBoardGeneration.Instance.Graph);
+            search.Start(graph[_spawnNode.x, _spawnNode.y], graph[GameManager.Instance.GameGemNode.x, GameManager.Instance.GameGemNode.y], 0.0f);
+            while (!search.finished)
+            {
+                search.Step();
+            }
+            Transform[] _pathPositions = new Transform[search.path.Count];
+            for (int i = 0; i < search.path.Count; i++)
+            {
+                _path.Add(search.path[i]);
+            }
+            if (search.path.Count == 0)
             {
                 _result = false;
             }
-
-
         }
+
         _targetNode.navigability = navigabilityStates.navigable;
         return _result;
     }

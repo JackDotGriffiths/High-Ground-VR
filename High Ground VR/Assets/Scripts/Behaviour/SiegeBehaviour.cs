@@ -138,17 +138,22 @@ public class SiegeBehaviour : MonoBehaviour
     {
         for (int i = 0; i < enemyUnits.Count; i++)
         {
-            //Rotate towards a random target
-            UnitComponent _unitComp = enemyUnits[i].unitComp;
-            _unitComp.transform.LookAt(buildingHealth.transform.position);
+            try
+            {
+                //Rotate towards a random target
+                UnitComponent _unitComp = enemyUnits[i].unitComp;
+                _unitComp.transform.LookAt(buildingHealth.transform.position);
 
-            //Run attack animation
-            enemyUnits[i].unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
-            //Play an appropriate sound
-            AudioManager.Instance.Play3DSound(SoundLists.weaponClashes, true, 1, enemyUnits[i].unitComp.gameObject, true, false, true);
+                //Run attack animation
+                enemyUnits[i].unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
+                //Play an appropriate sound
+                AudioManager.Instance.Play3DSound(SoundLists.weaponClashes, true, 1, enemyUnits[i].unitComp.gameObject, true, false, true);
+            }
+            catch { }
             yield return new WaitForSeconds(Random.Range(0, 0.5f));
             buildingHealth.takeDamage(enemyUnits[i].damage);
             yield return new WaitForSeconds(Random.Range(0, 0.2f));
+
         }
         yield return null;
     }

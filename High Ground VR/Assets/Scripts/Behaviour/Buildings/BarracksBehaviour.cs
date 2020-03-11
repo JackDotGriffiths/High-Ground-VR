@@ -86,6 +86,10 @@ public class BarracksBehaviour : MonoBehaviour
                 m_respawning = true;
                 StartCoroutine("RespawnUnits");
             }
+            if(m_currentUnits == 0)
+            {
+                m_barracksUnitNode.navigability = navigabilityStates.navigable;
+            }
         }
 
         //Check for any enemies in adjecent nodes to the friendly units.
@@ -217,7 +221,6 @@ public class BarracksBehaviour : MonoBehaviour
     /// <returns></returns>
     IEnumerator RespawnUnits()
     {
-        m_barracksUnitNode.navigability = navigabilityStates.navigable;
         do
         {
             yield return new WaitForSeconds(m_unitRespawnDelay);
@@ -234,6 +237,7 @@ public class BarracksBehaviour : MonoBehaviour
             }
         } while (m_currentUnits < m_unitCount-1);
         m_respawning = false;
+        yield return null;
     }
 
     /// <summary>

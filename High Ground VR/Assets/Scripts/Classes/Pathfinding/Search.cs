@@ -92,7 +92,7 @@ public class Search
         //0.0 = MIN anger
 
 
-        if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.gem || adjacent.navigability == navigabilityStates.playerUnit)
+        if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.gem || adjacent.navigability == navigabilityStates.playerUnit || adjacent.navigability == navigabilityStates.enemyUnit)
         {
             reachable.Add(adjacent);
         }
@@ -102,21 +102,17 @@ public class Search
         //If the aggression is 1, always add the destructible node. This is used for checking of pathfinding and super aggressive enemies.
         if (unitAggression == 1.0f)
         {
-            if (adjacent.navigability == navigabilityStates.wall || adjacent.navigability == navigabilityStates.mine || adjacent.navigability == navigabilityStates.enemyUnit)
+            if (adjacent.navigability == navigabilityStates.wall || adjacent.navigability == navigabilityStates.mine )
             {
                 reachable.Add(adjacent);
             }
         }
         else if(unitAggression > _aggressionChance && GameManager.Instance.RoundCounter > GameManager.Instance.spawnAggresiveAfter)
         {
-            if (adjacent.navigability == navigabilityStates.wall || adjacent.navigability == navigabilityStates.mine || adjacent.navigability == navigabilityStates.enemyUnit)
+            if (adjacent.navigability == navigabilityStates.wall || adjacent.navigability == navigabilityStates.mine)
             {
                 reachable.Add(adjacent);
             }
-        }
-        else if(adjacent.navigability == navigabilityStates.enemyUnit)
-        {
-            reachable.Add(adjacent);
         }
     }
 
@@ -209,20 +205,35 @@ public class Search
             }
         }
 
+        if(_searchNodes.Count > 1)
+        {
+            float _rand = Random.Range(0.0f, 1.0f);
 
-        float _rand = Random.Range(0.0f, 1.0f);
 
-        if (_rand <= 0.85f)// 85% of picking the best
+            _rand = Random.Range(0.0f, 1.0f);
+
+
+
+
+
+
+
+            if (_rand <= 0.85f)// 85% of picking the best
+            {
+                return _searchNodes[0];
+            }
+            else if (_rand > 0.85f && _rand < 0.95f)// 10% of picking second best
+            {
+                return _searchNodes[1];
+            }
+            else // 5% of picking third best
+            {
+                return _searchNodes[2];
+            }
+        }
+        else
         {
             return _searchNodes[0];
-        }
-        else if (_rand > 0.85f && _rand < 0.95f)// 10% of picking second best
-        {
-            return _searchNodes[1];
-        }
-        else // 5% of picking third best
-        { 
-            return _searchNodes[2];
         }
     }
 }

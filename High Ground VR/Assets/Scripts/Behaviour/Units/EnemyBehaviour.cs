@@ -97,6 +97,11 @@ public class EnemyBehaviour : MonoBehaviour
 
 
                 }
+                else
+                {
+                    RunPathfinding(enemyTargets.Gem,groupAggression);
+                    m_validMove = false;
+                }
 
                 //Reset the timer
                 m_currentTimer = m_tickTimer;
@@ -167,29 +172,35 @@ public class EnemyBehaviour : MonoBehaviour
         currentStepIndex = 0;
         inCombat = false;
         GameBoardGeneration.Instance.Graph[currentX,currentY].navigability = navigabilityStates.enemyUnit;
-        //Run pathfinding, randomly choosing how the unit navigates based on their aggression and some random factors.
-        float _aggressionChance = 1.0f - (GameManager.Instance.aggressionPercentage * (GameManager.Instance.RoundCounter / 2.0f));
-        if (groupAggression > _aggressionChance)
-        {
-            float _rand = Random.Range(0.0f, 1.0f);
-            if(_rand < 0.3f)
-            {
-                RunPathfinding(enemyTargets.randomDestructableBuilding, groupAggression);
-            }
-            else if (_rand > 0.3f && _rand < 0.5f)
-            {
-                RunPathfinding(enemyTargets.randomMine, groupAggression);
-            }
-            else
-            {
-                RunPathfinding(enemyTargets.Gem, groupAggression);
-            }
-        }
-        else
-        {
-            RunPathfinding(enemyTargets.Gem,groupAggression);
-        }
 
+
+
+        //Run pathfinding, randomly choosing how the unit navigates based on their aggression and some random factors.
+        //float _aggressionChance = 1.0f - (GameManager.Instance.aggressionPercentage * (GameManager.Instance.RoundCounter / 2.0f));
+        //if (groupAggression > _aggressionChance)
+        //{
+        //    float _rand = Random.Range(0.0f, 1.0f);
+        //    if(_rand < 0.3f)
+        //    {
+        //        RunPathfinding(enemyTargets.randomDestructableBuilding, groupAggression);
+        //    }
+        //    else if (_rand > 0.3f && _rand < 0.5f)
+        //    {
+        //        RunPathfinding(enemyTargets.randomMine, groupAggression);
+        //    }
+        //    else
+        //    {
+        //        RunPathfinding(enemyTargets.Gem, groupAggression);
+        //    }
+        //}
+        //else
+        //{
+        //    RunPathfinding(enemyTargets.Gem,groupAggression);
+        //}
+
+
+
+        RunPathfinding(enemyTargets.Gem, groupAggression);
         m_targetPosition = new Vector3(m_groupPath[0].hex.transform.position.x, m_groupPath[0].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[0].hex.transform.position.z);
         m_unitInstantiated = true;
 
@@ -258,11 +269,12 @@ public class EnemyBehaviour : MonoBehaviour
     {
         if(inCombat == false)
         {
-            foreach (GameObject unit in m_units)
+            for (int i = 0; i < m_units.Count; i++)
             {
                 Vector3 _targetRotation = new Vector3(m_groupPath[currentStepIndex + 1].hex.transform.position.x, m_groupPath[currentStepIndex + 1].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[currentStepIndex + 1].hex.transform.position.z);
-                unit.transform.LookAt(_targetRotation);
+                m_units[i].transform.LookAt(_targetRotation);
             }
+
         }
     }
 
@@ -326,19 +338,21 @@ public class EnemyBehaviour : MonoBehaviour
         Handles.Label(_labelPos, "Anger: " + groupAggression.ToString("F2"));
 
         int _count = 1;
-        foreach(GameObject _obj in m_units)
+        for (int i = 0; i < m_units.Count; i++)
         {
-            _labelPos = new Vector3(_obj.transform.position.x, _obj.transform.position.y + 0.3f, _obj.transform.position.z);
-            Handles.Label(_labelPos, _count.ToString());
+            try
+            {
+                _labelPos = new Vector3(m_units[i].transform.position.x, m_units[i].transform.position.y + 0.3f, m_units[i].transform.position.z);
+                Handles.Label(_labelPos, _count.ToString());
 
-            float _health = _obj.GetComponent<UnitComponent>().unit.health;
-            _labelPos = new Vector3(_obj.transform.position.x, _obj.transform.position.y + 0.5f, _obj.transform.position.z);
-            Handles.Label(_labelPos, "HP: " + _health.ToString("F2"));
-            _count++;
+                float _health = m_units[i].GetComponent<UnitComponent>().unit.health;
+                _labelPos = new Vector3(m_units[i].transform.position.x, m_units[i].transform.position.y + 0.5f, m_units[i].transform.position.z);
+                Handles.Label(_labelPos, "HP: " + _health.ToString("F2"));
+                _count++;
+            }
+            catch { }
+
         }
-
-
-
 
     }
 
