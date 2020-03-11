@@ -9,7 +9,7 @@ public class SiegeBehaviour : MonoBehaviour
     private float m_currentTimer;
     private float m_timePerception;
 
-    public List<EnemyGroupBehaviour> enemyGroups;
+    public List<EnemyBehaviour> enemyGroups;
     public BuildingHealth buildingHealth;
 
     public List<Unit> enemyUnits;
@@ -22,7 +22,7 @@ public class SiegeBehaviour : MonoBehaviour
     /// <param name="_enemyUnits">List of enemy units to have in the battle.</param>
     public void StartSiege(BuildingHealth _building, List<Unit> _enemyUnits)
     {
-        enemyGroups = new List<EnemyGroupBehaviour>();
+        enemyGroups = new List<EnemyBehaviour>();
         buildingHealth = _building;
 
         enemyUnits = _enemyUnits;
@@ -92,10 +92,8 @@ public class SiegeBehaviour : MonoBehaviour
     {
         for (int i = 0; i < enemyGroups.Count; i++)
         {
-            EnemyGroupBehaviour _enemy = enemyGroups[i];
+            EnemyBehaviour _enemy = enemyGroups[i];
             _enemy.inSiege = false;
-            //Make the enemies slightly less aggressive after they destroy a building.
-            _enemy.groupAggression = _enemy.groupAggression * 0.7f;
             _enemy.currentStepIndex = 0;
             //Run pathfinding, randomly choosing how the unit navigates based on their aggression and some random factors.
             float _aggressionChance = 1.0f - (GameManager.Instance.aggressionPercentage * (GameManager.Instance.RoundCounter / 2.0f));

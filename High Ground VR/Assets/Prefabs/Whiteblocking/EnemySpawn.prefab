@@ -108,3 +108,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enemyUnit: {fileID: 5718137492380263114, guid: d1a3479d1e9a8414da9d9e74cea7eb82,
     type: 3}
+  m_tankUnit: {fileID: 1779399403073189257, guid: fbe1083074c2c0f4bba25010e89d4de9,
+    type: 3}

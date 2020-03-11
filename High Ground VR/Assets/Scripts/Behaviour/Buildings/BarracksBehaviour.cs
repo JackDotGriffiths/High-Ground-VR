@@ -135,7 +135,7 @@ public class BarracksBehaviour : MonoBehaviour
             if (_node.navigability == navigabilityStates.enemyUnit)
             {
                 //If it detects an enemy group in any adjecent nodes, start combat
-                EnemyGroupBehaviour _enemy = _node.hex.transform.GetChild(0).GetComponent<EnemyGroupBehaviour>();
+                EnemyBehaviour _enemy = _node.hex.transform.GetChild(0).GetComponent<EnemyBehaviour>();
                 //If the enemy is currently destroying a wall, stop it from doing so.
                 if(_enemy.inSiege == true)
                 {
@@ -179,7 +179,7 @@ public class BarracksBehaviour : MonoBehaviour
             if (_node.navigability == navigabilityStates.enemyUnit)
             {
                 //If it detects an enemy group in any adjecent nodes, get all of the units from that enemy group
-                EnemyGroupBehaviour _enemy = _node.hex.transform.GetChild(0).GetComponent<EnemyGroupBehaviour>();
+                EnemyBehaviour _enemy = _node.hex.transform.GetChild(0).GetComponent<EnemyBehaviour>();
                 if (_enemy.inCombat == false)
                 {
                     BattleBehaviour _battle = this.gameObject.GetComponent<BattleBehaviour>();
@@ -223,7 +223,7 @@ public class BarracksBehaviour : MonoBehaviour
             yield return new WaitForSeconds(m_unitRespawnDelay);
             if (m_barracksUnitNode.hex.transform.childCount != 0)
             {
-                if (m_barracksUnitNode.hex.transform.GetChild(0).GetComponent<EnemyGroupBehaviour>() == null)
+                if (m_barracksUnitNode.hex.transform.GetChild(0).GetComponent<EnemyBehaviour>() == null)
                 {
                     SpawnAUnit();
                 }

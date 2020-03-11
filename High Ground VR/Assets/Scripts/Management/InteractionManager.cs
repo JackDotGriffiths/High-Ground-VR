@@ -84,7 +84,7 @@ public class InteractionManager : MonoBehaviour
                 if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.enemyUnit)
                 {
                     //Find each unit within that group, and deal damage to them.
-                    EnemyGroupBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyGroupBehaviour>();
+                    EnemyBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyBehaviour>();
                     List<Unit> _enemyUnits = new List<Unit>();
                     foreach (GameObject _go in _enemies.m_units)
                     {
@@ -226,7 +226,7 @@ public class InteractionManager : MonoBehaviour
                 if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.enemyUnit)
                 {
                     //Find each unit within that group, and deal damage to them.
-                    EnemyGroupBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyGroupBehaviour>();
+                    EnemyBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyBehaviour>();
                     StartCoroutine(changeTime(_enemies, m_slowDownTargetTime, m_slowDownDuration));
                     
                 }
@@ -242,9 +242,9 @@ public class InteractionManager : MonoBehaviour
                 if (_hit.collider.gameObject.GetComponentInParent<UnitComponent>() != null)
                 {
                     UnitComponent _unitComp = _hit.collider.gameObject.GetComponentInParent<UnitComponent>();
-                    if (_unitComp.GetComponentInParent<EnemyGroupBehaviour>() != null)
+                    if (_unitComp.GetComponentInParent<EnemyBehaviour>() != null)
                     {
-                        StartCoroutine(changeTime(_unitComp.GetComponentInParent<EnemyGroupBehaviour>(), m_slowDownTargetTime, m_slowDownDuration));
+                        StartCoroutine(changeTime(_unitComp.GetComponentInParent<EnemyBehaviour>(), m_slowDownTargetTime, m_slowDownDuration));
                     }
                 }
             }
@@ -357,7 +357,7 @@ public class InteractionManager : MonoBehaviour
                 if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.enemyUnit)
                 {
                     //Find each unit within that group, and deal damage to them.
-                    EnemyGroupBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyGroupBehaviour>();
+                    EnemyBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyBehaviour>();
                     StartCoroutine(changeTime(_enemies, m_speedUpTargetTime, m_speedUpDuration));
 
                 }
@@ -373,9 +373,9 @@ public class InteractionManager : MonoBehaviour
                 if (_hit.collider.gameObject.GetComponentInParent<UnitComponent>() != null)
                 {
                     UnitComponent _unitComp = _hit.collider.gameObject.GetComponentInParent<UnitComponent>();
-                    if (_unitComp.GetComponentInParent<EnemyGroupBehaviour>() != null)
+                    if (_unitComp.GetComponentInParent<EnemyBehaviour>() != null)
                     {
-                        StartCoroutine(changeTime(_unitComp.GetComponentInParent<EnemyGroupBehaviour>(), m_speedUpTargetTime, m_speedUpDuration));
+                        StartCoroutine(changeTime(_unitComp.GetComponentInParent<EnemyBehaviour>(), m_speedUpTargetTime, m_speedUpDuration));
                     }
                 }
             }
@@ -476,11 +476,13 @@ public class InteractionManager : MonoBehaviour
     /// <param name="_targetTime">The time to set it to</param>
     /// <param name="_duration">The duration of the effect before changing back to 1.</param>
     /// <returns></returns>
-    IEnumerator changeTime(EnemyGroupBehaviour _group, float _targetTime, float _duration)
+    IEnumerator changeTime(EnemyBehaviour _group, float _targetTime, float _duration)
     {
+        //Store original value.
+        float _tempValue = _group.timePerception;
         _group.timePerception = _targetTime;
         yield return new WaitForSeconds(_duration);
-        _group.timePerception = 1.0f;
+        _group.timePerception = _tempValue;
     }
 
 

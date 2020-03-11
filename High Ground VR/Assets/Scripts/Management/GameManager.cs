@@ -20,6 +20,8 @@ public class GameManager : MonoBehaviour
     [Tooltip("Enemy Spawn Delay")] public int enemySpawnDelay = 10;
     [Tooltip("Which round to start spawning enemies after")] public int spawnAggresiveAfter = 2;
     [Tooltip("Proportion of aggressive enemies. This is multiplied by the round number."),Range(0.0f,1.0f)] public float aggressionPercentage = 0.1f;
+    [Tooltip("Which round number to start spawning tank enemies after"), Space(10)] public int tankRoundStart;
+    [Tooltip("How many rounds have to pass before another one spawns")] public int tankRoundFrequency;
 
     [HideInInspector]public List<EnemySpawnBehaviour> enemySpawns;
     private List<Node> m_outerEdgeNodes; //Set to the nodes on the outer edge of the map, used when spawning enemies.
@@ -274,7 +276,7 @@ public class GameManager : MonoBehaviour
             //For each enemy to spawn, randomly choose a spawn and run spawnEnemy
             for (int i = 0; i < enemyAmount; i++)
             {
-                if (!enemySpawns[Random.Range(0, enemySpawns.Count)].spawnEnemy()) { i--; }; //If it fails to spawn an enemy, try again.
+                if (!enemySpawns[Random.Range(0, enemySpawns.Count)].spawnTank()) { i--; }; //If it fails to spawn an enemy, try again.
                 yield return new WaitForSeconds(Random.Range(enemySpawnDelay/2,enemySpawnDelay));
             }
             m_roundCounter++;

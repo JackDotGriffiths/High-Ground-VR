@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class UnitComponent : MonoBehaviour
 {
+    [Header("This component is used for both ordinary and large enemies.")]
     [SerializeField, Tooltip("Body object of the unit. Used to change material")] private MeshRenderer m_unitBody;
 
 
-    [SerializeField, Space(10), Tooltip("The lowest possible health of the unit.")] private float m_lowestHealthPlayer;
+    [SerializeField, Tooltip("The lowest possible health of the unit.")] private float m_lowestHealthPlayer;
     [SerializeField, Tooltip("The highest possible health of the unit.")] private float m_highestHealthPlayer;
     [SerializeField, Space(3), Tooltip("The lowest possible health of the unit.")] private float m_lowestHealthEnemy;
     [SerializeField, Tooltip("The highest possible health of the unit.")] private float m_highestHealthEnemy;

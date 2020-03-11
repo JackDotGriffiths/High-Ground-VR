@@ -11,7 +11,7 @@ public class BattleBehaviour : MonoBehaviour
     private float m_enemyTimePerception;
 
 
-    public List<EnemyGroupBehaviour> enemyGroups;
+    public List<EnemyBehaviour> enemyGroups;
     public List<BarracksBehaviour> friendlyGroups;
 
     public List<Unit> enemyUnits;
@@ -25,7 +25,7 @@ public class BattleBehaviour : MonoBehaviour
     /// <param name="_enemyUnits">List of enemy units to have in the battle.</param>
     public void StartBattle(List<Unit> _friendlyUnits, List<Unit> _enemyUnits)
     {
-        enemyGroups = new List<EnemyGroupBehaviour>();
+        enemyGroups = new List<EnemyBehaviour>();
         friendlyGroups = new List<BarracksBehaviour>();
 
         friendlyUnits = _friendlyUnits;
@@ -173,7 +173,7 @@ public class BattleBehaviour : MonoBehaviour
 
         for (int i = 0; i < enemyGroups.Count; i++)
         {
-            EnemyGroupBehaviour _enemy = enemyGroups[i];
+            EnemyBehaviour _enemy = enemyGroups[i];
             _enemy.inCombat = false;
         }
 
