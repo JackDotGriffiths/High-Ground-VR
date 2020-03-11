@@ -65,7 +65,7 @@ public class BuildingHealth : MonoBehaviour
             m_healthBar.color = Color.Lerp(m_healthBar.color, m_targetColour, 0.03f);
 
             //Make sure the fill amount is representitive of the health of the building.
-            m_healthBar.fillAmount = Mathf.Lerp(m_healthBar.fillAmount, _healthPercentage, 0.05f);
+            m_healthBar.fillAmount = Mathf.Lerp(m_healthBar.fillAmount, _healthPercentage, 0.5f);
         }
     }
 

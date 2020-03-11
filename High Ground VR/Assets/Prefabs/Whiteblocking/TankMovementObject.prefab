@@ -48,7 +48,7 @@ MonoBehaviour:
   m_groupSize: 1
   m_tickTimer: 3
   m_movementSpeed: 0.1
-  timePerception: 0.7
+  timePerception: 1
   m_randomiseAggression: 0
   groupAggression: 1
   currentStepIndex: 0

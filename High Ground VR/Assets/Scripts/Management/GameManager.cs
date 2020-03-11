@@ -20,12 +20,13 @@ public class GameManager : MonoBehaviour
     [Tooltip("Enemy Spawn Delay")] public int enemySpawnDelay = 10;
     [Tooltip("Which round to start spawning enemies after")] public int spawnAggresiveAfter = 2;
     [Tooltip("Proportion of aggressive enemies. This is multiplied by the round number."),Range(0.0f,1.0f)] public float aggressionPercentage = 0.1f;
-    [Tooltip("Which round number to start spawning tank enemies after"), Space(10)] public int tankRoundStart;
-    [Tooltip("How many rounds have to pass before another one spawns")] public int tankRoundFrequency;
+    [Tooltip("Which round number to start spawning tank enemies after"), Space(10)] public int tankRoundStart = 5;
+    [Tooltip("How many rounds have to pass before another one spawns")] public int tankRoundFrequency = 5;
 
     [HideInInspector]public List<EnemySpawnBehaviour> enemySpawns;
     private List<Node> m_outerEdgeNodes; //Set to the nodes on the outer edge of the map, used when spawning enemies.
     private int m_currentEnemies;
+    private int m_tankCount = 1;
 
 
     [Header("Gold Management"), Space(10)]
@@ -273,11 +274,47 @@ public class GameManager : MonoBehaviour
             CurrentEnemies = enemyAmount;
             m_round.text = "Round " + m_roundCounter;
 
+
+            int _randomIndex = Random.Range(0, enemyAmount - 1); //Used for staggering the spawning of tank enemies.
+            int _tanksToSpawn = 0;
+
+            if ( RoundCounter == tankRoundStart)
+            {
+                _tanksToSpawn = m_tankCount;
+            }
+            else if (RoundCounter % tankRoundFrequency == 0 && RoundCounter > tankRoundStart)
+            {
+                m_tankCount++;
+                _tanksToSpawn = m_tankCount;
+            }
+
+            int _currentTanks = 0;
+
             //For each enemy to spawn, randomly choose a spawn and run spawnEnemy
             for (int i = 0; i < enemyAmount; i++)
             {
-                if (!enemySpawns[Random.Range(0, enemySpawns.Count)].spawnTank()) { i--; }; //If it fails to spawn an enemy, try again.
-                yield return new WaitForSeconds(Random.Range(enemySpawnDelay/2,enemySpawnDelay));
+                if (i != _randomIndex && !enemySpawns[Random.Range(0, enemySpawns.Count)].spawnEnemy()) //If it fails to spawn an enemy, try again.
+                { 
+                    i--;
+                }
+
+                else if (i == _randomIndex && _currentTanks < _tanksToSpawn) //Spawn a tank at a random point.
+                {
+                    if (enemySpawns[Random.Range(0, enemySpawns.Count)].spawnTank()) 
+                    {
+                        if(enemyAmount > 2)
+                        {
+                            _randomIndex = Random.Range(i + 1, enemyAmount - 1); //If successful, generate a new random index.
+                        }
+                        _currentTanks++;
+                    }
+                    else
+                    {
+                        i--; //Loop around and try again if unsuccesfull
+                    }
+                }
+
+                yield return new WaitForSeconds(Random.Range(enemySpawnDelay/2,enemySpawnDelay)); //Random delay in spawning enemies, staggers them out.
             }
             m_roundCounter++;
         }

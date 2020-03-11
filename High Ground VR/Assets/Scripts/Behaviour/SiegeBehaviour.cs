@@ -5,7 +5,7 @@ using UnityEngine;
 public class SiegeBehaviour : MonoBehaviour
 {
     private bool m_siegeStarted = false;
-    private float m_siegeTimer = 1f; //Time between each attack
+    private float m_siegeTimer = 3f; //Time between each attack
     private float m_currentTimer;
     private float m_timePerception;
 
@@ -68,22 +68,13 @@ public class SiegeBehaviour : MonoBehaviour
             }
             if (m_currentTimer < 0)
             {
-                enemyAttack();
                 m_currentTimer = m_siegeTimer;
+                StartCoroutine("enemyAttack");
             }
         }
     }
 
-    void enemyAttack()
-    {
-        StartCoroutine("delayEnemyAttackAnim");
-        float _totalDamage = 0;
-        for (int i = 0; i < enemyUnits.Count; i++)
-        {
-            _totalDamage += enemyUnits[i].damage;
-        }
-        buildingHealth.takeDamage(_totalDamage);
-    }
+
 
     /// <summary>
     /// Tell all groups that the units belong to that the battle is over.
@@ -143,24 +134,22 @@ public class SiegeBehaviour : MonoBehaviour
     /// Delay the animations between attacking.
     /// </summary>
     /// <returns></returns>
-    IEnumerator delayEnemyAttackAnim()
+    IEnumerator enemyAttack()
     {
         for (int i = 0; i < enemyUnits.Count; i++)
         {
+            //Rotate towards a random target
+            UnitComponent _unitComp = enemyUnits[i].unitComp;
+            _unitComp.transform.LookAt(buildingHealth.transform.position);
+
+            //Run attack animation
+            enemyUnits[i].unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
+            //Play an appropriate sound
+            AudioManager.Instance.Play3DSound(SoundLists.weaponClashes, true, 1, enemyUnits[i].unitComp.gameObject, true, false, true);
+            yield return new WaitForSeconds(Random.Range(0, 0.5f));
+            buildingHealth.takeDamage(enemyUnits[i].damage);
             yield return new WaitForSeconds(Random.Range(0, 0.2f));
-            //All units may be dead by this point.
-            try
-            {
-                //Rotate towards a random target
-                enemyUnits[i].unitComp.transform.LookAt(buildingHealth.transform.position);
-
-                //Run attack animation
-                enemyUnits[i].unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
-
-                //Play an appropriate sound
-                AudioManager.Instance.Play3DSound(SoundLists.weaponClashes, true, 1, enemyUnits[i].unitComp.gameObject, true, false, true);
-            }
-            catch { }
         }
+        yield return null;
     }
 }

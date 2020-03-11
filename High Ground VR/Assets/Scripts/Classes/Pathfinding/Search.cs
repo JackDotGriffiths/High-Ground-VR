@@ -102,7 +102,7 @@ public class Search
         //If the aggression is 1, always add the destructible node. This is used for checking of pathfinding and super aggressive enemies.
         if (unitAggression == 1.0f)
         {
-            if (adjacent.navigability == navigabilityStates.wall || adjacent.navigability == navigabilityStates.mine)
+            if (adjacent.navigability == navigabilityStates.wall || adjacent.navigability == navigabilityStates.mine || adjacent.navigability == navigabilityStates.enemyUnit)
             {
                 reachable.Add(adjacent);
             }
@@ -212,15 +212,15 @@ public class Search
 
         float _rand = Random.Range(0.0f, 1.0f);
 
-        if (_rand <= 0.7f)// 70% of picking the best
+        if (_rand <= 0.85f)// 85% of picking the best
         {
             return _searchNodes[0];
         }
-        else if (_rand > 0.7f && _rand < 0.9f)// 20% of picking second best
+        else if (_rand > 0.85f && _rand < 0.95f)// 10% of picking second best
         {
             return _searchNodes[1];
         }
-        else // 10% of picking third best
+        else // 5% of picking third best
         { 
             return _searchNodes[2];
         }

@@ -24,7 +24,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 170763058}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -12, y: -26.4, z: -6.9282}
+  m_LocalPosition: {x: -12, y: -46.08856, z: -6.9282}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 6851243687383121985}
@@ -87,7 +87,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 240002090}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -46.08856, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 6851243687944730310}
@@ -440,7 +440,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 979758577}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11.8, y: -15.8, z: -6.9092}
+  m_LocalPosition: {x: 11.8, y: -46.08856, z: -6.9092}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 6851243688371482787}
@@ -476,7 +476,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1042678572}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -86.4, z: -42.4}
+  m_LocalPosition: {x: 0, y: 12.8, z: -42.4}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_Children:
   - {fileID: 240002091}
@@ -529,7 +529,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1063096478}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.00013709, y: -8.4, z: -13.856}
+  m_LocalPosition: {x: 0.00013709, y: -46.08856, z: -13.856}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 6851243687286393284}
@@ -888,13 +888,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_gameSpeed: 1
-  m_buildingPhaseTime: 10
+  m_buildingPhaseTime: 4
   m_mainMenuAnim: {fileID: 1042678574}
-  enemyStartingSpawns: 3
+  enemyStartingSpawns: 1
   enemyAmount: 1
   enemySpawnDelay: 5
   spawnAggresiveAfter: 2
   aggressionPercentage: 0.4
+  tankRoundStart: 5
+  tankRoundFrequency: 5
   enemySpawns: []
   m_startingGold: 500
   m_minedGoldPerRound: 30
@@ -962,14 +964,14 @@ MonoBehaviour:
   m_gameEnvironment: {fileID: 0}
   m_pointerMaterial: {fileID: 2100000, guid: 41b85fa06819e234bbe2c384a0049fa1, type: 2}
   m_grassMaterial: {fileID: 2100000, guid: e42917581948cd64fb540ee504c9d77d, type: 2}
-  m_outlineMaterial: {fileID: 2100000, guid: f54b052c7de06ba4bb47584e4fe9ab56, type: 2}
+  m_outlineMaterial: {fileID: 2100000, guid: f1ba009f4fa0c0647b83e1b6657c1237, type: 2}
   m_interactionManager: {fileID: 1175438979}
   m_rigTeleportationSpeed: 0.75
   m_smallestScale: {x: 0.5, y: 0.5, z: 0.5}
   m_largestScale: {x: 30, y: 30, z: 30}
   m_bookPrefab: {fileID: 8145908686516757883, guid: 9af0884d6c02cf74d843841ec17f3930,
     type: 3}
-  m_bookHandOffset: 0.18
+  m_bookHandOffset: 0.1
 --- !u!114 &1175438979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -983,15 +985,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_attackCooldown: 1
-  m_playerLargeDamage: 30
-  m_playerSmallDamage: 100
   m_lightningStrikes: 5
   m_lightningStrikeBreakPoints: 4
   m_lightningWidth: 1
   m_lightningTiming: 0.02
   m_lightningOccurance: 10
-  m_regularAttackMaterial: {fileID: 2100000, guid: 41b85fa06819e234bbe2c384a0049fa1,
-    type: 2}
+  m_lightningMaterial: {fileID: 2100000, guid: 41b85fa06819e234bbe2c384a0049fa1, type: 2}
+  m_playerLargeDamage: 30
+  m_playerSmallDamage: 100
   m_slowDownTargetTime: 0.5
   m_slowDownDuration: 15
   m_speedUpTargetTime: 1.5
