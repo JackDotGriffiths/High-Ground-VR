@@ -37090,6 +37090,10 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 1175438979, guid: 3a2df8f80b59731458479189daf3a2d8, type: 3}
+      propertyPath: m_playerSmallDamage
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 1582492495, guid: 3a2df8f80b59731458479189daf3a2d8, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -37109,11 +37113,6 @@ PrefabInstance:
       propertyPath: m_timerLeft
       value: 
       objectReference: {fileID: 1160328739}
-    - target: {fileID: 1904518082621751583, guid: 3a2df8f80b59731458479189daf3a2d8,
-        type: 3}
-      propertyPath: tankRoundStart
-      value: 5
-      objectReference: {fileID: 0}
     - target: {fileID: 1904518082708342615, guid: 3a2df8f80b59731458479189daf3a2d8,
         type: 3}
       propertyPath: m_vrRig

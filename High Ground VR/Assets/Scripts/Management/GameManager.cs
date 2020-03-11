@@ -290,15 +290,19 @@ public class GameManager : MonoBehaviour
 
             int _currentTanks = 0;
 
+
+            
             //For each enemy to spawn, randomly choose a spawn and run spawnEnemy
             for (int i = 0; i < enemyAmount; i++)
-            {
-                if (i != _randomIndex && !enemySpawns[Random.Range(0, enemySpawns.Count)].spawnEnemy()) //If it fails to spawn an enemy, try again.
+            { 
+
+
+                if ((i != _randomIndex || _currentTanks == _tanksToSpawn) && !enemySpawns[Random.Range(0, enemySpawns.Count)].spawnEnemy()) //If it fails to spawn an enemy, try again.
                 { 
                     i--;
                 }
 
-                else if (i == _randomIndex && _currentTanks < _tanksToSpawn) //Spawn a tank at a random point.
+                else if (i == _randomIndex && _tanksToSpawn != 0 && _currentTanks < _tanksToSpawn) //Spawn a tank at a random point.
                 {
                     if (enemySpawns[Random.Range(0, enemySpawns.Count)].spawnTank()) 
                     {
@@ -314,8 +318,23 @@ public class GameManager : MonoBehaviour
                     }
                 }
 
+
+
+
+
+
+
+
                 yield return new WaitForSeconds(Random.Range(enemySpawnDelay/2,enemySpawnDelay)); //Random delay in spawning enemies, staggers them out.
             }
+
+
+
+
+
+
+
+
             m_roundCounter++;
         }
     }
