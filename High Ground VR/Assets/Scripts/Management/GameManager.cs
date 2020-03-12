@@ -274,7 +274,7 @@ public class GameManager : MonoBehaviour
             if(RoundCounter != 1)
             {
                 //Increase the count of enemies based on Enemy Counter;
-                enemyAmount = Mathf.RoundToInt(0.2f * Mathf.Pow(RoundCounter,1.5f));
+                enemyAmount = Mathf.RoundToInt(3 * Mathf.Sqrt(RoundCounter));
             }
 
             CurrentEnemies = enemyAmount;

@@ -16,7 +16,6 @@ ScriptsOnlyBuild:
     - NodeComponent
     - PhysicalButton
     - UnitComponent
-    - UnitComponentEditor
     - VRConsole.VRConsoleConsoleMessage
     - VRConsole.VRConsoleMessageUIResizer
     - VRConsole.VRConsoleRuntimeConsole
@@ -111,7 +110,7 @@ ScriptsOnlyBuild:
     - UnityEngine.UI.Toggle
     - UnityEngine.UI.VerticalLayoutGroup
   sceneClasses:
-    Assets/Scenes/Prototyping/HexTerrain.unity:
+    Assets/Scenes/HighGroundVR.unity:
     - Class: 1
       Script: {instanceID: 0}
     - Class: 4
@@ -1887,7 +1886,7 @@ ScriptsOnlyBuild:
     className: TMP_StyleSheet
   - hash:
       serializedVersion: 2
-      Hash: 2b0301f069fec29ee2199b4be54afed2
+      Hash: 986e7293503132bb197e2dfa0077ae84
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: EnemyBehaviour
@@ -2181,5 +2180,5 @@ ScriptsOnlyBuild:
     className: PlayableTrack
   platform: 19
   scenePathNames:
-  - Assets/Scenes/Prototyping/HexTerrain.unity
+  - Assets/Scenes/HighGroundVR.unity
   playerPath: C:/Users/jgriffiths6.SOCNET/Desktop/HighGroundBuild/High Ground.exe

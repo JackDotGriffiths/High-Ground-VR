@@ -11,8 +11,8 @@ public class EnemyBehaviour : MonoBehaviour
     [SerializeField,Tooltip("Time between each tick of the enemy group.")] private float m_tickTimer = 3.0f;
     [SerializeField, Tooltip("Movement Speed Between Nodes")] private float m_movementSpeed = 0.4f;
     [Range(0.2f,1.8f),Tooltip("multiplier on the timer. This can be used to speed up/slow down the enemy.")]public float timePerception = 1.0f; //Timeperception is a value that is changed to impact either slowness or speedyness on a player or enemy unit.
-    [SerializeField, Tooltip("Whether or not to randomly choose an aggression.s")] private bool m_randomiseAggression;
-    public float groupAggression; //The aggression of the group/unit.
+    [SerializeField, Tooltip("Whether or not to spawn with an aggression of 1.")] private bool m_fullAggression;
+    [HideInInspector] public float groupAggression; //The aggression of the group/unit.
     [HideInInspector] public int currentStepIndex; //Index of the node within the current path.
     [HideInInspector] public List<GameObject> m_units;
 
@@ -33,9 +33,9 @@ public class EnemyBehaviour : MonoBehaviour
 
     void Start()
     {
-        if(m_randomiseAggression == true)
+        if (m_fullAggression)
         {
-            groupAggression = Random.Range(0.0f, 1.0f);
+            groupAggression = 1.0f;
         }
         List<GameObject> m_units = new List<GameObject>();
         m_unitInstantiated = false;
@@ -307,9 +307,10 @@ public class EnemyBehaviour : MonoBehaviour
     /// <returns></returns>
     IEnumerator aggressionTimer()
     {
+        groupAggression = Mathf.Clamp(groupAggression + 0.02f, 0, 0.9f);
         yield return new WaitForSeconds(2.0f);
-        groupAggression = Mathf.Clamp(groupAggression + 0.05f, 0, 0.9f);
         RunPathfinding(enemyTargets.Gem, groupAggression);
+        yield return null;
     }
 
 

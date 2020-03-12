@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Prototyping/HexTerrain.unity
-    guid: 8ad33926897f06c4fb2d791121545ba2
+    path: Assets/Scenes/HighGroundVR.unity
+    guid: f0f22663b81c2ff4084529034772357a
   m_configObjects: {}

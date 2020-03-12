@@ -95,6 +95,7 @@ public class UnitComponent : MonoBehaviour
         _rigid.interpolation = RigidbodyInterpolation.Extrapolate;
         _rigid.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         Destroy(_deadUnit.GetComponent<UnitComponent>());
+        Destroy(m_enemyDisplay);
         //Destroy the original. This ensures it's appropriately removed from lists.
         Destroy(this.gameObject);
         Destroy(_deadUnit, 5f);
