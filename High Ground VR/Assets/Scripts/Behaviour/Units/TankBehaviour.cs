@@ -238,7 +238,7 @@ public class TankBehaviour : MonoBehaviour
         }
     }
 
-
+#if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         Vector3 _labelPos = new Vector3(transform.position.x, transform.position.y + 1.5f, transform.position.z);
@@ -248,6 +248,7 @@ public class TankBehaviour : MonoBehaviour
 
 
     }
+#endif
 
-    #endregion
+#endregion
 }

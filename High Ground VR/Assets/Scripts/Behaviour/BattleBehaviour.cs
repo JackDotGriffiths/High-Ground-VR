@@ -130,9 +130,9 @@ public class BattleBehaviour : MonoBehaviour
             _enemy.inCombat = false;
         }
 
-        foreach (BarracksBehaviour _friendy in friendlyGroups)
+        for (int i = 0; i < friendlyGroups.Count; i++)
         {
-            _friendy.inCombat = false;
+            friendlyGroups[i].inCombat = false;
         }
     }
 

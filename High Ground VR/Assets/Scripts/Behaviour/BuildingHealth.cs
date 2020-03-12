@@ -124,12 +124,14 @@ public class BuildingHealth : MonoBehaviour
         m_canRegenHealth = true;
     }
 
+#if UNITY_EDITOR
     /// <summary>
     /// Draws the health value above the building for debug purposes.
     /// </summary>
-     void OnDrawGizmos()
+    void OnDrawGizmos()
     {
         Vector3 _position = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
         Handles.Label(_position, "Health : " + currentHealth);
     }
+#endif
 }

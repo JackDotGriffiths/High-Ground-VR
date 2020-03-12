@@ -256,8 +256,8 @@ MonoBehaviour:
   m_healthBar: {fileID: 5373736741472647366}
   m_lowestHealthPlayer: 0
   m_highestHealthPlayer: 0
-  m_lowestHealthEnemy: 500
-  m_highestHealthEnemy: 1000
+  m_lowestHealthEnemy: 350
+  m_highestHealthEnemy: 450
   m_lowestDamagePlayer: 0
   m_highestDamagePlayer: 0
   m_lowestDamageEnemy: 100

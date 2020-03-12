@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Prototyping/HexTerrain.unity
+    guid: 8ad33926897f06c4fb2d791121545ba2
   m_configObjects: {}

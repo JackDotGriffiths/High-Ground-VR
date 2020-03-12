@@ -335,7 +335,7 @@ public class EnemyBehaviour : MonoBehaviour
         }
     }
 
-
+#if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         Vector3 _labelPos = new Vector3(transform.position.x, transform.position.y + 1.5f, transform.position.z);
@@ -359,7 +359,8 @@ public class EnemyBehaviour : MonoBehaviour
         }
 
     }
+#endif
 
-    #endregion
+#endregion
 
 }
