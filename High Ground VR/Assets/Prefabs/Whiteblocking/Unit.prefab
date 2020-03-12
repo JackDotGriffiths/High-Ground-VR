@@ -98,6 +98,8 @@ MonoBehaviour:
   - {fileID: 0}
   m_weapons:
   - {fileID: 0}
+  progressBarEmpty: {fileID: 2800000, guid: 9907c47c5a631304d9bf981e46e4fb71, type: 3}
+  progressBarFull: {fileID: 2800000, guid: c791b0eeedaa13a42be9d22596209ae4, type: 3}
 --- !u!95 &1540809512238771621
 Animator:
   serializedVersion: 3
