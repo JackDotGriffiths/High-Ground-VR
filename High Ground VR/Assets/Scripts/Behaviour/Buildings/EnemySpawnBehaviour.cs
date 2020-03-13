@@ -33,7 +33,7 @@ public class EnemySpawnBehaviour : MonoBehaviour
             GameObject _enemy = Instantiate(m_enemyUnit, _spawnPosition, Quaternion.identity, _spawnNode.hex.transform);
             _enemy.GetComponent<EnemyBehaviour>().currentX = _spawnNode.x;
             _enemy.GetComponent<EnemyBehaviour>().currentY = _spawnNode.y;
-            AudioManager.Instance.Play3DSound(SoundLists.enemySpawning, false, 0, _enemy, true, false, true);
+            //AudioManager.Instance.Play3DSound(SoundLists.enemySpawning, false, 0, _enemy, true, false, true);
             return true; //Succeeded spawning an enemy, continuing spawning.
         }
         else
@@ -70,7 +70,7 @@ public class EnemySpawnBehaviour : MonoBehaviour
             GameObject _tank = Instantiate(m_tankUnit, _spawnPosition, Quaternion.identity, _spawnNode.hex.transform);
             _tank.GetComponent<EnemyBehaviour>().currentX = _spawnNode.x;
             _tank.GetComponent<EnemyBehaviour>().currentY = _spawnNode.y;
-            AudioManager.Instance.Play3DSound(SoundLists.enemySpawning, false, 0, _tank, true, false, true);
+            //AudioManager.Instance.Play3DSound(SoundLists.enemySpawning, false, 0, _tank, true, false, true);
             return true; //Succeeded spawning an enemy, continuing spawning.
         }
         else

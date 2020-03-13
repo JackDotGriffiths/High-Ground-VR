@@ -147,7 +147,7 @@ public class SiegeBehaviour : MonoBehaviour
                 //Run attack animation
                 enemyUnits[i].unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
                 //Play an appropriate sound
-                AudioManager.Instance.Play3DSound(SoundLists.weaponClashes, true, 1, enemyUnits[i].unitComp.gameObject, true, false, true);
+                //AudioManager.Instance.Play3DSound(SoundLists.weaponClashes, true, 1, enemyUnits[i].unitComp.gameObject, true, false, true);
             }
             catch { }
             yield return new WaitForSeconds(Random.Range(0, 0.5f));

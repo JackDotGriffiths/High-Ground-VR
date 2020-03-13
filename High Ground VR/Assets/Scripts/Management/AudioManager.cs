@@ -1,214 +1,117 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
-public enum SoundLists { placeBuildings, weaponClashes,enemySpawning,zapSounds };
 public class AudioManager : MonoBehaviour
 {
-    private static AudioManager s_instance;
 
-    [SerializeField, Tooltip("Variation on pitch.")] private float m_pitchVariation; //How much to add onto/take away from the pitch once playing.
-
-    [Header("Enemy Spawning")]
-    [SerializeField, Tooltip("Enemy Spawning Sounds."), Space(10)] public List<AudioClip> enemySpawning; //List of building placement sounds
-    [SerializeField, Tooltip("Enemy Spawning Volume"), Range(0.0f, 1.0f)] private float m_enemySpawningVolume; //How much to add onto/take away from the pitch once playing.
-    [SerializeField, Tooltip("Enemy Spawning Sound Max Distance")] private float m_enemyMaxDistance; //Max distance to hear the sound
-
-    [Header ("Weapon Clashes")]
-    [SerializeField, Tooltip("Weapon Clash Sounds."),Space(10)] public List<AudioClip> weaponClashes; //List of weapon clash sounds
-    [SerializeField, Tooltip("weaponClash Volume"),Range(0.0f,1.0f)] private float m_weaponClashVolume; //How much to add onto/take away from the pitch once playing.
-    [SerializeField, Tooltip("Weapon Clashes Sound Max Distance")] private float m_weaponClashesMaxDistance; //Max distance to hear the sound
-
-    [Header("Placing Buildings")]
-    [SerializeField, Tooltip("Building Placement Sounds."),Space(10)] public List<AudioClip> placeBuildings; //List of building placement sounds
-    [SerializeField, Tooltip("place Building Volume"), Range(0.0f, 1.0f)] private float m_placeBuildingVolume; //How much to add onto/take away from the pitch once playing.
-    [SerializeField, Tooltip("Place Buildings Sound Max Distance")] private float m_placeBuildingMaxDistance; //Max distance to hear the sound
+    private static AudioManager _instance;
 
 
 
-    [Header("VR Interaction Zapping")]
-    [SerializeField, Tooltip("zap Sounds."), Space(10)] public List<AudioClip> zapSounds; //List of building placement sounds
-    [SerializeField, Tooltip("zapSounds Volume"), Range(0.0f, 1.0f)] private float m_zapSoundsVolume; //How much to add onto/take away from the pitch once playing.
-    [SerializeField, Tooltip("zapSounds Max Distance")] private float m_zapSoundsMaxDistance; //Max distance to hear the sound
+    //sounds
+    [SerializeField, Header("Local Sounds")]
+    private Sound[] localSounds;
+    [SerializeField]
+    private AudioMixerGroup localGameSounds;
 
-
-    public static AudioManager Instance { get => s_instance; set => s_instance = value; }
+    public static AudioManager Instance { get => _instance; set => _instance = value; }
 
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
+        if (_instance)
         {
-            Destroy(gameObject);
+            Destroy(_instance.gameObject);
+            _instance = this;
+        }
+
+        _instance = this;
+
+        foreach (Sound s in localSounds)
+        {
+            s.source = gameObject.AddComponent<AudioSource>();
+            s.source.clip = s.clip;
+            s.source.priority = s.priority;
+            s.source.volume = s.volume;
+            s.source.pitch = s.pitch;
+            s.source.outputAudioMixerGroup = localGameSounds;
+            s.source.spatialBlend = 0;
+            s.source.loop = s.loop;
+        }
+    }
+
+    public void PlayLocalSound(string name)
+    {
+        Sound _sound = null;
+        foreach (Sound s in localSounds)
+        {
+            if (s.name == name)
+            {
+                _sound = s;
+                break;
+            }
+        }
+
+        if (_sound == null)
+        {
+            Debug.LogError("Cannot Play \n No sound of name: \"" + name + "\" found");
             return;
         }
+        _sound.source.Play();
     }
 
-    /// <summary>
-    /// Manages playing a sound from any of the lists of sound clips. Cannot play looping audio.
-    /// </summary>
-    /// <param name="_list">Which list of sounds to choose from. </param>
-    /// <param name="_randomIndex">If this is true, a random index will be chosen and the index inputted will be ignored.</param>
-    /// <param name="_index">The index of the desired sound within the chosen list.</param>
-    /// <param name="_audioTarget">Which object to attatch the audio source to.</param>
-    /// <param name="_pitchVariation">Whether to add pitch variation to this sound.</param>
-    /// <param name="_spawnSeperateObject">Where to play this audio clip on a seperate object, helpful if object is about to be destroyed.</param>
-    /// <param name="_destroySource">Whether to destroy the audio source after it is done playing. In most cases this is true.</param>
-    public void Play3DSound(SoundLists _list,bool _randomIndex, int _index, GameObject _audioTarget, bool _pitchVariation, bool _spawnSeperateObject, bool _destroySource)
+    public void StopLocalSound(string name)
     {
-        List<AudioClip> _chosenList = new List<AudioClip>();
-        float _chosenVolume = 0.0f;
-        float _maxDistance = 1000.0f;
-
-        //Pick a random Sounds
-        switch(_list)
+        Sound _sound = null;
+        foreach (Sound s in localSounds)
         {
-            case SoundLists.weaponClashes:
-                _chosenList = weaponClashes;
-                _chosenVolume = m_weaponClashVolume;
-                _maxDistance = m_weaponClashesMaxDistance;
-                break;
-            case SoundLists.placeBuildings:
-                _chosenList = placeBuildings;
-                _chosenVolume = m_placeBuildingVolume;
-                _maxDistance = m_placeBuildingMaxDistance;
-                break;
-            case SoundLists.enemySpawning:
-                _chosenList = enemySpawning;
-                _chosenVolume = m_enemySpawningVolume;
-                _maxDistance = m_enemyMaxDistance;
-                break;
-            case SoundLists.zapSounds:
-                _chosenList = zapSounds;
-                _chosenVolume = m_zapSoundsVolume;
-                _maxDistance = m_zapSoundsMaxDistance;
-                break;
-        }
-
-
-        if (_spawnSeperateObject == true)
-        {
-            GameObject _seperateObject = new GameObject(_audioTarget.name + " Audio Source. Playing - " + name);
-            _seperateObject.transform.position = _audioTarget.transform.position;
-            _audioTarget = _seperateObject;
-        }
-        AudioSource _source = _audioTarget.AddComponent<AudioSource>();
-
-
-        if(_randomIndex == true)
-        {
-            _source.clip = _chosenList[Random.Range(0,_chosenList.Count)];
-        }
-        else
-        {
-            _source.clip = _chosenList[_index];
-
-        }
-
-
-
-
-        _source.volume = _chosenVolume;
-        if(_pitchVariation == true)
-        {
-            _source.pitch = 1 + Random.Range(-m_pitchVariation,m_pitchVariation);
-        }
-        else
-        {
-            _source.pitch = 1;
-        }
-
-
-        _source.loop = false;
-        _source.rolloffMode = AudioRolloffMode.Logarithmic;
-        _source.minDistance = 0.1f;
-        _source.maxDistance = _maxDistance;
-        _source.spatialBlend = 1.0f;
-        _source.Play();
-        if (_destroySource == true)
-        {
-            if (_spawnSeperateObject == true)
+            if (s.name == name)
             {
-                Destroy(_audioTarget, _source.clip.length);
-            }
-            else
-            {
-                Destroy(_source, _source.clip.length);
+                _sound = s;
+                break;
             }
         }
+
+        if (_sound == null)
+        {
+            Debug.LogError("Cannot Stop \n No sound of name: \"" + name + "\" found");
+            return;
+        }
+
+        _sound.source.Stop();
     }
 
-
-    /// <summary>
-    /// Manages playing a sound from any of the lists of sound clips. Cannot play looping audio.
-    /// </summary>
-    /// <param name="_list">Which list of sounds to choose from. </param>
-    /// <param name="_randomIndex">If this is true, a random index will be chosen and the index inputted will be ignored.</param>
-    /// <param name="_index">The index of the desired sound within the chosen list.</param>
-    /// <param name="_audioTarget">Which object to attatch the audio source to.</param>
-    /// <param name="_pitchVariation">Whether to add pitch variation to this sound.</param>
-    /// <param name="_spawnSeperateObject">Where to play this audio clip on a seperate object, helpful if object is about to be destroyed.</param>
-    /// <param name="_destroySource">Whether to destroy the audio source after it is done playing. In most cases this is true.</param>
-    public void Play2DSound(SoundLists _list, bool _randomIndex, int _index, bool _pitchVariation, bool _spawnSeperateObject, bool _destroySource)
+    public bool isLocalSoundPlaying(string name)
     {
-        List<AudioClip> _chosenList = new List<AudioClip>();
-        float _chosenVolume = 0.0f;
-
-        //Pick a random Sounds
-        switch (_list)
+        Sound _sound = null;
+        foreach (Sound s in localSounds)
         {
-            case SoundLists.weaponClashes:
-                _chosenList = weaponClashes;
-                _chosenVolume = m_weaponClashVolume;
+            if (s.name == name)
+            {
+                _sound = s;
                 break;
-            case SoundLists.placeBuildings:
-                _chosenList = placeBuildings;
-                _chosenVolume = m_placeBuildingVolume;
-                break;
-            case SoundLists.enemySpawning:
-                _chosenList = enemySpawning;
-                _chosenVolume = m_enemySpawningVolume;
-                break;
-            case SoundLists.zapSounds:
-                _chosenList = zapSounds;
-                _chosenVolume = m_zapSoundsVolume;
-                break;
+            }
         }
 
-
-        AudioSource _source = this.gameObject.AddComponent<AudioSource>();
-
-
-        if (_randomIndex == true)
+        if (_sound == null)
         {
-            _source.clip = _chosenList[Random.Range(0, _chosenList.Count)];
-        }
-        else
-        {
-            _source.clip = _chosenList[_index];
-
+            Debug.LogError("Cannot return time \n No sound of name: \"" + name + "\" found");
+            return false;
         }
 
-
-
-
-        _source.volume = _chosenVolume;
-        if (_pitchVariation == true)
-        {
-            _source.pitch = 1 + Random.Range(-m_pitchVariation, m_pitchVariation);
-        }
-        else
-        {
-            _source.pitch = 1;
-        }
-
-        _source.loop = false;
-        _source.Play();
-        if (_destroySource == true)
-        {
-                Destroy(_source, _source.clip.length);
-        }
+        return _sound.source.isPlaying;
     }
 
+    // Start is called before the first frame update
+    void Start()
+    {
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
 }

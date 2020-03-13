@@ -137,7 +137,7 @@ public class InteractionManager : MonoBehaviour
     IEnumerator regularAttackEffect(float _playerScale, GameObject _controller, Vector3 _hitPos)
     {
         m_currentlyAttacking = true;
-        AudioManager.Instance.Play2DSound(SoundLists.zapSounds, false, 0, true, false, true);
+        //AudioManager.Instance.Play2DSound(SoundLists.zapSounds, false, 0, true, false, true);
 
         //Create a seperate object to hold the zap effect.
         GameObject _goLine = new GameObject("regularAttackEffect");
@@ -267,7 +267,7 @@ public class InteractionManager : MonoBehaviour
     IEnumerator slowDownAttackEffect(float _playerScale, GameObject _controller, Vector3 _hitPos)
     {
         m_currentlyAttacking = true;
-        AudioManager.Instance.Play2DSound(SoundLists.zapSounds, false, 0, true, false, true);
+        //AudioManager.Instance.Play2DSound(SoundLists.zapSounds, false, 0, true, false, true);
 
         //Create a seperate object to hold the zap effect.
         GameObject _goLine = new GameObject("regularAttackEffect");
@@ -398,7 +398,7 @@ public class InteractionManager : MonoBehaviour
     IEnumerator speedUpAttackEffect(float _playerScale, GameObject _controller, Vector3 _hitPos)
     {
         m_currentlyAttacking = true;
-        AudioManager.Instance.Play2DSound(SoundLists.zapSounds, false, 0, true, false, true);
+        //AudioManager.Instance.Play2DSound(SoundLists.zapSounds, false, 0, true, false, true);
 
         //Create a seperate object to hold the zap effect.
         GameObject _goLine = new GameObject("regularAttackEffect");

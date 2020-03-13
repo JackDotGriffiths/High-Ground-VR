@@ -237,7 +237,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         GameObject _building = Instantiate(m_barracks,_position,Quaternion.Euler(_rotation), _targetNode.hex.transform);
 
 
-        AudioManager.Instance.Play3DSound(SoundLists.placeBuildings, true, 1, _targetNode.hex, true, false, true);
+        //AudioManager.Instance.Play3DSound(SoundLists.placeBuildings, true, 1, _targetNode.hex, true, false, true);
     }
 
 
@@ -258,7 +258,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         Vector3 _position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
         Vector3 _rotation = new Vector3(0.0f, _angle, 0.0f);
         GameObject _building = Instantiate(m_mine, _position, Quaternion.Euler(_rotation), _targetNode.hex.transform);
-        AudioManager.Instance.Play3DSound(SoundLists.placeBuildings, true, 1, _targetNode.hex, true, false, true);
+        //AudioManager.Instance.Play3DSound(SoundLists.placeBuildings, true, 1, _targetNode.hex, true, false, true);
     }
 
     /// <summary>
@@ -277,7 +277,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         GameObject _building = Instantiate(m_walls, _targetNode.hex.transform);
         _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
-        AudioManager.Instance.Play3DSound(SoundLists.placeBuildings, true, 1, _targetNode.hex, true, false, true);
+        //AudioManager.Instance.Play3DSound(SoundLists.placeBuildings, true, 1, _targetNode.hex, true, false, true);
     }
 
     /// <summary>
