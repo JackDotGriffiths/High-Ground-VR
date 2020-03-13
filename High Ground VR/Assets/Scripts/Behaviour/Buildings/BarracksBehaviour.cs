@@ -66,7 +66,6 @@ public class BarracksBehaviour : MonoBehaviour
         m_currentUnits = m_unitCount;
         EvaluateUnitPositions();
     }
-
     void Update()
     {
         //Remove null objects from m_units so that dead units don't stay in the list.
@@ -127,7 +126,6 @@ public class BarracksBehaviour : MonoBehaviour
         }
 
     }
-
 
     /// <summary>
     /// Looks for enemies in adjecent nodes and creates a battle event if it finds any, adding the located enemies.
@@ -224,15 +222,18 @@ public class BarracksBehaviour : MonoBehaviour
         do
         {
             yield return new WaitForSeconds(m_unitRespawnDelay);
+            //If the target node is completely clear , Spawn a unit.
             if (m_barracksUnitNode.hex.transform.childCount != 0)
             {
                 if (m_barracksUnitNode.hex.transform.GetChild(0).GetComponent<EnemyBehaviour>() == null)
                 {
+                    AudioManager.Instance.PlaySound("barracksRespawn", AudioLists.Building, AudioMixers.Effects, false, true, false, this.gameObject, 0.1f);
                     SpawnAUnit();
                 }
             }
             else if (m_barracksUnitNode.navigability == navigabilityStates.navigable || m_barracksUnitNode.navigability == navigabilityStates.playerUnit)
             {
+                AudioManager.Instance.PlaySound("barracksRespawn", AudioLists.Building, AudioMixers.Effects, false, true, false, this.gameObject, 0.1f);
                 SpawnAUnit();
             }
         } while (m_currentUnits < m_unitCount-1);

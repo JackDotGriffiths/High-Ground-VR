@@ -101,6 +101,7 @@ public class BuildingHealth : MonoBehaviour
     void Die()
     {
         this.GetComponentInParent<NodeComponent>().node.navigability = navigabilityStates.navigable;
+        AudioManager.Instance.PlaySound("destroyBuilding", AudioLists.Building, AudioMixers.Effects,true, true, false, this.gameObject, 0.1f);
         Destroy(this.gameObject);
     }
 
@@ -111,6 +112,7 @@ public class BuildingHealth : MonoBehaviour
     {
         this.GetComponentInParent<NodeComponent>().node.navigability = navigabilityStates.navigable;
         GameManager.Instance.GameOver = true;
+        AudioManager.Instance.PlaySound("destroyBuilding", AudioLists.Building, AudioMixers.Effects, true, true, false, this.gameObject, 0.1f);
         Destroy(this.gameObject);
     }
 

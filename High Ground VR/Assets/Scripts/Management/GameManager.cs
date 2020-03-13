@@ -143,7 +143,12 @@ public class GameManager : MonoBehaviour
         }
         catch { }
         m_round.text = "Building";
+        StartCoroutine(generateMineGold());
+
         currentGold += (m_mineCount * m_minedGoldPerRound) + 30;
+
+
+
         m_buildingPhaseTimer = m_buildingPhaseTime/2;
     }
     void StartAttackPhase()
@@ -204,15 +209,39 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
     /// <summary>
     /// Adds money for the player killing an enemy.
     /// </summary>
     public void enemyGold()
     {
         currentGold += m_goldPerKill;
+        AudioManager.Instance.PlaySound("generateMoney", AudioLists.Building, AudioMixers.Effects, true, true, true, this.gameObject, 0.15f);
+    }
+
+
+    IEnumerator generateMineGold()
+    {
+        currentGold += 30;
+        yield return new WaitForSeconds(0.3f);
+        AudioManager.Instance.PlaySound("generateMoney",  AudioLists.Building, AudioMixers.Effects, true, true, true, this.gameObject, 0.15f);
+
+        //Play a sound when the mines generate money, up to 5 mines.
+        int _count = 0;
+        for (int i = 0; i < m_mineCount; i++)
+        {
+            if(_count < 5)
+            {
+                yield return new WaitForSeconds(0.3f);
+                AudioManager.Instance.PlaySound("generateMoney", AudioLists.Building, AudioMixers.Effects, true, true, true, this.gameObject, 0.15f);
+            }
+            currentGold += m_minedGoldPerRound + 30;
+            _count++;
+        }
+
     }
     #endregion
+
+
 
     #region Enemy Spawning Control
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
-
+public enum AudioLists { Combat, Building, UI }
 public enum AudioMixers {UI, Effects, Music}
 public class AudioManager : MonoBehaviour
 {
@@ -15,7 +15,10 @@ public class AudioManager : MonoBehaviour
     [SerializeField, Tooltip("Music Audio Mixer")] private AudioMixerGroup m_musicMixer;
 
     //Sound List
-    [SerializeField, Header("Local Sounds"),Space(20)] private Sound[] m_sounds;
+    [Header ("Sound Lists")]
+    [SerializeField, Space(10)] public List<Sound> buildingSounds;
+    [SerializeField, Space(5)] public List<Sound> combatSounds;
+    [SerializeField, Space(5)] public List<Sound> uiSounds;
 
 
     public static AudioManager Instance { get => _instance; set => _instance = value; }
@@ -35,21 +38,48 @@ public class AudioManager : MonoBehaviour
     /// Plays either a 2D or 3D sound on the passed in targetObject
     /// </summary>
     /// <param name="_name">Name of the clip to play.</param>
+    /// <param name="_audioType">The type of audio list to choose from.</param>
     /// <param name="_mixer">Mixer on which to play it on</param>
+    /// <param name="_seperateObject">Whether to spawn a seperate object with the source on. Useful for things about to be destroyed.</param>
     /// <param name="_destroyAfterPlaying">Whether to destroy the audioSource after the clip has played.</param>
     /// <param name="_playin2D">Whether to acknowledge the spatialBlend and min/max distance of the clip. If true, spatial blend will be set to 0.</param>
     /// <param name="_targetObject">Target GameObject to attatch the audio source to.</param>
     /// <param name="_pitchShiftAmount">An amount of pitch shift to apply to the audio source. If 0, no pitch shift will occur.</param>
-    public void PlaySound(string _name,AudioMixers _mixer, bool _destroyAfterPlaying, bool _playin2D,GameObject _targetObject,float _pitchShiftAmount)
+    public void PlaySound(string _name,AudioLists _audioType, AudioMixers _mixer,bool _seperateObject, bool _destroyAfterPlaying, bool _playin2D,GameObject _targetObject,float _pitchShiftAmount)
     {
         Sound _sound = null;
-        foreach (Sound s in m_sounds)
+        switch (_audioType)
         {
-            if (s.name == _name)
-            {
-                _sound = s;
+            case AudioLists.Combat:
+                foreach (Sound s in combatSounds)
+                {
+                    if (s.name == _name)
+                    {
+                        _sound = s;
+                        break;
+                    }
+                }
                 break;
-            }
+            case AudioLists.Building:
+                foreach (Sound s in buildingSounds)
+                {
+                    if (s.name == _name)
+                    {
+                        _sound = s;
+                        break;
+                    }
+                }
+                break;
+            case AudioLists.UI:
+                foreach (Sound s in uiSounds)
+                {
+                    if (s.name == _name)
+                    {
+                        _sound = s;
+                        break;
+                    }
+                }
+                break;
         }
         if (_sound == null)
         {
@@ -58,45 +88,95 @@ public class AudioManager : MonoBehaviour
         }
 
 
-        AudioSource _source = _targetObject.AddComponent<AudioSource>(); //Attach to the target Object. Only really makes a difference if the sound is played in 3D.
-        _source.clip = _sound.clip;
-        _source.priority = _sound.priority;
-        _source.volume = _sound.volume;
-        _source.pitch = _sound.pitch + Random.Range(-_pitchShiftAmount,_pitchShiftAmount); //Pitch shifting, if 0 is passed in nothing will happen.
-
-        switch (_mixer) //Set the mixer that the audio clip is meant to play on.
+        if(_seperateObject == false)
         {
-            case AudioMixers.UI:
-                _source.outputAudioMixerGroup = m_UIMixer;
-                break;
-            case AudioMixers.Effects:
-                _source.outputAudioMixerGroup = m_effectsMixer;
-                break;
-            case AudioMixers.Music:
-                _source.outputAudioMixerGroup = m_musicMixer;
-                break;
-        }
+            AudioSource _source = _targetObject.AddComponent<AudioSource>(); //Attach to the target Object. Only really makes a difference if the sound is played in 3D.
+            _source.clip = _sound.clip;
+            _source.priority = _sound.priority;
+            _source.volume = _sound.volume;
+            _source.pitch = _sound.pitch + Random.Range(-_pitchShiftAmount, _pitchShiftAmount); //Pitch shifting, if 0 is passed in nothing will happen.
 
-        if(_playin2D == true)  //Set spatialBlend based on 2D or 3D audio
-        {
-            _source.spatialBlend = 0;
+            switch (_mixer) //Set the mixer that the audio clip is meant to play on.
+            {
+                case AudioMixers.UI:
+                    _source.outputAudioMixerGroup = m_UIMixer;
+                    break;
+                case AudioMixers.Effects:
+                    _source.outputAudioMixerGroup = m_effectsMixer;
+                    break;
+                case AudioMixers.Music:
+                    _source.outputAudioMixerGroup = m_musicMixer;
+                    break;
+            }
+
+            if (_playin2D == true)  //Set spatialBlend based on 2D or 3D audio
+            {
+                _source.spatialBlend = 0;
+            }
+            else
+            {
+                _source.spatialBlend = _sound.spatialBlend;
+                _source.minDistance = _sound.minDistance;
+                _source.maxDistance = _sound.maxDistance;
+            }
+
+
+
+            _source.loop = _sound.loop;
+            _source.Play();
+
+            if (_destroyAfterPlaying == true) //Destroys the source after playing. Useful for spot effects.
+            {
+                Destroy(_source, _sound.clip.length);
+            }
         }
         else
         {
-            _source.spatialBlend = _sound.spatialBlend;
-            _source.minDistance = _sound.minDistance;
-            _source.maxDistance = _sound.maxDistance;
+            GameObject _go = new GameObject("AudioSource for "  + _targetObject.name);
+            _go.transform.position = _targetObject.transform.position;
+            _go.transform.rotation = _targetObject.transform.rotation;
+            _go.transform.localScale = _targetObject.transform.localScale;
+
+
+            AudioSource _source = _go.AddComponent<AudioSource>(); //Attach to the target Object. Only really makes a difference if the sound is played in 3D.
+            _source.clip = _sound.clip;
+            _source.priority = _sound.priority;
+            _source.volume = _sound.volume;
+            _source.pitch = _sound.pitch + Random.Range(-_pitchShiftAmount, _pitchShiftAmount); //Pitch shifting, if 0 is passed in nothing will happen.
+
+            switch (_mixer) //Set the mixer that the audio clip is meant to play on.
+            {
+                case AudioMixers.UI:
+                    _source.outputAudioMixerGroup = m_UIMixer;
+                    break;
+                case AudioMixers.Effects:
+                    _source.outputAudioMixerGroup = m_effectsMixer;
+                    break;
+                case AudioMixers.Music:
+                    _source.outputAudioMixerGroup = m_musicMixer;
+                    break;
+            }
+
+            if (_playin2D == true)  //Set spatialBlend based on 2D or 3D audio
+            {
+                _source.spatialBlend = 0;
+            }
+            else
+            {
+                _source.spatialBlend = _sound.spatialBlend;
+                _source.minDistance = _sound.minDistance;
+                _source.maxDistance = _sound.maxDistance;
+            }
+
+
+
+            _source.loop = _sound.loop;
+            _source.Play();
+
+            if (_destroyAfterPlaying == true) //Destroys the source after playing. Useful for spot effects.
+            {
+                Destroy(_go, _sound.clip.length);
+            }
         }
-
-
-
-        _source.loop = _sound.loop;
-        _source.Play();
-
-        if(_destroyAfterPlaying == true) //Destroys the source after playing. Useful for spot effects.
-        {
-            Destroy(_source, _sound.clip.length);
-        }
-
-    }
+     }
 }
