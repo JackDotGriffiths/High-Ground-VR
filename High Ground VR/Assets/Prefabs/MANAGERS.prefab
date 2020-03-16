@@ -888,19 +888,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_gameSpeed: 1
-  m_buildingPhaseTime: 4
+  m_buildingPhaseTime: 80
   m_mainMenuAnim: {fileID: 1042678574}
-  enemyStartingSpawns: 1
-  enemyAmount: 1
+  enemyStartingSpawns: 4
+  enemyAmount: 2
   enemySpawnDelay: 5
-  spawnAggresiveAfter: 2
+  spawnAggresiveAfter: 4
   aggressionPercentage: 0.4
   tankRoundStart: 5
-  tankRoundFrequency: 5
+  tankRoundFrequency: 3
   enemySpawns: []
   m_startingGold: 500
   m_minedGoldPerRound: 30
-  m_goldPerKill: 20
+  m_goldPerKill: 10
   moneyBookText: {fileID: 0}
   timerBookText: {fileID: 0}
   moneyBookText2: {fileID: 0}
@@ -992,7 +992,7 @@ MonoBehaviour:
   m_lightningOccurance: 10
   m_lightningMaterial: {fileID: 2100000, guid: 41b85fa06819e234bbe2c384a0049fa1, type: 2}
   m_playerLargeDamage: 30
-  m_playerSmallDamage: 100
+  m_playerSmallDamage: 60
   m_slowDownTargetTime: 0.5
   m_slowDownDuration: 15
   m_speedUpTargetTime: 1.5
@@ -1040,45 +1040,142 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e14de28739ccc7d44a5ec6e73a3fd914, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_pitchVariation: 0.15
-  enemySpawning:
-  - {fileID: 8300000, guid: 90f0909f3d3a8a64b93f693240fee352, type: 3}
-  m_enemySpawningVolume: 0.862
-  m_enemyMaxDistance: 300
-  weaponClashes:
-  - {fileID: 8300000, guid: 465f1f79e46a1714c9e8b2a0844e884b, type: 3}
-  - {fileID: 8300000, guid: ef44b4a8c94f6924b9548c5d6920924e, type: 3}
-  - {fileID: 8300000, guid: 03c05f8eafca04341a92e11ab53d1faa, type: 3}
-  - {fileID: 8300000, guid: 4a8b85d3899c003489e23bf58ecf8162, type: 3}
-  - {fileID: 8300000, guid: cdf15e9c96f966d49be1adeb677e539c, type: 3}
-  - {fileID: 8300000, guid: f2d3d1ba66caed14392f7c9a7960dc35, type: 3}
-  - {fileID: 8300000, guid: 13490593b7c6a9140a6eaa12a4584ae1, type: 3}
-  - {fileID: 8300000, guid: 6f17b034cf5bcdc41b1090fcd5275d6c, type: 3}
-  - {fileID: 8300000, guid: 60242d255f72e344ebeff300c82a4d69, type: 3}
-  - {fileID: 8300000, guid: d55f73c1436fa88449870470bac47b78, type: 3}
-  - {fileID: 8300000, guid: f908c3bc6ab92df46866e7c7ab6ff827, type: 3}
-  - {fileID: 8300000, guid: e76fc87e20dd77b4299df5617516ddc7, type: 3}
-  - {fileID: 8300000, guid: f68db091452571142b9db538c03c22b7, type: 3}
-  - {fileID: 8300000, guid: 6c1d2d949f9a79d479ad467913d894aa, type: 3}
-  - {fileID: 8300000, guid: 862014aeb178a5343a06ff0b4543132a, type: 3}
-  - {fileID: 8300000, guid: 06d321df2e756eb4a88c01752a194a69, type: 3}
-  - {fileID: 8300000, guid: 1a68ca66a186d364aa9f6725234555e4, type: 3}
-  - {fileID: 8300000, guid: 6ea6f6e4a9ddac8418bac18fcbd04866, type: 3}
-  m_weaponClashVolume: 0.85
-  m_weaponClashesMaxDistance: 300
-  placeBuildings:
-  - {fileID: 8300000, guid: 7954b91d3f39de640b291fb08e305918, type: 3}
-  - {fileID: 8300000, guid: b46ef17fde0043c419fc85f7527d529b, type: 3}
-  - {fileID: 8300000, guid: f3b6a8fbbc0c0474e9bef328a4417c2e, type: 3}
-  - {fileID: 8300000, guid: b16dab0bed0052f409d3c48837ff0a78, type: 3}
-  - {fileID: 8300000, guid: 351904e4b6d579b41b724e8006d67beb, type: 3}
-  - {fileID: 8300000, guid: 4605f50669e1fee42a2830eac2a5527f, type: 3}
-  m_placeBuildingVolume: 0.834
-  m_placeBuildingMaxDistance: 300
-  zapSounds:
-  - {fileID: 8300000, guid: 9f2c73ba8f38d43439abdcaa3d3f8e5a, type: 3}
-  m_zapSoundsVolume: 0.519
-  m_zapSoundsMaxDistance: 0
+  m_UIMixer: {fileID: 0}
+  m_effectsMixer: {fileID: 0}
+  m_musicMixer: {fileID: 0}
+  buildingSounds:
+  - name: placeBuilding
+    description: Sound to play when placing a building
+    clip: {fileID: 8300000, guid: 7954b91d3f39de640b291fb08e305918, type: 3}
+    volume: 1
+    pitch: 0
+    priority: 1
+    spatialBlend: 1
+    minDistance: 30
+    maxDistance: 500
+    loop: 0
+  - name: destroyBuilding
+    description: Sound to play when a building is destroyed by Siege or player.
+    clip: {fileID: 8300000, guid: 8e64f51e3020bc84abe90af7a23a6741, type: 3}
+    volume: 1
+    pitch: 0
+    priority: 2
+    spatialBlend: 1
+    minDistance: 30
+    maxDistance: 500
+    loop: 0
+  - name: generateMoney
+    description: Sound to play when the player generates money.
+    clip: {fileID: 8300000, guid: f068e101878fe9546a112b3aa60b917e, type: 3}
+    volume: 0.2
+    pitch: 0
+    priority: 2
+    spatialBlend: 0
+    minDistance: 30
+    maxDistance: 500
+    loop: 0
+  - name: barracksRespawn
+    description: Sound to play when the barracks respawns a Unit.
+    clip: {fileID: 8300000, guid: a3146d89811dea244997baecdc59e508, type: 3}
+    volume: 1
+    pitch: 0
+    priority: 1
+    spatialBlend: 1
+    minDistance: 30
+    maxDistance: 500
+    loop: 0
+  combatSounds:
+  - name: weaponClash1
+    description: 
+    clip: {fileID: 0}
+    volume: 0
+    pitch: 0
+    priority: 0
+    spatialBlend: 0
+    minDistance: 0
+    maxDistance: 0
+    loop: 0
+  - name: weaponClash2
+    description: 
+    clip: {fileID: 0}
+    volume: 0
+    pitch: 0
+    priority: 0
+    spatialBlend: 0
+    minDistance: 0
+    maxDistance: 0
+    loop: 0
+  - name: regularLightning
+    description: 
+    clip: {fileID: 0}
+    volume: 0
+    pitch: 0
+    priority: 0
+    spatialBlend: 0
+    minDistance: 0
+    maxDistance: 0
+    loop: 0
+  - name: slowAttackLightning
+    description: 
+    clip: {fileID: 0}
+    volume: 0
+    pitch: 0
+    priority: 0
+    spatialBlend: 0
+    minDistance: 0
+    maxDistance: 0
+    loop: 0
+  - name: fastAttackLightning
+    description: 
+    clip: {fileID: 0}
+    volume: 0
+    pitch: 0
+    priority: 0
+    spatialBlend: 0
+    minDistance: 0
+    maxDistance: 0
+    loop: 0
+  - name: battleStarting
+    description: 
+    clip: {fileID: 0}
+    volume: 0
+    pitch: 0
+    priority: 0
+    spatialBlend: 0
+    minDistance: 0
+    maxDistance: 0
+    loop: 0
+  - name: battleCheer
+    description: 
+    clip: {fileID: 0}
+    volume: 0
+    pitch: 0
+    priority: 0
+    spatialBlend: 0
+    minDistance: 0
+    maxDistance: 0
+    loop: 0
+  - name: deathSound
+    description: 
+    clip: {fileID: 0}
+    volume: 0
+    pitch: 0
+    priority: 0
+    spatialBlend: 0
+    minDistance: 0
+    maxDistance: 0
+    loop: 0
+  - name: takeDamageSound
+    description: 
+    clip: {fileID: 0}
+    volume: 0
+    pitch: 0
+    priority: 0
+    spatialBlend: 0
+    minDistance: 0
+    maxDistance: 0
+    loop: 0
+  uiSounds: []
 --- !u!1 &1904518083790628858
 GameObject:
   m_ObjectHideFlags: 0

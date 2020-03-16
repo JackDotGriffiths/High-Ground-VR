@@ -99,12 +99,23 @@ public class BattleBehaviour : MonoBehaviour
             m_currentEnemyTimer -= Time.deltaTime * GameManager.Instance.GameSpeed * m_enemyTimePerception;
 
 
-            if (enemyUnits.Count == 0 || friendlyUnits.Count == 0)
+            if (enemyUnits.Count == 0)
             {
                 //End the battle, Player Won
                 battleOver();
-                Destroy(this);
+                StartCoroutine(playFriendlyWinningSounds());
+
             }
+            if(friendlyUnits.Count == 0)
+            {
+                //End the battle, Player Won
+                battleOver();
+                StartCoroutine(playEnemyWinningSounds());
+            }
+
+
+
+
             if (m_currentFriendlyTimer < 0)
             {
                 StartCoroutine("friendlyAttack");
@@ -171,6 +182,7 @@ public class BattleBehaviour : MonoBehaviour
                 friendlyUnits[i].unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
                 //Play an appropriate sound
                 //AudioManager.Instance.Play3DSound(SoundLists.weaponClashes, true, 1, friendlyUnits[i].unitComp.gameObject, true, false, true);
+                AudioManager.Instance.PlaySound("weaponClash" + Random.Range(1, 2), AudioLists.Combat, AudioMixers.Effects, true, true, false, friendlyUnits[i].unitComp.gameObject, 0.2f);
             }
             catch { }
         }
@@ -216,6 +228,7 @@ public class BattleBehaviour : MonoBehaviour
 
                 //Play an appropriate sound
                 //AudioManager.Instance.Play3DSound(SoundLists.weaponClashes, true, 1, enemyUnits[i].unitComp.gameObject, true, false, true);
+                AudioManager.Instance.PlaySound("weaponClash" + Random.Range(1, 2), AudioLists.Combat, AudioMixers.Effects, true, true, false, enemyUnits[i].unitComp.gameObject, 0.2f);
             }
             catch { }
             yield return new WaitForSeconds(Random.Range(0, 0.2f));
@@ -241,4 +254,43 @@ public class BattleBehaviour : MonoBehaviour
         yield return null;
 
     }
+
+
+
+    /// <summary>
+    /// Plays sounds for each of the friendly units once they've won a battle.
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator playFriendlyWinningSounds()
+    {
+        //Stop timers
+        m_battleStarted = false;
+        for (int i = 0; i < friendlyUnits.Count; i++)
+        {
+            AudioManager.Instance.PlaySound("battleCheer" + Random.Range(1, 5), AudioLists.Combat, AudioMixers.Effects, true, true, false, friendlyUnits[i].unitComp.gameObject, 0.2f);
+            yield return new WaitForSeconds(0.06f);
+        }
+        yield return null;
+        Destroy(this);
+    }
+
+    /// <summary>
+    /// Plays sounds for each of the enemy units once they've won a battle.
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator playEnemyWinningSounds()
+    {
+        //Stop timers
+        m_battleStarted = false;
+        for (int i = 0; i < enemyUnits.Count; i++)
+        {
+            AudioManager.Instance.PlaySound("battleCheer" + Random.Range(1, 5), AudioLists.Combat, AudioMixers.Effects, true, true, false, enemyUnits[i].unitComp.gameObject, 0.2f);
+            yield return new WaitForSeconds(0.06f);
+        }
+        yield return null;
+        Destroy(this);
+    }
+
+
+
 }

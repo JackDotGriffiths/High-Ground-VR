@@ -138,6 +138,7 @@ public class InteractionManager : MonoBehaviour
     {
         m_currentlyAttacking = true;
         //AudioManager.Instance.Play2DSound(SoundLists.zapSounds, false, 0, true, false, true);
+        AudioManager.Instance.PlaySound("regularLightning", AudioLists.Combat, AudioMixers.Effects, true, true, true, this.gameObject, 0.1f);
 
         //Create a seperate object to hold the zap effect.
         GameObject _goLine = new GameObject("regularAttackEffect");
@@ -203,7 +204,6 @@ public class InteractionManager : MonoBehaviour
 
     #endregion
 
-
     #region Slow Down Attack
     /// <summary>
     /// Slows down the units the player is pointing at.
@@ -268,7 +268,7 @@ public class InteractionManager : MonoBehaviour
     {
         m_currentlyAttacking = true;
         //AudioManager.Instance.Play2DSound(SoundLists.zapSounds, false, 0, true, false, true);
-
+        AudioManager.Instance.PlaySound("slowAttackLightning", AudioLists.Combat, AudioMixers.Effects, true, true, true, this.gameObject, 0.1f);
         //Create a seperate object to hold the zap effect.
         GameObject _goLine = new GameObject("regularAttackEffect");
         StartCoroutine(destroyEffect(_goLine, m_lightningTiming * m_lightningOccurance));
@@ -399,6 +399,7 @@ public class InteractionManager : MonoBehaviour
     {
         m_currentlyAttacking = true;
         //AudioManager.Instance.Play2DSound(SoundLists.zapSounds, false, 0, true, false, true);
+        AudioManager.Instance.PlaySound("fastAttackLightning", AudioLists.Combat, AudioMixers.Effects, true, true, true, this.gameObject, 0.1f);
 
         //Create a seperate object to hold the zap effect.
         GameObject _goLine = new GameObject("regularAttackEffect");
