@@ -141,12 +141,6 @@ public class ValidateBuildingLocation : MonoBehaviour
         }
 
 
-        if (!checkGemAccessible(_targetNode))
-        {
-            _validLocation = false;
-        }
-
-
         return _validLocation;
     }
 
@@ -158,7 +152,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     public bool verifyMine(Node _targetNode, float _angle)
     {
         bool _validLocation = false;
-        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode) && checkGemAccessible(_targetNode))
+        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
         {
             _validLocation = true;
         }
@@ -174,7 +168,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     public bool verifyWall(Node _targetNode, float _angle)
     {
         bool _validLocation = false;
-        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode) && checkGemAccessible(_targetNode))
+        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
         {
             _validLocation = true;
         }

@@ -26,7 +26,7 @@ public class EnemyBehaviour : MonoBehaviour
     private bool m_reachedGoal;
     private bool m_validMove; //Tracks whether the unit should be moving to the next node or staying still.
     private float m_currentTimer; //Value of the timer on the enemy.
-    private List<Node> m_groupPath; //List of Nodes that lead to the groups goal.
+    private List<Node> m_groupPath = new List<Node>(); //List of Nodes that lead to the groups goal.
     private Vector3 m_targetPosition; //Position the node should be moving to.
     private int m_currentUnits;
 
@@ -176,31 +176,52 @@ public class EnemyBehaviour : MonoBehaviour
 
 
         //Run pathfinding, randomly choosing how the unit navigates based on their aggression and some random factors.
-        //float _aggressionChance = 1.0f - (GameManager.Instance.aggressionPercentage * (GameManager.Instance.RoundCounter / 2.0f));
-        //if (groupAggression > _aggressionChance)
-        //{
-        //    float _rand = Random.Range(0.0f, 1.0f);
-        //    if(_rand < 0.3f)
-        //    {
-        //        RunPathfinding(enemyTargets.randomDestructableBuilding, groupAggression);
-        //    }
-        //    else if (_rand > 0.3f && _rand < 0.5f)
-        //    {
-        //        RunPathfinding(enemyTargets.randomMine, groupAggression);
-        //    }
-        //    else
-        //    {
-        //        RunPathfinding(enemyTargets.Gem, groupAggression);
-        //    }
-        //}
-        //else
-        //{
-        //    RunPathfinding(enemyTargets.Gem,groupAggression);
-        //}
-
-
-
-        RunPathfinding(enemyTargets.Gem, groupAggression);
+        float _aggressionChance = 1.0f - (GameManager.Instance.aggressionPercentage * (GameManager.Instance.RoundCounter / 2.0f));
+        if (groupAggression > _aggressionChance)
+        {
+            float _rand = Random.Range(0.0f, 1.0f);
+            if (_rand < 0.3f)
+            {
+                RunPathfinding(enemyTargets.randomDestructableBuilding, groupAggression);
+            }
+            else if (_rand > 0.3f && _rand < 0.5f)
+            {
+                RunPathfinding(enemyTargets.randomMine, groupAggression);
+            }
+            else
+            {
+                RunPathfinding(enemyTargets.Gem, groupAggression);
+            }
+        }
+        else
+        {
+            RunPathfinding(enemyTargets.Gem, groupAggression);
+        }
+        if(m_groupPath.Count == 0)//If they were unable to get to their desired goal, run the pathfinding aggressively.
+        {
+            m_groupPath = new List<Node>();
+            groupAggression = 1.0f;
+            if (groupAggression > _aggressionChance)
+            {
+                float _rand = Random.Range(0.0f, 1.0f);
+                if (_rand < 0.3f)
+                {
+                    RunPathfinding(enemyTargets.randomDestructableBuilding, groupAggression);
+                }
+                else if (_rand > 0.3f && _rand < 0.5f)
+                {
+                    RunPathfinding(enemyTargets.randomMine, groupAggression);
+                }
+                else
+                {
+                    RunPathfinding(enemyTargets.Gem, groupAggression);
+                }
+            }
+            else
+            {
+                RunPathfinding(enemyTargets.Gem, groupAggression);
+            }
+        }
         m_targetPosition = new Vector3(m_groupPath[0].hex.transform.position.x, m_groupPath[0].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[0].hex.transform.position.z);
         m_unitInstantiated = true;
 

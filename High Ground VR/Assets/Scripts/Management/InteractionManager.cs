@@ -99,6 +99,19 @@ public class InteractionManager : MonoBehaviour
                         }
                     }
                 }
+                if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.wall || _hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.mine )
+                {
+                    //Find each unit within that group, and deal damage to them.
+                    BuildingHealth _buildingHealth = _hit.collider.gameObject.GetComponentInChildren<BuildingHealth>();
+                    _buildingHealth.currentHealth -= 70.0f;
+                    if(_buildingHealth.currentHealth < 0)
+                    {
+                        Destroy(_buildingHealth.gameObject);
+                    }
+                }
+
+
+
             }
         }
         else
