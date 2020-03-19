@@ -34,6 +34,10 @@ public class GameManager : MonoBehaviour
     [SerializeField,Tooltip("Gold the player should start with.")] private int m_startingGold = 10; //Starting gold for the player
     [SerializeField, Tooltip("Amount of gold for a player to earn per interval.")] private int m_minedGoldPerRound = 20; //Amount of gold per tick
     [SerializeField, Tooltip("Amount of gold for a player to earn from killing an enemy")] private int m_goldPerKill = 20; //Amount of enemyKilled
+
+    public int wallsCost = 100; //Cost of placing a wall
+    public int barracksCost = 50; // Cost of placing a barracks
+    public int mineCost = 10; //Cost of placing a mine
     private int m_mineCount;
 
 
@@ -136,12 +140,6 @@ public class GameManager : MonoBehaviour
     void StartBuildingPhase()
     {
         CurrentPhase = Phases.Building;
-        //If playing in the Scene view, the book will not exist.
-        try
-        {
-            BookManager.Instance.HideActions();
-        }
-        catch { }
         m_round.text = "Building";
         StartCoroutine(generateMineGold());
 
@@ -153,12 +151,6 @@ public class GameManager : MonoBehaviour
     }
     void StartAttackPhase()
     {
-        //If playing in the Scene view, the book will not exist.
-        try
-        {
-            BookManager.Instance.ShowActions();
-        }
-        catch { }
         CurrentPhase = Phases.Attack;
         //Set all adjecent nodes to the spawns to nonPlaceable, so the player cannot build around them.
         foreach (EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)

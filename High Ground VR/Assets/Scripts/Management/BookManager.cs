@@ -9,15 +9,24 @@ public class BookManager : MonoBehaviour
 
     private static BookManager s_instance;
 
+
+    [SerializeField, Tooltip("Length of time double speed should be active for.")] private float m_doubleSpeedTime = 5.0f;
+
     [SerializeField, Tooltip("Object within which the colliders, buttons and displays for the actions is held")] private GameObject m_actionsMenu;
     [Tooltip("All available buildings from the book menu")] public BuildingOption[] buildingOptions; //A list of all available buildings from the player's menu.
 
 
-
+    [Header ("Book Text Objects")]
     public TextMeshProUGUI moneyText;
     public TextMeshProUGUI timerText;
     public TextMeshProUGUI moneyText2;
     public TextMeshProUGUI timerText2;
+    [SerializeField,Tooltip("Text to show the cost of a wall")] private TextMeshPro m_wallCost;
+    [SerializeField, Tooltip("Text to show the cost of a barracks")] private TextMeshPro m_barracksCost;
+    [SerializeField, Tooltip("Text to show the cost of a mine")] private TextMeshPro m_mineCost;
+
+
+
 
     private bool m_isShowingSpells;
 
@@ -36,8 +45,21 @@ public class BookManager : MonoBehaviour
             return;
         }
 
-        HideActions();
     }
+    void Start()
+    {
+        Invoke("delayedStart", 0.1f);
+    }
+
+    void delayedStart()
+    {
+        m_wallCost.text = GameManager.Instance.wallsCost.ToString();
+        m_barracksCost.text = GameManager.Instance.barracksCost.ToString();
+        m_mineCost.text = GameManager.Instance.mineCost.ToString();
+    }
+
+
+
 
     /// <summary>
     /// Sets the current building through a button press.
@@ -73,28 +95,6 @@ public class BookManager : MonoBehaviour
         }
     }
 
-
-    /// <summary>
-    /// Displays the actions Menu.
-    /// </summary>
-    public void ShowActions()
-    {
-        m_actionsMenu.SetActive(true);
-    }
-
-    /// <summary>
-    /// Hides the action menu.
-    /// </summary>
-    public void HideActions()
-    {
-        m_actionsMenu.SetActive(false);
-        InputManager.Instance.CurrentlySelectedSpell = (spellTypes)0;
-        if (m_isShowingSpells == true)
-        {
-            TurnToBuildings();
-        }
-    }
-
     /// <summary>
     /// Turns the book to show the spells
     /// </summary>
@@ -116,5 +116,20 @@ public class BookManager : MonoBehaviour
         InputManager.Instance.CurrentlySelectedSpell = (spellTypes)0;
         Debug.Log("Show Buildings");
         m_isShowingSpells = false;
+    }
+    
+    /// <summary>
+    /// Starts the coroutine that runs the game at double speed for a set amount of time.
+    /// </summary>
+    public void runDoubleSpeed()
+    {
+        StartCoroutine(doubleSpeed());
+    }
+
+    IEnumerator doubleSpeed()
+    {
+        GameManager.Instance.GameSpeed = 2.0f;
+        yield return new WaitForSeconds(m_doubleSpeedTime);
+        GameManager.Instance.GameSpeed = 1.0f;
     }
 }
