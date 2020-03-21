@@ -102,7 +102,15 @@ public class BookManager : MonoBehaviour
     /// </summary>
     public void TurnToSpells()
     {
-        gameObject.GetComponent<Animator>().Play("TurnPageToSpells");
+        //Make sure all of the buttons are unlocked.
+        foreach (GameObject _button in m_buildingButtons)
+        {
+            _button.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None | RigidbodyConstraints.FreezeRotation;
+            _button.GetComponent<PhysicalButton>().isLocked = false;
+            _button.GetComponent<MeshRenderer>().material = m_buttonMaterial;
+        }
+
+        gameObject.GetComponent<Animator>().Play("TurnToSpells");
         InputManager.Instance.CurrentlySelectedBuilding = null;
         InputManager.Instance.CurrentlySelectedSpell = (spellTypes)0;
         m_isShowingSpells = true;
