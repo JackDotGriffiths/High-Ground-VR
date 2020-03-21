@@ -18,7 +18,7 @@ public class AudioManager : MonoBehaviour
     [Header ("Sound Lists")]
     [SerializeField, Space(10)] public List<Sound> buildingSounds;
     [SerializeField, Space(5)] public List<Sound> combatSounds;
-    [SerializeField, Space(5)] public List<Sound> uiSounds;
+    [SerializeField, Space(5)] public List<Sound> userInterfaceSounds;
 
 
     public static AudioManager Instance { get => _instance; set => _instance = value; }
@@ -71,7 +71,7 @@ public class AudioManager : MonoBehaviour
                 }
                 break;
             case AudioLists.UI:
-                foreach (Sound s in uiSounds)
+                foreach (Sound s in userInterfaceSounds)
                 {
                     if (s.name == _name)
                     {

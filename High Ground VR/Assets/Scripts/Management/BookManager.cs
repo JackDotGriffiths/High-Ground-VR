@@ -16,6 +16,11 @@ public class BookManager : MonoBehaviour
     [Tooltip("All available buildings from the book menu")] public BuildingOption[] buildingOptions; //A list of all available buildings from the player's menu.
 
 
+    [Header("Button Controls")]
+    [SerializeField, Tooltip("Button Material")] private Material m_buttonMaterial;
+    [SerializeField, Tooltip("Selected Material")] private Material m_selectedMaterial;
+    [SerializeField, Tooltip("Buildings Buttons")] private List<GameObject> m_buildingButtons = new List<GameObject>();
+
     [Header ("Book Text Objects")]
     public TextMeshProUGUI moneyText;
     public TextMeshProUGUI timerText;
@@ -57,9 +62,6 @@ public class BookManager : MonoBehaviour
         m_barracksCost.text = GameManager.Instance.barracksCost.ToString();
         m_mineCost.text = GameManager.Instance.mineCost.ToString();
     }
-
-
-
 
     /// <summary>
     /// Sets the current building through a button press.
@@ -131,5 +133,29 @@ public class BookManager : MonoBehaviour
         GameManager.Instance.GameSpeed = 2.0f;
         yield return new WaitForSeconds(m_doubleSpeedTime);
         GameManager.Instance.GameSpeed = 1.0f;
+    }
+
+    /// <summary>
+    /// Unlocks all of the rigidbodies of the selection buttons so that 
+    /// </summary>
+    public void lockButtons(GameObject _selectedButton)
+    {
+        foreach(GameObject _button in m_buildingButtons)
+        {
+            if(_button != _selectedButton)
+            {
+                //Unlock
+                _button.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None | RigidbodyConstraints.FreezeRotation;
+                _button.GetComponent<PhysicalButton>().isLocked = false;
+                _button.GetComponent<MeshRenderer>().material = m_buttonMaterial;
+            }
+            else
+            {
+                //Lock
+                _button.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                _button.GetComponent<PhysicalButton>().isLocked = true;
+                _button.GetComponent<MeshRenderer>().material = m_selectedMaterial;
+            }
+        }
     }
 }

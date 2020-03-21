@@ -888,19 +888,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_gameSpeed: 1
-  m_buildingPhaseTime: 80
+  m_buildingPhaseTime: 8000
   m_mainMenuAnim: {fileID: 1042678574}
-  enemyStartingSpawns: 4
+  enemyStartingSpawns: 3
   enemyAmount: 2
   enemySpawnDelay: 5
   spawnAggresiveAfter: 4
   aggressionPercentage: 0.4
   tankRoundStart: 5
-  tankRoundFrequency: 3
+  tankRoundFrequency: 5
   enemySpawns: []
   m_startingGold: 500
   m_minedGoldPerRound: 30
   m_goldPerKill: 10
+  wallsCost: 10
+  barracksCost: 100
+  mineCost: 50
   moneyBookText: {fileID: 0}
   timerBookText: {fileID: 0}
   moneyBookText2: {fileID: 0}
@@ -991,8 +994,8 @@ MonoBehaviour:
   m_lightningTiming: 0.02
   m_lightningOccurance: 10
   m_lightningMaterial: {fileID: 2100000, guid: 41b85fa06819e234bbe2c384a0049fa1, type: 2}
-  m_playerLargeDamage: 30
-  m_playerSmallDamage: 60
+  m_playerLargeDamage: 4
+  m_playerSmallDamage: 30
   m_slowDownTargetTime: 0.5
   m_slowDownDuration: 15
   m_speedUpTargetTime: 1.5
@@ -1040,12 +1043,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e14de28739ccc7d44a5ec6e73a3fd914, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UIMixer: {fileID: 0}
-  m_effectsMixer: {fileID: 0}
-  m_musicMixer: {fileID: 0}
+  m_UIMixer: {fileID: 7695928132184823758, guid: c03971712cbb4e9498d175f2d8d47b82,
+    type: 2}
+  m_effectsMixer: {fileID: 769511224724908840, guid: c03971712cbb4e9498d175f2d8d47b82,
+    type: 2}
+  m_musicMixer: {fileID: 6488432623443979749, guid: c03971712cbb4e9498d175f2d8d47b82,
+    type: 2}
   buildingSounds:
   - name: placeBuilding
-    description: Sound to play when placing a building
     clip: {fileID: 8300000, guid: 7954b91d3f39de640b291fb08e305918, type: 3}
     volume: 1
     pitch: 0
@@ -1055,7 +1060,6 @@ MonoBehaviour:
     maxDistance: 500
     loop: 0
   - name: destroyBuilding
-    description: Sound to play when a building is destroyed by Siege or player.
     clip: {fileID: 8300000, guid: 8e64f51e3020bc84abe90af7a23a6741, type: 3}
     volume: 1
     pitch: 0
@@ -1065,7 +1069,6 @@ MonoBehaviour:
     maxDistance: 500
     loop: 0
   - name: generateMoney
-    description: Sound to play when the player generates money.
     clip: {fileID: 8300000, guid: f068e101878fe9546a112b3aa60b917e, type: 3}
     volume: 0.2
     pitch: 0
@@ -1075,7 +1078,6 @@ MonoBehaviour:
     maxDistance: 500
     loop: 0
   - name: barracksRespawn
-    description: Sound to play when the barracks respawns a Unit.
     clip: {fileID: 8300000, guid: a3146d89811dea244997baecdc59e508, type: 3}
     volume: 1
     pitch: 0
@@ -1086,8 +1088,7 @@ MonoBehaviour:
     loop: 0
   combatSounds:
   - name: weaponClash1
-    description: 
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 13490593b7c6a9140a6eaa12a4584ae1, type: 3}
     volume: 0
     pitch: 0
     priority: 0
@@ -1096,8 +1097,7 @@ MonoBehaviour:
     maxDistance: 0
     loop: 0
   - name: weaponClash2
-    description: 
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 4a8b85d3899c003489e23bf58ecf8162, type: 3}
     volume: 0
     pitch: 0
     priority: 0
@@ -1106,8 +1106,7 @@ MonoBehaviour:
     maxDistance: 0
     loop: 0
   - name: regularLightning
-    description: 
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 9f2c73ba8f38d43439abdcaa3d3f8e5a, type: 3}
     volume: 0
     pitch: 0
     priority: 0
@@ -1116,8 +1115,7 @@ MonoBehaviour:
     maxDistance: 0
     loop: 0
   - name: slowAttackLightning
-    description: 
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 931c4fee3dd67c243aaf98578917c07c, type: 3}
     volume: 0
     pitch: 0
     priority: 0
@@ -1126,8 +1124,7 @@ MonoBehaviour:
     maxDistance: 0
     loop: 0
   - name: fastAttackLightning
-    description: 
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: ae72df1f659f5d8439fd84095e9afd4e, type: 3}
     volume: 0
     pitch: 0
     priority: 0
@@ -1135,9 +1132,8 @@ MonoBehaviour:
     minDistance: 0
     maxDistance: 0
     loop: 0
-  - name: battleStarting
-    description: 
-    clip: {fileID: 0}
+  - name: battleCheer1
+    clip: {fileID: 8300000, guid: 847663da37aa25c4d99379bc390f7c21, type: 3}
     volume: 0
     pitch: 0
     priority: 0
@@ -1145,9 +1141,8 @@ MonoBehaviour:
     minDistance: 0
     maxDistance: 0
     loop: 0
-  - name: battleCheer
-    description: 
-    clip: {fileID: 0}
+  - name: battleCheer2
+    clip: {fileID: 8300000, guid: e5501666272a9f14b8d3a8b910a8a0a3, type: 3}
     volume: 0
     pitch: 0
     priority: 0
@@ -1155,9 +1150,8 @@ MonoBehaviour:
     minDistance: 0
     maxDistance: 0
     loop: 0
-  - name: deathSound
-    description: 
-    clip: {fileID: 0}
+  - name: battleCheer3
+    clip: {fileID: 8300000, guid: e6934c4085cbd094885d98579e34f0c8, type: 3}
     volume: 0
     pitch: 0
     priority: 0
@@ -1165,9 +1159,8 @@ MonoBehaviour:
     minDistance: 0
     maxDistance: 0
     loop: 0
-  - name: takeDamageSound
-    description: 
-    clip: {fileID: 0}
+  - name: battleCheer4
+    clip: {fileID: 8300000, guid: 251c37dbd294b384eb1160590cf05a40, type: 3}
     volume: 0
     pitch: 0
     priority: 0
@@ -1175,7 +1168,25 @@ MonoBehaviour:
     minDistance: 0
     maxDistance: 0
     loop: 0
-  uiSounds: []
+  - name: battleCheer5
+    clip: {fileID: 8300000, guid: b9ae055aa6b81e34d9ab7a52cceb9875, type: 3}
+    volume: 0
+    pitch: 0
+    priority: 0
+    spatialBlend: 0
+    minDistance: 0
+    maxDistance: 0
+    loop: 0
+  userInterfaceSounds:
+  - name: ButtonClick
+    clip: {fileID: 8300000, guid: 4d32053e9b42eb247988eb52cbb819ab, type: 3}
+    volume: 0.473
+    pitch: 0
+    priority: 1
+    spatialBlend: 0
+    minDistance: 0
+    maxDistance: 0
+    loop: 0
 --- !u!1 &1904518083790628858
 GameObject:
   m_ObjectHideFlags: 0
