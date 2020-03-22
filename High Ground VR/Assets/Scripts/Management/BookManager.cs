@@ -20,6 +20,8 @@ public class BookManager : MonoBehaviour
     [SerializeField, Tooltip("Button Material")] private Material m_buttonMaterial;
     [SerializeField, Tooltip("Selected Material")] private Material m_selectedMaterial;
     [SerializeField, Tooltip("Buildings Buttons")] private List<GameObject> m_buildingButtons = new List<GameObject>();
+    [SerializeField, Tooltip("Spell Buttons")] private List<GameObject> m_spellButtons = new List<GameObject>();
+
 
     [Header ("Book Text Objects")]
     public TextMeshProUGUI moneyText;
@@ -109,6 +111,12 @@ public class BookManager : MonoBehaviour
             _button.GetComponent<PhysicalButton>().isLocked = false;
             _button.GetComponent<MeshRenderer>().material = m_buttonMaterial;
         }
+        foreach (GameObject _button in m_spellButtons)
+        {
+            _button.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None | RigidbodyConstraints.FreezeRotation;
+            _button.GetComponent<PhysicalButton>().isLocked = false;
+            _button.GetComponent<MeshRenderer>().material = m_buttonMaterial;
+        }
 
         gameObject.GetComponent<Animator>().Play("TurnToSpells");
         InputManager.Instance.CurrentlySelectedBuilding = null;
@@ -121,7 +129,21 @@ public class BookManager : MonoBehaviour
     /// </summary>
     public void TurnToBuildings()
     {
-        gameObject.GetComponent<Animator>().Play("TurnPageToBuildings");
+        //Make sure all of the buttons are unlocked.
+        foreach (GameObject _button in m_buildingButtons)
+        {
+            _button.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None | RigidbodyConstraints.FreezeRotation;
+            _button.GetComponent<PhysicalButton>().isLocked = false;
+            _button.GetComponent<MeshRenderer>().material = m_buttonMaterial;
+        }
+        foreach (GameObject _button in m_spellButtons)
+        {
+            _button.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None | RigidbodyConstraints.FreezeRotation;
+            _button.GetComponent<PhysicalButton>().isLocked = false;
+            _button.GetComponent<MeshRenderer>().material = m_buttonMaterial;
+        }
+
+        gameObject.GetComponent<Animator>().Play("TurnToBuildings");
         InputManager.Instance.CurrentlySelectedBuilding = null;
         InputManager.Instance.CurrentlySelectedSpell = (spellTypes)0;
         Debug.Log("Show Buildings");
@@ -151,6 +173,23 @@ public class BookManager : MonoBehaviour
         foreach(GameObject _button in m_buildingButtons)
         {
             if(_button != _selectedButton)
+            {
+                //Unlock
+                _button.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None | RigidbodyConstraints.FreezeRotation;
+                _button.GetComponent<PhysicalButton>().isLocked = false;
+                _button.GetComponent<MeshRenderer>().material = m_buttonMaterial;
+            }
+            else
+            {
+                //Lock
+                _button.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                _button.GetComponent<PhysicalButton>().isLocked = true;
+                _button.GetComponent<MeshRenderer>().material = m_selectedMaterial;
+            }
+        }
+        foreach (GameObject _button in m_spellButtons)
+        {
+            if (_button != _selectedButton)
             {
                 //Unlock
                 _button.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None | RigidbodyConstraints.FreezeRotation;
