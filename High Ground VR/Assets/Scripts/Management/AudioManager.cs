@@ -1,214 +1,182 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
-public enum SoundLists { placeBuildings, weaponClashes,enemySpawning,zapSounds };
+public enum AudioLists { Combat, Building, UI }
+public enum AudioMixers {UI, Effects, Music}
 public class AudioManager : MonoBehaviour
 {
-    private static AudioManager s_instance;
 
-    [SerializeField, Tooltip("Variation on pitch.")] private float m_pitchVariation; //How much to add onto/take away from the pitch once playing.
+    private static AudioManager _instance;
+    //Audio Mixers
+    [SerializeField, Tooltip("UI Audio Mixer")] private AudioMixerGroup m_UIMixer;
+    [SerializeField, Tooltip("Effects Audio Mixer")] private AudioMixerGroup m_effectsMixer;
+    [SerializeField, Tooltip("Music Audio Mixer")] private AudioMixerGroup m_musicMixer;
 
-    [Header("Enemy Spawning")]
-    [SerializeField, Tooltip("Enemy Spawning Sounds."), Space(10)] public List<AudioClip> enemySpawning; //List of building placement sounds
-    [SerializeField, Tooltip("Enemy Spawning Volume"), Range(0.0f, 1.0f)] private float m_enemySpawningVolume; //How much to add onto/take away from the pitch once playing.
-    [SerializeField, Tooltip("Enemy Spawning Sound Max Distance")] private float m_enemyMaxDistance; //Max distance to hear the sound
-
-    [Header ("Weapon Clashes")]
-    [SerializeField, Tooltip("Weapon Clash Sounds."),Space(10)] public List<AudioClip> weaponClashes; //List of weapon clash sounds
-    [SerializeField, Tooltip("weaponClash Volume"),Range(0.0f,1.0f)] private float m_weaponClashVolume; //How much to add onto/take away from the pitch once playing.
-    [SerializeField, Tooltip("Weapon Clashes Sound Max Distance")] private float m_weaponClashesMaxDistance; //Max distance to hear the sound
-
-    [Header("Placing Buildings")]
-    [SerializeField, Tooltip("Building Placement Sounds."),Space(10)] public List<AudioClip> placeBuildings; //List of building placement sounds
-    [SerializeField, Tooltip("place Building Volume"), Range(0.0f, 1.0f)] private float m_placeBuildingVolume; //How much to add onto/take away from the pitch once playing.
-    [SerializeField, Tooltip("Place Buildings Sound Max Distance")] private float m_placeBuildingMaxDistance; //Max distance to hear the sound
+    //Sound List
+    [Header ("Sound Lists")]
+    [SerializeField, Space(10)] public List<Sound> buildingSounds;
+    [SerializeField, Space(5)] public List<Sound> combatSounds;
+    [SerializeField, Space(5)] public List<Sound> userInterfaceSounds;
 
 
-
-    [Header("VR Interaction Zapping")]
-    [SerializeField, Tooltip("zap Sounds."), Space(10)] public List<AudioClip> zapSounds; //List of building placement sounds
-    [SerializeField, Tooltip("zapSounds Volume"), Range(0.0f, 1.0f)] private float m_zapSoundsVolume; //How much to add onto/take away from the pitch once playing.
-    [SerializeField, Tooltip("zapSounds Max Distance")] private float m_zapSoundsMaxDistance; //Max distance to hear the sound
-
-
-    public static AudioManager Instance { get => s_instance; set => s_instance = value; }
+    public static AudioManager Instance { get => _instance; set => _instance = value; }
 
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
+        if (_instance)
         {
-            Destroy(gameObject);
-            return;
+            Destroy(_instance.gameObject);
+            _instance = this;
         }
+
+        _instance = this;
     }
 
     /// <summary>
-    /// Manages playing a sound from any of the lists of sound clips. Cannot play looping audio.
+    /// Plays either a 2D or 3D sound on the passed in targetObject
     /// </summary>
-    /// <param name="_list">Which list of sounds to choose from. </param>
-    /// <param name="_randomIndex">If this is true, a random index will be chosen and the index inputted will be ignored.</param>
-    /// <param name="_index">The index of the desired sound within the chosen list.</param>
-    /// <param name="_audioTarget">Which object to attatch the audio source to.</param>
-    /// <param name="_pitchVariation">Whether to add pitch variation to this sound.</param>
-    /// <param name="_spawnSeperateObject">Where to play this audio clip on a seperate object, helpful if object is about to be destroyed.</param>
-    /// <param name="_destroySource">Whether to destroy the audio source after it is done playing. In most cases this is true.</param>
-    public void Play3DSound(SoundLists _list,bool _randomIndex, int _index, GameObject _audioTarget, bool _pitchVariation, bool _spawnSeperateObject, bool _destroySource)
+    /// <param name="_name">Name of the clip to play.</param>
+    /// <param name="_audioType">The type of audio list to choose from.</param>
+    /// <param name="_mixer">Mixer on which to play it on</param>
+    /// <param name="_seperateObject">Whether to spawn a seperate object with the source on. Useful for things about to be destroyed.</param>
+    /// <param name="_destroyAfterPlaying">Whether to destroy the audioSource after the clip has played.</param>
+    /// <param name="_playin2D">Whether to acknowledge the spatialBlend and min/max distance of the clip. If true, spatial blend will be set to 0.</param>
+    /// <param name="_targetObject">Target GameObject to attatch the audio source to.</param>
+    /// <param name="_pitchShiftAmount">An amount of pitch shift to apply to the audio source. If 0, no pitch shift will occur.</param>
+    public void PlaySound(string _name,AudioLists _audioType, AudioMixers _mixer,bool _seperateObject, bool _destroyAfterPlaying, bool _playin2D,GameObject _targetObject,float _pitchShiftAmount)
     {
-        List<AudioClip> _chosenList = new List<AudioClip>();
-        float _chosenVolume = 0.0f;
-        float _maxDistance = 1000.0f;
-
-        //Pick a random Sounds
-        switch(_list)
+        Sound _sound = null;
+        switch (_audioType)
         {
-            case SoundLists.weaponClashes:
-                _chosenList = weaponClashes;
-                _chosenVolume = m_weaponClashVolume;
-                _maxDistance = m_weaponClashesMaxDistance;
+            case AudioLists.Combat:
+                foreach (Sound s in combatSounds)
+                {
+                    if (s.name == _name)
+                    {
+                        _sound = s;
+                        break;
+                    }
+                }
                 break;
-            case SoundLists.placeBuildings:
-                _chosenList = placeBuildings;
-                _chosenVolume = m_placeBuildingVolume;
-                _maxDistance = m_placeBuildingMaxDistance;
+            case AudioLists.Building:
+                foreach (Sound s in buildingSounds)
+                {
+                    if (s.name == _name)
+                    {
+                        _sound = s;
+                        break;
+                    }
+                }
                 break;
-            case SoundLists.enemySpawning:
-                _chosenList = enemySpawning;
-                _chosenVolume = m_enemySpawningVolume;
-                _maxDistance = m_enemyMaxDistance;
+            case AudioLists.UI:
+                foreach (Sound s in userInterfaceSounds)
+                {
+                    if (s.name == _name)
+                    {
+                        _sound = s;
+                        break;
+                    }
+                }
                 break;
-            case SoundLists.zapSounds:
-                _chosenList = zapSounds;
-                _chosenVolume = m_zapSoundsVolume;
-                _maxDistance = m_zapSoundsMaxDistance;
-                break;
+        }
+        if (_sound == null)
+        {
+            Debug.LogError("Cannot Play \n No sound of name: \"" + name + "\" found");
+            return;
         }
 
 
-        if (_spawnSeperateObject == true)
+        if(_seperateObject == false)
         {
-            GameObject _seperateObject = new GameObject(_audioTarget.name + " Audio Source. Playing - " + name);
-            _seperateObject.transform.position = _audioTarget.transform.position;
-            _audioTarget = _seperateObject;
-        }
-        AudioSource _source = _audioTarget.AddComponent<AudioSource>();
+            AudioSource _source = _targetObject.AddComponent<AudioSource>(); //Attach to the target Object. Only really makes a difference if the sound is played in 3D.
+            _source.clip = _sound.clip;
+            _source.priority = _sound.priority;
+            _source.volume = _sound.volume;
+            _source.pitch = _sound.pitch + Random.Range(-_pitchShiftAmount, _pitchShiftAmount); //Pitch shifting, if 0 is passed in nothing will happen.
 
-
-        if(_randomIndex == true)
-        {
-            _source.clip = _chosenList[Random.Range(0,_chosenList.Count)];
-        }
-        else
-        {
-            _source.clip = _chosenList[_index];
-
-        }
-
-
-
-
-        _source.volume = _chosenVolume;
-        if(_pitchVariation == true)
-        {
-            _source.pitch = 1 + Random.Range(-m_pitchVariation,m_pitchVariation);
-        }
-        else
-        {
-            _source.pitch = 1;
-        }
-
-
-        _source.loop = false;
-        _source.rolloffMode = AudioRolloffMode.Logarithmic;
-        _source.minDistance = 0.1f;
-        _source.maxDistance = _maxDistance;
-        _source.spatialBlend = 1.0f;
-        _source.Play();
-        if (_destroySource == true)
-        {
-            if (_spawnSeperateObject == true)
+            switch (_mixer) //Set the mixer that the audio clip is meant to play on.
             {
-                Destroy(_audioTarget, _source.clip.length);
+                case AudioMixers.UI:
+                    _source.outputAudioMixerGroup = m_UIMixer;
+                    break;
+                case AudioMixers.Effects:
+                    _source.outputAudioMixerGroup = m_effectsMixer;
+                    break;
+                case AudioMixers.Music:
+                    _source.outputAudioMixerGroup = m_musicMixer;
+                    break;
+            }
+
+            if (_playin2D == true)  //Set spatialBlend based on 2D or 3D audio
+            {
+                _source.spatialBlend = 0;
             }
             else
             {
-                Destroy(_source, _source.clip.length);
+                _source.spatialBlend = _sound.spatialBlend;
+                _source.minDistance = _sound.minDistance;
+                _source.maxDistance = _sound.maxDistance;
+            }
+
+
+
+            _source.loop = _sound.loop;
+            _source.Play();
+
+            if (_destroyAfterPlaying == true) //Destroys the source after playing. Useful for spot effects.
+            {
+                Destroy(_source, _sound.clip.length);
             }
         }
-    }
-
-
-    /// <summary>
-    /// Manages playing a sound from any of the lists of sound clips. Cannot play looping audio.
-    /// </summary>
-    /// <param name="_list">Which list of sounds to choose from. </param>
-    /// <param name="_randomIndex">If this is true, a random index will be chosen and the index inputted will be ignored.</param>
-    /// <param name="_index">The index of the desired sound within the chosen list.</param>
-    /// <param name="_audioTarget">Which object to attatch the audio source to.</param>
-    /// <param name="_pitchVariation">Whether to add pitch variation to this sound.</param>
-    /// <param name="_spawnSeperateObject">Where to play this audio clip on a seperate object, helpful if object is about to be destroyed.</param>
-    /// <param name="_destroySource">Whether to destroy the audio source after it is done playing. In most cases this is true.</param>
-    public void Play2DSound(SoundLists _list, bool _randomIndex, int _index, bool _pitchVariation, bool _spawnSeperateObject, bool _destroySource)
-    {
-        List<AudioClip> _chosenList = new List<AudioClip>();
-        float _chosenVolume = 0.0f;
-
-        //Pick a random Sounds
-        switch (_list)
-        {
-            case SoundLists.weaponClashes:
-                _chosenList = weaponClashes;
-                _chosenVolume = m_weaponClashVolume;
-                break;
-            case SoundLists.placeBuildings:
-                _chosenList = placeBuildings;
-                _chosenVolume = m_placeBuildingVolume;
-                break;
-            case SoundLists.enemySpawning:
-                _chosenList = enemySpawning;
-                _chosenVolume = m_enemySpawningVolume;
-                break;
-            case SoundLists.zapSounds:
-                _chosenList = zapSounds;
-                _chosenVolume = m_zapSoundsVolume;
-                break;
-        }
-
-
-        AudioSource _source = this.gameObject.AddComponent<AudioSource>();
-
-
-        if (_randomIndex == true)
-        {
-            _source.clip = _chosenList[Random.Range(0, _chosenList.Count)];
-        }
         else
         {
-            _source.clip = _chosenList[_index];
+            GameObject _go = new GameObject("AudioSource for "  + _targetObject.name);
+            _go.transform.position = _targetObject.transform.position;
+            _go.transform.rotation = _targetObject.transform.rotation;
+            _go.transform.localScale = _targetObject.transform.localScale;
 
+
+            AudioSource _source = _go.AddComponent<AudioSource>(); //Attach to the target Object. Only really makes a difference if the sound is played in 3D.
+            _source.clip = _sound.clip;
+            _source.priority = _sound.priority;
+            _source.volume = _sound.volume;
+            _source.pitch = _sound.pitch + Random.Range(-_pitchShiftAmount, _pitchShiftAmount); //Pitch shifting, if 0 is passed in nothing will happen.
+
+            switch (_mixer) //Set the mixer that the audio clip is meant to play on.
+            {
+                case AudioMixers.UI:
+                    _source.outputAudioMixerGroup = m_UIMixer;
+                    break;
+                case AudioMixers.Effects:
+                    _source.outputAudioMixerGroup = m_effectsMixer;
+                    break;
+                case AudioMixers.Music:
+                    _source.outputAudioMixerGroup = m_musicMixer;
+                    break;
+            }
+
+            if (_playin2D == true)  //Set spatialBlend based on 2D or 3D audio
+            {
+                _source.spatialBlend = 0;
+            }
+            else
+            {
+                _source.spatialBlend = _sound.spatialBlend;
+                _source.minDistance = _sound.minDistance;
+                _source.maxDistance = _sound.maxDistance;
+            }
+
+
+
+            _source.loop = _sound.loop;
+            _source.Play();
+
+            if (_destroyAfterPlaying == true) //Destroys the source after playing. Useful for spot effects.
+            {
+                Destroy(_go, _sound.clip.length);
+            }
         }
-
-
-
-
-        _source.volume = _chosenVolume;
-        if (_pitchVariation == true)
-        {
-            _source.pitch = 1 + Random.Range(-m_pitchVariation, m_pitchVariation);
-        }
-        else
-        {
-            _source.pitch = 1;
-        }
-
-        _source.loop = false;
-        _source.Play();
-        if (_destroySource == true)
-        {
-                Destroy(_source, _source.clip.length);
-        }
-    }
-
+     }
 }

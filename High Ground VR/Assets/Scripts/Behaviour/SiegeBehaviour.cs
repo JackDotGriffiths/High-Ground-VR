@@ -5,11 +5,11 @@ using UnityEngine;
 public class SiegeBehaviour : MonoBehaviour
 {
     private bool m_siegeStarted = false;
-    private float m_siegeTimer = 1f; //Time between each attack
+    private float m_siegeTimer = 3f; //Time between each attack
     private float m_currentTimer;
+    private float m_timePerception;
 
-
-    public List<EnemyGroupBehaviour> enemyGroups;
+    public List<EnemyBehaviour> enemyGroups;
     public BuildingHealth buildingHealth;
 
     public List<Unit> enemyUnits;
@@ -22,7 +22,7 @@ public class SiegeBehaviour : MonoBehaviour
     /// <param name="_enemyUnits">List of enemy units to have in the battle.</param>
     public void StartSiege(BuildingHealth _building, List<Unit> _enemyUnits)
     {
-        enemyGroups = new List<EnemyGroupBehaviour>();
+        enemyGroups = new List<EnemyBehaviour>();
         buildingHealth = _building;
 
         enemyUnits = _enemyUnits;
@@ -54,31 +54,27 @@ public class SiegeBehaviour : MonoBehaviour
 
         if (m_siegeStarted == true)
         {
-
+            float _totalTimePerception = 0;
+            for (int i = 0; i < enemyGroups.Count; i++)
+            {
+                _totalTimePerception += enemyGroups[i].timePerception;
+            }
+            m_timePerception = _totalTimePerception / enemyGroups.Count;
             drawDebugLines();
-            m_currentTimer -= Time.deltaTime * GameManager.Instance.GameSpeed;
+            m_currentTimer -= Time.deltaTime * GameManager.Instance.GameSpeed * m_timePerception;
             if (buildingHealth == null)
             {
                 siegeOver();
             }
             if (m_currentTimer < 0)
             {
-                enemyAttack();
                 m_currentTimer = m_siegeTimer;
+                StartCoroutine("enemyAttack");
             }
         }
     }
 
-    void enemyAttack()
-    {
-        StartCoroutine("delayEnemyAttackAnim");
-        float _totalDamage = 0;
-        for (int i = 0; i < enemyUnits.Count; i++)
-        {
-            _totalDamage += enemyUnits[i].damage;
-        }
-        buildingHealth.takeDamage(_totalDamage);
-    }
+
 
     /// <summary>
     /// Tell all groups that the units belong to that the battle is over.
@@ -87,11 +83,35 @@ public class SiegeBehaviour : MonoBehaviour
     {
         for (int i = 0; i < enemyGroups.Count; i++)
         {
-            EnemyGroupBehaviour _enemy = enemyGroups[i];
+            EnemyBehaviour _enemy = enemyGroups[i];
             _enemy.inSiege = false;
-            //Make the enemies slightly less aggressive after they destroy a building.
-            _enemy.groupAggression = _enemy.groupAggression * 0.85f;
-            _enemy.RunPathfinding(_enemy.groupAggression);
+            _enemy.currentStepIndex = 0;
+            //Run pathfinding, randomly choosing how the unit navigates based on their aggression and some random factors.
+            float _aggressionChance = 1.0f - (GameManager.Instance.aggressionPercentage * (GameManager.Instance.RoundCounter / 2.0f));
+            if (_enemy.groupAggression > _aggressionChance)
+            {
+                float _rand = Random.Range(0.0f, 1.0f);
+                if (_rand < 0.3f)
+                {
+                    _enemy.RunPathfinding(enemyTargets.randomDestructableBuilding, _enemy.groupAggression);
+                }
+                else if (_rand > 0.3f && _rand < 0.5f)
+                {
+                    _enemy.RunPathfinding(enemyTargets.randomMine, _enemy.groupAggression);
+                }
+                else
+                {
+                    _enemy.RunPathfinding(enemyTargets.Gem, _enemy.groupAggression);
+                }
+            }
+            else
+            {
+                _enemy.RunPathfinding(enemyTargets.Gem, _enemy.groupAggression);
+            }
+
+
+
+
         }
         Destroy(this);
     }
@@ -114,24 +134,28 @@ public class SiegeBehaviour : MonoBehaviour
     /// Delay the animations between attacking.
     /// </summary>
     /// <returns></returns>
-    IEnumerator delayEnemyAttackAnim()
+    IEnumerator enemyAttack()
     {
         for (int i = 0; i < enemyUnits.Count; i++)
         {
-            yield return new WaitForSeconds(Random.Range(0, 0.2f));
-            //All units may be dead by this point.
             try
             {
                 //Rotate towards a random target
-                enemyUnits[i].unitComp.transform.LookAt(buildingHealth.transform.position);
+                UnitComponent _unitComp = enemyUnits[i].unitComp;
+                _unitComp.transform.LookAt(buildingHealth.transform.position);
 
                 //Run attack animation
                 enemyUnits[i].unitComp.gameObject.GetComponent<Animator>().Play("UnitAttack");
-
                 //Play an appropriate sound
-                AudioManager.Instance.Play3DSound(SoundLists.weaponClashes, true, 1, enemyUnits[i].unitComp.gameObject, true, false, true);
+                //AudioManager.Instance.Play3DSound(SoundLists.weaponClashes, true, 1, enemyUnits[i].unitComp.gameObject, true, false, true);
+                AudioManager.Instance.PlaySound("weaponClash" + Random.Range(1, 2), AudioLists.Combat, AudioMixers.Effects, true, true, false, enemyUnits[i].unitComp.gameObject, 0.2f);
             }
             catch { }
+            yield return new WaitForSeconds(Random.Range(0, 0.5f));
+            buildingHealth.takeDamage(enemyUnits[i].damage);
+            yield return new WaitForSeconds(Random.Range(0, 0.2f));
+
         }
+        yield return null;
     }
 }

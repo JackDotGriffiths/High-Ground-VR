@@ -1,22 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using Valve.VR;
+using Valve.VR.InteractionSystem;
 
 public class InputManager : MonoBehaviour
 {
+    #region Variable Decleration
     private static InputManager s_instance;
     public enum HandTypes { left, right }; // Handedness
     public enum BookOptions { offHandController, ViveTracker }; // Handedness
     public enum SizeOptions { small, large }; //Whether the player is currently Large or Small.
 
-    [Header ("Player Config"),Space(5)]
+    [Header("Player Config"), Space(5)]
     public HandTypes m_handedness; //The handedness of the player, used to place the book and the laser pointer in the correct hand
     public BookOptions m_bookControllerChoice = BookOptions.offHandController; // The tracking object from the controller.
-    [SerializeField, Tooltip("The height at which the game board should sit relative to the player's height."),Range(0f,1f)] private float m_playerHeightMultiplier = 0.5f;
+    [SerializeField, Tooltip("The height at which the game board should sit relative to the player's height."), Range(0f, 1f)] private float m_playerHeightMultiplier = 0.5f;
 
     [Header("Input Config"), Space(5)]
-    [SerializeField, Tooltip("The GameObject of the entire Rig. Used for scaling and positioning.")] private GameObject m_vrRig; 
+    [SerializeField, Tooltip("The GameObject of the entire Rig. Used for scaling and positioning.")] private GameObject m_vrRig;
     [SerializeField, Tooltip("The Gameobject of the players camera.")] private GameObject m_camera;
     [SerializeField, Tooltip("The Gameobject of the players left controller.")] private GameObject m_leftController;
     [SerializeField, Tooltip("The Gameobject of the players right controller.")] private GameObject m_rightController;
@@ -25,7 +27,7 @@ public class InputManager : MonoBehaviour
 
     //
     [Header("Point & Click")]
-    [SerializeField, Space(10),Tooltip("Material to be used as the Line Renderer")] private Material m_pointerMaterial;
+    [SerializeField, Space(10), Tooltip("Material to be used as the Line Renderer")] private Material m_pointerMaterial;
     [SerializeField, Tooltip("Grass Material of the Hexagons. Used when replacing the highlight.")] private Material m_grassMaterial; //Grass Material of the Hex
     [SerializeField, Tooltip("Material to be used when highlighting a Hexagon.")] private Material m_outlineMaterial; //Outline or Highlight Material to apply when hexagon is pointed at.
     [SerializeField, Tooltip("Interaction Manager script. This is used for shooting enemies")] private InteractionManager m_interactionManager;
@@ -33,8 +35,8 @@ public class InputManager : MonoBehaviour
 
     //
     [Header("Teleportation")]
-    [SerializeField, Space(10),Tooltip("Speed at which the player should move to their teleport. Higher is better.")] private float m_rigTeleportationSpeed = 0.8f; //Lerp Speed from posA to posB, 0.8 seems to be the least jarring.
-    [SerializeField, Tooltip("Smallest Size the environment can be.")] private Vector3 m_smallestScale = new Vector3(0.6f,0.6f,0.6f); //m_environment will be set to this size when the player is large.
+    [SerializeField, Space(10), Tooltip("Speed at which the player should move to their teleport. Higher is better.")] private float m_rigTeleportationSpeed = 0.8f; //Lerp Speed from posA to posB, 0.8 seems to be the least jarring.
+    [SerializeField, Tooltip("Smallest Size the environment can be.")] private Vector3 m_smallestScale = new Vector3(0.6f, 0.6f, 0.6f); //m_environment will be set to this size when the player is large.
     [SerializeField, Tooltip("Largest Size the environment can be.")] private Vector3 m_largestScale = new Vector3(30f, 30f, 30f);//m_environment will be set to this size when the player is small.
     private bool m_teleporterPrimed; //Whether or not the teleporter button is pressed;
     private bool m_enlargePlayer; //Whether the player is being made large by the teleportation
@@ -56,7 +58,7 @@ public class InputManager : MonoBehaviour
     private ValidateBuildingLocation m_buildingValidation; //The ValidateBuildingLocation script, which checks the position of a building before it's placed.
     private List<MeshRenderer> m_objectMeshes = new List<MeshRenderer>(); //List of all of the meshrenderers of the hexagons in the environment.
     private SizeOptions m_currentSize;
-
+    #endregion
 
     #region Accessors
     public static InputManager Instance { get => s_instance; set => s_instance = value; }
@@ -148,7 +150,7 @@ public class InputManager : MonoBehaviour
 
         //Raycast from the mainController forward.
         if (Physics.Raycast(MainController.transform.position, MainController.transform.forward - MainController.transform.up, out _hit, 1000) && m_currentSize == SizeOptions.large)
-        { 
+        {
             //If it hits an environment Hex, highlight.
             if (_hit.collider.gameObject.tag == "Environment")
             {
@@ -257,12 +259,12 @@ public class InputManager : MonoBehaviour
             m_currentlySelectedHex = null;
             m_enlargePlayer = true;
 
-            if(m_mainTrigger == true)
+            if (m_mainTrigger == true)
             {
                 m_currentlySelectedBuilding = null;
             }
 
-            if(m_currentSize == SizeOptions.large)
+            if (m_currentSize == SizeOptions.large)
             {
                 m_mainPointer.startWidth = 0;
                 m_mainPointer.endWidth = 0;
@@ -299,14 +301,14 @@ public class InputManager : MonoBehaviour
 
         #region Trigger Button Handling
 
-                    //m_mainControllerPos = MainController.transform.position;
-                    //if (m_mainTrigger == true && m_currentlySelectedHex == null && !(RightTrigger == true && LeftTrigger == true) && CurrentSize == SizeOptions.large)
-                    //{
-                    //    //Main trigger pressed and not pointing at any hex - Was used for rotation but may be useful later on.
-                    //}
-                    //m_mainControllerPreviousPos = m_mainControllerPos;
+        //m_mainControllerPos = MainController.transform.position;
+        //if (m_mainTrigger == true && m_currentlySelectedHex == null && !(RightTrigger == true && LeftTrigger == true) && CurrentSize == SizeOptions.large)
+        //{
+        //    //Main trigger pressed and not pointing at any hex - Was used for rotation but may be useful later on.
+        //}
+        //m_mainControllerPreviousPos = m_mainControllerPos;
 
-        if(m_currentlySelectedHex == null && m_mainTrigger == true)
+        if (m_currentlySelectedHex == null && m_mainTrigger == true)
         {
             m_currentlySelectedBuilding = null;
         }
@@ -316,7 +318,7 @@ public class InputManager : MonoBehaviour
         #endregion
 
         #region Enemy Interaction Manager
-        if (m_mainTrigger == true &&  m_currentlySelectedBuilding == null)
+        if (m_mainTrigger == true && m_currentlySelectedBuilding == null)
         {
             m_interactionManager.castSpell(CurrentlySelectedSpell);
         }
@@ -357,7 +359,7 @@ public class InputManager : MonoBehaviour
 
             m_newPosition = new Vector3(0, 0, 0);
             m_vrRig.transform.localScale = m_largestScale;
-            
+
             //m_gameEnvironment.transform.localScale = m_smallestScale;
             //m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 0);
 
@@ -376,10 +378,10 @@ public class InputManager : MonoBehaviour
             {
                 Destroy(m_viveTracker);
                 Destroy(OffHandController.transform.GetChild(0).gameObject);
-                m_bookObject = Instantiate(m_bookPrefab,OffHandController.transform);
+                m_bookObject = Instantiate(m_bookPrefab, OffHandController.transform);
                 //m_bookObject.transform.localPosition = Vector3.zero;
                 m_bookObject.transform.localEulerAngles = new Vector3(90, 0, 0);
-                m_bookObject.transform.localPosition = new Vector3(0, 0, m_bookHandOffset* 0.75f);
+                m_bookObject.transform.localPosition = new Vector3(0, 0, m_bookHandOffset * 0.75f);
             }
             else if (m_bookControllerChoice == BookOptions.ViveTracker)
             {
@@ -413,7 +415,7 @@ public class InputManager : MonoBehaviour
         m_vrRig.transform.position = Vector3.Lerp(m_vrRig.transform.position, m_newPosition, m_rigTeleportationSpeed);
 
 
-        if(RightGripped == true && LeftGripped == true)
+        if (RightGripped == true && LeftGripped == true)
         {
             updateWorldHeight();
         }
@@ -425,7 +427,7 @@ public class InputManager : MonoBehaviour
         RightGripped = false;
         LeftGripped = false;
     }
-    
+
     /// <summary>
     /// Updates the m_maxWorldHeight based on the current Y position of the headset. This adjusts the game world to work with any height.
     /// </summary>
@@ -474,7 +476,7 @@ public class InputManager : MonoBehaviour
         int _childCount = m_gameEnvironment.transform.GetChild(0).transform.childCount;
         for (int i = 0; i < _childCount; i++)
         {
-            if(m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).tag == "Environment")
+            if (m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).tag == "Environment")
             {
                 MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).GetComponent<MeshRenderer>();
                 m_objectMeshes.Add(_mesh);
@@ -512,6 +514,22 @@ public class InputManager : MonoBehaviour
 
         //float _angle = (Mathf.Floor(_rawAngle / 60.0f) * 60.0f) + 30.0f;
 
-        return -_rawAngle; 
+        return -_rawAngle;
+    }
+
+    /// <summary>
+    /// Rumbles the Main Hand controller. Useful for spells and UI interactions.
+    /// </summary>
+    /// <param name="_time">The time the rumble lasts for (milliseconds)</param>
+    public void rumble(float _time)
+    {
+        //if (m_handedness == HandTypes.left)
+        //{
+        //    SteamVR_Controller.Input((int)trackedObj.index).TriggerHapticPulse(500);
+        //}
+        //if (m_handedness == HandTypes.right)
+        //{
+        //    SteamVR_Controller.Input((int)trackedObj.index).TriggerHapticPulse(500);
+        //}
     }
 }

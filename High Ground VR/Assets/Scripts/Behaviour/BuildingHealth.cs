@@ -65,7 +65,7 @@ public class BuildingHealth : MonoBehaviour
             m_healthBar.color = Color.Lerp(m_healthBar.color, m_targetColour, 0.03f);
 
             //Make sure the fill amount is representitive of the health of the building.
-            m_healthBar.fillAmount = Mathf.Lerp(m_healthBar.fillAmount, _healthPercentage, 0.05f);
+            m_healthBar.fillAmount = Mathf.Lerp(m_healthBar.fillAmount, _healthPercentage, 0.5f);
         }
     }
 
@@ -101,6 +101,7 @@ public class BuildingHealth : MonoBehaviour
     void Die()
     {
         this.GetComponentInParent<NodeComponent>().node.navigability = navigabilityStates.navigable;
+        AudioManager.Instance.PlaySound("destroyBuilding", AudioLists.Building, AudioMixers.Effects,true, true, false, this.gameObject, 0.1f);
         Destroy(this.gameObject);
     }
 
@@ -111,6 +112,7 @@ public class BuildingHealth : MonoBehaviour
     {
         this.GetComponentInParent<NodeComponent>().node.navigability = navigabilityStates.navigable;
         GameManager.Instance.GameOver = true;
+        AudioManager.Instance.PlaySound("destroyBuilding", AudioLists.Building, AudioMixers.Effects, true, true, false, this.gameObject, 0.1f);
         Destroy(this.gameObject);
     }
 
@@ -124,12 +126,14 @@ public class BuildingHealth : MonoBehaviour
         m_canRegenHealth = true;
     }
 
+#if UNITY_EDITOR
     /// <summary>
     /// Draws the health value above the building for debug purposes.
     /// </summary>
-     void OnDrawGizmos()
+    void OnDrawGizmos()
     {
         Vector3 _position = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
         Handles.Label(_position, "Health : " + currentHealth);
     }
+#endif
 }

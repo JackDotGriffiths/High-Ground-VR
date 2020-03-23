@@ -8,15 +8,17 @@ public class InteractionManager : MonoBehaviour
 {
     [SerializeField, Tooltip("Time before being able to attack again")] private float m_attackCooldown;
 
-    [Header("Regular Attack Effects"), Space(10)]
-    [SerializeField, Tooltip("Damage that should be dealt when player is large.This is PER enemy.")] private float m_playerLargeDamage;
-    [SerializeField, Tooltip("Damage that should be dealt when player is small.This is PER enemy.")] private float m_playerSmallDamage;
+    [Header("Lightning Effect Config"), Space(10)]
     [SerializeField, Tooltip("Number of LineRenderers to make up Lightning"), Space(3)] private int m_lightningStrikes;
     [SerializeField, Tooltip("Number of points in the Lightning that change angle.")] private int m_lightningStrikeBreakPoints;
     [SerializeField, Tooltip("Width in the Lightning effect. Size of the unit sphere used for random placement.")] private float m_lightningWidth;
     [SerializeField, Tooltip("Time between chaning the lightning position.")] private float m_lightningTiming;
     [SerializeField, Tooltip("Number of times the lightning changes position.")] private float m_lightningOccurance;
-    [SerializeField, Tooltip("The material to use for the regularAttackEffect.")] private Material m_regularAttackMaterial;
+    [SerializeField, Tooltip("The material to use for the regularAttackEffect.")] private Material m_lightningMaterial;
+
+    [Header("Regular Attack Effects"), Space(10)]
+    [SerializeField, Tooltip("Damage that should be dealt when player is large.This is PER enemy.")] private float m_playerLargeDamage;
+    [SerializeField, Tooltip("Damage that should be dealt when player is small.This is PER enemy.")] private float m_playerSmallDamage;
 
 
     [Header("Slow Down Attack Effects"), Space(10)]
@@ -82,7 +84,7 @@ public class InteractionManager : MonoBehaviour
                 if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.enemyUnit)
                 {
                     //Find each unit within that group, and deal damage to them.
-                    EnemyGroupBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyGroupBehaviour>();
+                    EnemyBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyBehaviour>();
                     List<Unit> _enemyUnits = new List<Unit>();
                     foreach (GameObject _go in _enemies.m_units)
                     {
@@ -97,6 +99,19 @@ public class InteractionManager : MonoBehaviour
                         }
                     }
                 }
+                if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.wall || _hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.mine )
+                {
+                    //Find each unit within that group, and deal damage to them.
+                    BuildingHealth _buildingHealth = _hit.collider.gameObject.GetComponentInChildren<BuildingHealth>();
+                    _buildingHealth.currentHealth -= 70.0f;
+                    if(_buildingHealth.currentHealth < 0)
+                    {
+                        Destroy(_buildingHealth.gameObject);
+                    }
+                }
+
+
+
             }
         }
         else
@@ -135,7 +150,8 @@ public class InteractionManager : MonoBehaviour
     IEnumerator regularAttackEffect(float _playerScale, GameObject _controller, Vector3 _hitPos)
     {
         m_currentlyAttacking = true;
-        AudioManager.Instance.Play2DSound(SoundLists.zapSounds, false, 0, true, false, true);
+        //AudioManager.Instance.Play2DSound(SoundLists.zapSounds, false, 0, true, false, true);
+        AudioManager.Instance.PlaySound("regularLightning", AudioLists.Combat, AudioMixers.Effects, true, true, true, this.gameObject, 0.1f);
 
         //Create a seperate object to hold the zap effect.
         GameObject _goLine = new GameObject("regularAttackEffect");
@@ -151,7 +167,7 @@ public class InteractionManager : MonoBehaviour
             _go.transform.parent = _goLine.transform;
             Destroy(_go, m_lightningTiming * m_lightningOccurance);
             _lightningLines.Add(new GameObject("regularAttackEffect").AddComponent<LineRenderer>());
-            _lightningLines[i].material = m_regularAttackMaterial;
+            _lightningLines[i].material = m_lightningMaterial;
             _lightningLines[i].startWidth = 0.1f * _playerScale;
             _lightningLines[i].endWidth = 0.1f * _playerScale;
         }
@@ -201,7 +217,6 @@ public class InteractionManager : MonoBehaviour
 
     #endregion
 
-
     #region Slow Down Attack
     /// <summary>
     /// Slows down the units the player is pointing at.
@@ -224,7 +239,7 @@ public class InteractionManager : MonoBehaviour
                 if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.enemyUnit)
                 {
                     //Find each unit within that group, and deal damage to them.
-                    EnemyGroupBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyGroupBehaviour>();
+                    EnemyBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyBehaviour>();
                     StartCoroutine(changeTime(_enemies, m_slowDownTargetTime, m_slowDownDuration));
                     
                 }
@@ -240,9 +255,9 @@ public class InteractionManager : MonoBehaviour
                 if (_hit.collider.gameObject.GetComponentInParent<UnitComponent>() != null)
                 {
                     UnitComponent _unitComp = _hit.collider.gameObject.GetComponentInParent<UnitComponent>();
-                    if (_unitComp.GetComponentInParent<EnemyGroupBehaviour>() != null)
+                    if (_unitComp.GetComponentInParent<EnemyBehaviour>() != null)
                     {
-                        StartCoroutine(changeTime(_unitComp.GetComponentInParent<EnemyGroupBehaviour>(), m_slowDownTargetTime, m_slowDownDuration));
+                        StartCoroutine(changeTime(_unitComp.GetComponentInParent<EnemyBehaviour>(), m_slowDownTargetTime, m_slowDownDuration));
                     }
                 }
             }
@@ -265,8 +280,8 @@ public class InteractionManager : MonoBehaviour
     IEnumerator slowDownAttackEffect(float _playerScale, GameObject _controller, Vector3 _hitPos)
     {
         m_currentlyAttacking = true;
-        AudioManager.Instance.Play2DSound(SoundLists.zapSounds, false, 0, true, false, true);
-
+        //AudioManager.Instance.Play2DSound(SoundLists.zapSounds, false, 0, true, false, true);
+        AudioManager.Instance.PlaySound("slowAttackLightning", AudioLists.Combat, AudioMixers.Effects, true, true, true, this.gameObject, 0.1f);
         //Create a seperate object to hold the zap effect.
         GameObject _goLine = new GameObject("regularAttackEffect");
         StartCoroutine(destroyEffect(_goLine, m_lightningTiming * m_lightningOccurance));
@@ -281,7 +296,7 @@ public class InteractionManager : MonoBehaviour
             _go.transform.parent = _goLine.transform;
             Destroy(_go, m_lightningTiming * m_lightningOccurance);
             _lightningLines.Add(new GameObject("regularAttackEffect").AddComponent<LineRenderer>());
-            _lightningLines[i].material = m_regularAttackMaterial;
+            _lightningLines[i].material = m_lightningMaterial;
             _lightningLines[i].startWidth = 0.1f * _playerScale;
             _lightningLines[i].endWidth = 0.1f * _playerScale;
             _lightningLines[i].startColor = Color.blue;
@@ -355,7 +370,7 @@ public class InteractionManager : MonoBehaviour
                 if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.enemyUnit)
                 {
                     //Find each unit within that group, and deal damage to them.
-                    EnemyGroupBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyGroupBehaviour>();
+                    EnemyBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyBehaviour>();
                     StartCoroutine(changeTime(_enemies, m_speedUpTargetTime, m_speedUpDuration));
 
                 }
@@ -371,9 +386,9 @@ public class InteractionManager : MonoBehaviour
                 if (_hit.collider.gameObject.GetComponentInParent<UnitComponent>() != null)
                 {
                     UnitComponent _unitComp = _hit.collider.gameObject.GetComponentInParent<UnitComponent>();
-                    if (_unitComp.GetComponentInParent<EnemyGroupBehaviour>() != null)
+                    if (_unitComp.GetComponentInParent<EnemyBehaviour>() != null)
                     {
-                        StartCoroutine(changeTime(_unitComp.GetComponentInParent<EnemyGroupBehaviour>(), m_speedUpTargetTime, m_speedUpDuration));
+                        StartCoroutine(changeTime(_unitComp.GetComponentInParent<EnemyBehaviour>(), m_speedUpTargetTime, m_speedUpDuration));
                     }
                 }
             }
@@ -396,7 +411,8 @@ public class InteractionManager : MonoBehaviour
     IEnumerator speedUpAttackEffect(float _playerScale, GameObject _controller, Vector3 _hitPos)
     {
         m_currentlyAttacking = true;
-        AudioManager.Instance.Play2DSound(SoundLists.zapSounds, false, 0, true, false, true);
+        //AudioManager.Instance.Play2DSound(SoundLists.zapSounds, false, 0, true, false, true);
+        AudioManager.Instance.PlaySound("fastAttackLightning", AudioLists.Combat, AudioMixers.Effects, true, true, true, this.gameObject, 0.1f);
 
         //Create a seperate object to hold the zap effect.
         GameObject _goLine = new GameObject("regularAttackEffect");
@@ -412,7 +428,7 @@ public class InteractionManager : MonoBehaviour
             _go.transform.parent = _goLine.transform;
             Destroy(_go, m_lightningTiming * m_lightningOccurance);
             _lightningLines.Add(new GameObject("regularAttackEffect").AddComponent<LineRenderer>());
-            _lightningLines[i].material = m_regularAttackMaterial;
+            _lightningLines[i].material = m_lightningMaterial;
             _lightningLines[i].startWidth = 0.1f * _playerScale;
             _lightningLines[i].endWidth = 0.1f * _playerScale;
             _lightningLines[i].startColor = Color.magenta;
@@ -474,11 +490,13 @@ public class InteractionManager : MonoBehaviour
     /// <param name="_targetTime">The time to set it to</param>
     /// <param name="_duration">The duration of the effect before changing back to 1.</param>
     /// <returns></returns>
-    IEnumerator changeTime(EnemyGroupBehaviour _group, float _targetTime, float _duration)
+    IEnumerator changeTime(EnemyBehaviour _group, float _targetTime, float _duration)
     {
+        //Store original value.
+        float _tempValue = _group.timePerception;
         _group.timePerception = _targetTime;
         yield return new WaitForSeconds(_duration);
-        _group.timePerception = 1.0f;
+        _group.timePerception = _tempValue;
     }
 
 

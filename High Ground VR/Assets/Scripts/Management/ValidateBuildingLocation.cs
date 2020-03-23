@@ -140,13 +140,10 @@ public class ValidateBuildingLocation : MonoBehaviour
             }
         }
 
-
-        if (!checkGemAccessible(_targetNode))
+        if(_validLocation == false)
         {
-            _validLocation = false;
+            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
         }
-
-
         return _validLocation;
     }
 
@@ -158,11 +155,14 @@ public class ValidateBuildingLocation : MonoBehaviour
     public bool verifyMine(Node _targetNode, float _angle)
     {
         bool _validLocation = false;
-        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode) && checkGemAccessible(_targetNode))
+        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
         {
             _validLocation = true;
         }
-
+        if (_validLocation == false)
+        {
+            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+        }
         return _validLocation;
     }
 
@@ -174,11 +174,14 @@ public class ValidateBuildingLocation : MonoBehaviour
     public bool verifyWall(Node _targetNode, float _angle)
     {
         bool _validLocation = false;
-        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode) && checkGemAccessible(_targetNode))
+        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
         {
             _validLocation = true;
         }
-
+        if (_validLocation == false)
+        {
+            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+        }
         return _validLocation;
 
     }
@@ -224,9 +227,10 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <param name="_targetNode">Node on which to place a Barracks</param>
     public void placeBarracks(Node _targetNode, float _angle)
     {
-        if (!GameManager.Instance.spendGold(100))
+        if (!GameManager.Instance.spendGold(GameManager.Instance.barracksCost))
         {
             Debug.Log("Not Enough Money");
+            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
             return;
         }
         //Update Node navigability and surrounding nodes
@@ -237,7 +241,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         GameObject _building = Instantiate(m_barracks,_position,Quaternion.Euler(_rotation), _targetNode.hex.transform);
 
 
-        AudioManager.Instance.Play3DSound(SoundLists.placeBuildings, true, 1, _targetNode.hex, true, false, true);
+        AudioManager.Instance.PlaySound("placeBuilding", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
     }
 
 
@@ -247,9 +251,10 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <param name="_targetNode">Node on which to place a Mine</param>
     public void placeMine(Node _targetNode, float _angle)
     {
-        if (!GameManager.Instance.spendGold(50))
+        if (!GameManager.Instance.spendGold(GameManager.Instance.mineCost))
         {
             Debug.Log("Not Enough Money");
+            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
             return;
         }
         //Update Node navigability and surrounding nodes
@@ -258,7 +263,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         Vector3 _position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
         Vector3 _rotation = new Vector3(0.0f, _angle, 0.0f);
         GameObject _building = Instantiate(m_mine, _position, Quaternion.Euler(_rotation), _targetNode.hex.transform);
-        AudioManager.Instance.Play3DSound(SoundLists.placeBuildings, true, 1, _targetNode.hex, true, false, true);
+        AudioManager.Instance.PlaySound("placeBuilding", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
     }
 
     /// <summary>
@@ -267,9 +272,10 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <param name="_targetNode">Node on which to place a Wall</param>
     public void placeWall(Node _targetNode, float _angle)
     {
-        if (!GameManager.Instance.spendGold(10))
+        if (!GameManager.Instance.spendGold(GameManager.Instance.wallsCost))
         {
             Debug.Log("Not Enough Money");
+            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
             return;
         }
         //Update Node navigability and surrounding nodes
@@ -277,7 +283,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         GameObject _building = Instantiate(m_walls, _targetNode.hex.transform);
         _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
-        AudioManager.Instance.Play3DSound(SoundLists.placeBuildings, true, 1, _targetNode.hex, true, false, true);
+        AudioManager.Instance.PlaySound("placeBuilding", AudioLists.Building, AudioMixers.Effects,false, true, false, _targetNode.hex, 0.1f);
     }
 
     /// <summary>
@@ -370,37 +376,26 @@ public class ValidateBuildingLocation : MonoBehaviour
         foreach(EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
         {
             Node _spawnNode = _spawn.thisNode;
-            bool _spawnCanAccessGem = false;
-            int _accessibleNodes = 0;
-            //For each of the nodes adjacent to that spawn, check whether the enemy can reach the gem.
-            foreach (Node _adjecentNode in _spawnNode.adjecant)
-            {
-                List<Node> _path = new List<Node>();
-                var graph = GameBoardGeneration.Instance.Graph;
-                var search = new Search(GameBoardGeneration.Instance.Graph);
-                search.Start(graph[_adjecentNode.x, _adjecentNode.y], graph[GameManager.Instance.GameGemNode.x, GameManager.Instance.GameGemNode.y], 0.0f);
-                while (!search.finished)
-                {
-                    search.Step();
-                }
-                Transform[] _pathPositions = new Transform[search.path.Count];
-                for (int i = 0; i < search.path.Count; i++)
-                {
-                    _path.Add(search.path[i]);
-                }
-                if (search.path.Count != 0)
-                {
-                    _accessibleNodes++;
-                }
-            }
 
-            if(_accessibleNodes == 0)
+            List<Node> _path = new List<Node>();
+            var graph = GameBoardGeneration.Instance.Graph;
+            var search = new Search(GameBoardGeneration.Instance.Graph);
+            search.Start(graph[_spawnNode.x, _spawnNode.y], graph[GameManager.Instance.GameGemNode.x, GameManager.Instance.GameGemNode.y], 0.0f);
+            while (!search.finished)
+            {
+                search.Step();
+            }
+            Transform[] _pathPositions = new Transform[search.path.Count];
+            for (int i = 0; i < search.path.Count; i++)
+            {
+                _path.Add(search.path[i]);
+            }
+            if (search.path.Count == 0)
             {
                 _result = false;
             }
-
-
         }
+
         _targetNode.navigability = navigabilityStates.navigable;
         return _result;
     }

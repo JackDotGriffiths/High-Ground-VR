@@ -92,7 +92,7 @@ public class Search
         //0.0 = MIN anger
 
 
-        if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.gem || adjacent.navigability == navigabilityStates.playerUnit)
+        if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.gem || adjacent.navigability == navigabilityStates.playerUnit || adjacent.navigability == navigabilityStates.enemyUnit)
         {
             reachable.Add(adjacent);
         }
@@ -102,7 +102,7 @@ public class Search
         //If the aggression is 1, always add the destructible node. This is used for checking of pathfinding and super aggressive enemies.
         if (unitAggression == 1.0f)
         {
-            if (adjacent.navigability == navigabilityStates.wall || adjacent.navigability == navigabilityStates.mine)
+            if (adjacent.navigability == navigabilityStates.wall || adjacent.navigability == navigabilityStates.mine )
             {
                 reachable.Add(adjacent);
             }
@@ -113,10 +113,6 @@ public class Search
             {
                 reachable.Add(adjacent);
             }
-        }
-        else if(adjacent.navigability == navigabilityStates.enemyUnit)
-        {
-            reachable.Add(adjacent);
         }
     }
 
@@ -156,24 +152,88 @@ public class Search
     /// <returns></returns>
     public Node ChooseNode()
     {
+                //float _minDistance = Mathf.Infinity;
+                //for (int i = 0; i < reachable.Count - 1; i++)
+                //    Vector3 _nodePos = reachable[i].hex.transform.position;
+                //if (Vector3.Distance(_nodePos, _goalNodePos) < _minDistance)
+                //    _minDistance = Vector3.Distance(_nodePos, _goalNodePos);
+                //_closestNode = reachable[i];
+                //return _closestNode;
 
-        Node _closestNode = reachable[Random.Range(0, reachable.Count)];
-        Vector3 _goalNodePos = goalNode.hex.transform.position;
-        float _minDistance = Mathf.Infinity;
+        //Randomly chooses a node which is in the correct direction, giving some variety to enemy paths. The commented out section above is the perfect pathfinding.
 
-        //Find the smallest distance from the goal node.
-        for (int i = 0; i < reachable.Count-1; i++)
+        //List of Nodes from reachable
+        List<Node> _searchNodes = reachable;
+
+        //If theres only one available
+        if (_searchNodes.Count == 1)
         {
-            //explored.Add(reachable[i]);
-            Vector3 _nodePos = reachable[i].hex.transform.position;
-            if (Vector3.Distance(_nodePos, _goalNodePos) < _minDistance)
+            return _searchNodes[0];
+        }
+        else if (_searchNodes.Count == 2) //Randomly choose if there's two available
+        {
+            if (Random.Range(0.0f,1.0f) < 0.8f)
             {
-                _minDistance = Vector3.Distance(_nodePos, _goalNodePos);
-                _closestNode = reachable[i];
+                return _searchNodes[0];
+            }
+            else
+            {
+                return _searchNodes[1];
             }
         }
 
-        return _closestNode;
-    }
 
+        Node _closestNode = reachable[Random.Range(0, reachable.Count)];
+        Vector3 _goalNodePos = goalNode.hex.transform.position;
+
+        //Bubble Sort in distance from _it to the gem
+        Node _tempNode;
+        for (int j = 0; j < _searchNodes.Count-2; j++)
+        {
+            for (int i = 0; i < _searchNodes.Count-2; i++)
+            {
+                Vector3 _node1Pos = _searchNodes[i].hex.transform.position;
+                Vector3 _node2Pos = _searchNodes[i + 1].hex.transform.position;
+                float _distance1 = Vector3.Distance(_node1Pos, _goalNodePos);
+                float _distance2 = Vector3.Distance(_node2Pos, _goalNodePos);
+                if (_distance1 > _distance2)
+                {
+                    _tempNode = _searchNodes[i + 1];
+                    _searchNodes[i + 1] = _searchNodes[i];
+                    _searchNodes[i] = _tempNode;
+                }
+            }
+        }
+
+        if(_searchNodes.Count > 1)
+        {
+            float _rand = Random.Range(0.0f, 1.0f);
+
+
+            _rand = Random.Range(0.0f, 1.0f);
+
+
+
+
+
+
+
+            if (_rand <= 0.85f)// 85% of picking the best
+            {
+                return _searchNodes[0];
+            }
+            else if (_rand > 0.85f && _rand < 0.95f)// 10% of picking second best
+            {
+                return _searchNodes[1];
+            }
+            else // 5% of picking third best
+            {
+                return _searchNodes[2];
+            }
+        }
+        else
+        {
+            return _searchNodes[0];
+        }
+    }
 }

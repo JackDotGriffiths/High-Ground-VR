@@ -66,7 +66,6 @@ public class BarracksBehaviour : MonoBehaviour
         m_currentUnits = m_unitCount;
         EvaluateUnitPositions();
     }
-
     void Update()
     {
         //Remove null objects from m_units so that dead units don't stay in the list.
@@ -85,6 +84,10 @@ public class BarracksBehaviour : MonoBehaviour
             {
                 m_respawning = true;
                 StartCoroutine("RespawnUnits");
+            }
+            if(m_currentUnits == 0)
+            {
+                m_barracksUnitNode.navigability = navigabilityStates.navigable;
             }
         }
 
@@ -124,7 +127,6 @@ public class BarracksBehaviour : MonoBehaviour
 
     }
 
-
     /// <summary>
     /// Looks for enemies in adjecent nodes and creates a battle event if it finds any, adding the located enemies.
     /// </summary>
@@ -135,7 +137,7 @@ public class BarracksBehaviour : MonoBehaviour
             if (_node.navigability == navigabilityStates.enemyUnit)
             {
                 //If it detects an enemy group in any adjecent nodes, start combat
-                EnemyGroupBehaviour _enemy = _node.hex.transform.GetChild(0).GetComponent<EnemyGroupBehaviour>();
+                EnemyBehaviour _enemy = _node.hex.transform.GetChild(0).GetComponent<EnemyBehaviour>();
                 //If the enemy is currently destroying a wall, stop it from doing so.
                 if(_enemy.inSiege == true)
                 {
@@ -179,7 +181,7 @@ public class BarracksBehaviour : MonoBehaviour
             if (_node.navigability == navigabilityStates.enemyUnit)
             {
                 //If it detects an enemy group in any adjecent nodes, get all of the units from that enemy group
-                EnemyGroupBehaviour _enemy = _node.hex.transform.GetChild(0).GetComponent<EnemyGroupBehaviour>();
+                EnemyBehaviour _enemy = _node.hex.transform.GetChild(0).GetComponent<EnemyBehaviour>();
                 if (_enemy.inCombat == false)
                 {
                     BattleBehaviour _battle = this.gameObject.GetComponent<BattleBehaviour>();
@@ -217,23 +219,26 @@ public class BarracksBehaviour : MonoBehaviour
     /// <returns></returns>
     IEnumerator RespawnUnits()
     {
-        m_barracksUnitNode.navigability = navigabilityStates.navigable;
         do
         {
             yield return new WaitForSeconds(m_unitRespawnDelay);
+            //If the target node is completely clear , Spawn a unit.
             if (m_barracksUnitNode.hex.transform.childCount != 0)
             {
-                if (m_barracksUnitNode.hex.transform.GetChild(0).GetComponent<EnemyGroupBehaviour>() == null)
+                if (m_barracksUnitNode.hex.transform.GetChild(0).GetComponent<EnemyBehaviour>() == null)
                 {
+                    AudioManager.Instance.PlaySound("barracksRespawn", AudioLists.Building, AudioMixers.Effects, false, true, false, this.gameObject, 0.1f);
                     SpawnAUnit();
                 }
             }
             else if (m_barracksUnitNode.navigability == navigabilityStates.navigable || m_barracksUnitNode.navigability == navigabilityStates.playerUnit)
             {
+                AudioManager.Instance.PlaySound("barracksRespawn", AudioLists.Building, AudioMixers.Effects, false, true, false, this.gameObject, 0.1f);
                 SpawnAUnit();
             }
         } while (m_currentUnits < m_unitCount-1);
         m_respawning = false;
+        yield return null;
     }
 
     /// <summary>
