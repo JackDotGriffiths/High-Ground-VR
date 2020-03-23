@@ -35,9 +35,9 @@ public class GameManager : MonoBehaviour
     [SerializeField, Tooltip("Amount of gold for a player to earn per interval.")] private int m_minedGoldPerRound = 20; //Amount of gold per tick
     [SerializeField, Tooltip("Amount of gold for a player to earn from killing an enemy")] private int m_goldPerKill = 20; //Amount of enemyKilled
 
-    public int wallsCost = 100; //Cost of placing a wall
-    public int barracksCost = 50; // Cost of placing a barracks
-    public int mineCost = 10; //Cost of placing a mine
+    public int wallsCost = 10; //Cost of placing a wall
+    public int barracksCost = 100; // Cost of placing a barracks
+    public int mineCost = 50; //Cost of placing a mine
     private int m_mineCount;
 
 
@@ -121,6 +121,10 @@ public class GameManager : MonoBehaviour
         if(CurrentPhase == Phases.Building)
         {
             m_buildingPhaseTimer -= Time.deltaTime * m_gameSpeed;
+            if(m_buildingPhaseTimer % 1.0f < 0.01f)
+            {
+                AudioManager.Instance.PlaySound("clockTick", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.2f);
+            }
         }
         if (m_currentEnemies <= 0 && CurrentPhase == Phases.Building && m_buildingPhaseTimer <= 0.0f)
         {
@@ -143,7 +147,10 @@ public class GameManager : MonoBehaviour
         m_round.text = "Building";
         StartCoroutine(generateMineGold());
 
-        currentGold += (m_mineCount * m_minedGoldPerRound) + 30;
+        if(m_roundCounter != 1) //Stops this happening on the first round.
+        {
+            currentGold += (m_mineCount * m_minedGoldPerRound) + 30;
+        }
 
 
 

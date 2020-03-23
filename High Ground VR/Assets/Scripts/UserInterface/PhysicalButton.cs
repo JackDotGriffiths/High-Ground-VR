@@ -47,7 +47,7 @@ public class PhysicalButton : MonoBehaviour
                 {
                     m_released = false;
                     m_pressed = true;
-                    AudioManager.Instance.PlaySound("ButtonClick", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.1f);
+                    AudioManager.Instance.PlaySound("buttonClick", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.1f);
                     m_buttonPressMethod.Invoke();
                 }
             }
