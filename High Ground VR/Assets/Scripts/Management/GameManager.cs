@@ -121,9 +121,9 @@ public class GameManager : MonoBehaviour
         if(CurrentPhase == Phases.Building)
         {
             m_buildingPhaseTimer -= Time.deltaTime * m_gameSpeed;
-            if(m_buildingPhaseTimer % 1.0f < 0.01f)
+            if(m_buildingPhaseTimer % 1.0f < 0.01f) // Plays a ticking sound with the timer.
             {
-                AudioManager.Instance.PlaySound("clockTick", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.2f);
+                AudioManager.Instance.PlaySound("clockTick", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.1f);
             }
         }
         if (m_currentEnemies <= 0 && CurrentPhase == Phases.Building && m_buildingPhaseTimer <= 0.0f)
