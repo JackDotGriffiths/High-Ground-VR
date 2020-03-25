@@ -7508,7 +7508,7 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressDistance
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -7888,7 +7888,7 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressDistance
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -8084,7 +8084,7 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressDistance
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}

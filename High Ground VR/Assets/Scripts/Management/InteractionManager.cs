@@ -117,10 +117,9 @@ public class InteractionManager : MonoBehaviour
         else
         {
             RaycastHit _hit;
-
-            StartCoroutine(regularAttackEffect(0.5f, _controller, _controller.transform.position + _controller.transform.forward * 20f));
             if (Physics.Raycast(_controller.transform.position, _controller.transform.forward, out _hit, 1000))
             {
+                StartCoroutine(regularAttackEffect(0.2f, _controller, _hit.point));
                 //If it's a unit;
                 if (_hit.collider.gameObject.GetComponentInParent<UnitComponent>() != null)
                 {
@@ -135,6 +134,7 @@ public class InteractionManager : MonoBehaviour
             else
             {
                 //Miss 
+                StartCoroutine(regularAttackEffect(0.2f, _controller, _controller.transform.position + _controller.transform.forward * 20f));
             }
         }
 

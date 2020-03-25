@@ -410,7 +410,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         bool _validLocation = true;
         foreach(Node _node in _targetNode.adjecant)
         {
-            if(_node.navigability == navigabilityStates.barracks || _node.navigability == navigabilityStates.playerUnit)
+            if(_node.navigability == navigabilityStates.barracks)
             {
                 _validLocation = false;
             }

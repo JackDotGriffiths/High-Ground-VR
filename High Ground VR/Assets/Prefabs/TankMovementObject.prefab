@@ -46,7 +46,7 @@ MonoBehaviour:
   m_unitPrefab: {fileID: 3458262586020738500, guid: 6cf0ba393cfdeff43babbb4db6babff1,
     type: 3}
   m_groupSize: 1
-  m_tickTimer: 3
+  m_tickTimer: 2.5
   m_movementSpeed: 0.1
   timePerception: 1
   m_fullAggression: 1
