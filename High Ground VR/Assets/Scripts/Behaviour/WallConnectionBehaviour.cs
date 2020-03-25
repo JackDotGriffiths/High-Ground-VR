@@ -17,7 +17,7 @@ public class WallConnectionBehaviour : MonoBehaviour
         foreach(Node _node in thisNode.adjecant)
         {
             //If the adjacent node contains a building that is worth connecting to, place a connector.
-            if(_node.navigability == navigabilityStates.barracks || _node.navigability == navigabilityStates.wall)
+            if(_node.navigability == navigabilityStates.wall)
             {
                 //Create a connector
                 Vector3 _thisPos = thisNode.hex.transform.position;
