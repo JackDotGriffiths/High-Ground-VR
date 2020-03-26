@@ -7,6 +7,7 @@ public enum spellTypes { none, regularAttack, speedUpUnit, slowDownUnit};
 public class InteractionManager : MonoBehaviour
 {
     [SerializeField, Tooltip("Time before being able to attack again")] private float m_attackCooldown;
+    [SerializeField, Tooltip("Lightning Hit Effect")] private GameObject m_lightningHitEffect;
 
     [Header("Lightning Effect Config"), Space(10)]
     [SerializeField, Tooltip("Number of LineRenderers to make up Lightning"), Space(3)] private int m_lightningStrikes;
@@ -80,9 +81,16 @@ public class InteractionManager : MonoBehaviour
             if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - _controller.transform.up, out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
             {
                 StartCoroutine(regularAttackEffect(1.0f, _controller, _hit.point));
-               //If you hit a collider of the environment which has an enemy on it.
+
+                //Show the dust effect on the hex you hit
+                Vector3 _effectPos = new Vector3(_hit.collider.gameObject.transform.position.x, _hit.collider.gameObject.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _hit.collider.gameObject.transform.position.z);
+                GameObject _dustEffect = Instantiate(m_lightningHitEffect, _effectPos, Quaternion.Euler(-90, 0, 0));
+                Destroy(_dustEffect, 0.5f);
+
+                //If you hit a collider of the environment which has an enemy on it.
                 if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.enemyUnit)
                 {
+
                     //Find each unit within that group, and deal damage to them.
                     EnemyBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyBehaviour>();
                     List<Unit> _enemyUnits = new List<Unit>();
@@ -234,7 +242,14 @@ public class InteractionManager : MonoBehaviour
             RaycastHit _hit;
             if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - _controller.transform.up, out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
             {
+
                 StartCoroutine(slowDownAttackEffect(0.3f, _controller, _hit.point));
+
+                //Show the dust effect on the hex you hit
+                Vector3 _effectPos = new Vector3(_hit.collider.gameObject.transform.position.x, _hit.collider.gameObject.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _hit.collider.gameObject.transform.position.z);
+                GameObject _dustEffect = Instantiate(m_lightningHitEffect, _effectPos, Quaternion.Euler(-90, 0, 0));
+                Destroy(_dustEffect, 0.5f);
+
                 //If you hit a collider of the environment which has an enemy on it.
                 if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.enemyUnit)
                 {
@@ -366,6 +381,12 @@ public class InteractionManager : MonoBehaviour
             if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - _controller.transform.up, out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
             {
                 StartCoroutine(speedUpAttackEffect(0.3f, _controller, _hit.point));
+
+                //Show the dust effect on the hex you hit
+                Vector3 _effectPos = new Vector3(_hit.collider.gameObject.transform.position.x, _hit.collider.gameObject.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _hit.collider.gameObject.transform.position.z);
+                GameObject _dustEffect = Instantiate(m_lightningHitEffect, _effectPos, Quaternion.Euler(-90, 0, 0));
+                Destroy(_dustEffect, 0.5f);
+
                 //If you hit a collider of the environment which has an enemy on it.
                 if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.enemyUnit)
                 {

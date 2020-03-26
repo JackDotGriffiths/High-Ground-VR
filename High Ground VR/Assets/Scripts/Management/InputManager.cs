@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
 using Valve.VR.InteractionSystem;
-
+public enum HandTypes { left, right }; // Handedness
 public class InputManager : MonoBehaviour
 {
     #region Variable Decleration
     private static InputManager s_instance;
-    public enum HandTypes { left, right }; // Handedness
     public enum BookOptions { offHandController, ViveTracker }; // Handedness
     public enum SizeOptions { small, large }; //Whether the player is currently Large or Small.
 
@@ -192,6 +191,7 @@ public class InputManager : MonoBehaviour
                     if (m_buildingValidation.verifyBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node, _angle))
                     {
                         m_buildingValidation.placeBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node, _angle);
+                        RumbleManager.Instance.lightVibration(m_handedness);
                     }
                 }
             }
