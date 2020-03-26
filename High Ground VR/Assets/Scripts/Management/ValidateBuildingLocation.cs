@@ -143,6 +143,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         if(_validLocation == false)
         {
             AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+            RumbleManager.Instance.heavyVibration(InputManager.Instance.Handedness);
         }
         return _validLocation;
     }
@@ -162,6 +163,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         if (_validLocation == false)
         {
             AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+            RumbleManager.Instance.heavyVibration(InputManager.Instance.Handedness);
         }
         return _validLocation;
     }
@@ -181,6 +183,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         if (_validLocation == false)
         {
             AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+            RumbleManager.Instance.heavyVibration(InputManager.Instance.Handedness);
         }
         return _validLocation;
 

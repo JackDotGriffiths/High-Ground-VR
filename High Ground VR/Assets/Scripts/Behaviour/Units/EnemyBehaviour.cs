@@ -175,7 +175,7 @@ public class EnemyBehaviour : MonoBehaviour
 
 
 
-        //Run pathfinding, randomly choosing how the unit navigates based on their aggression and some random factors.
+        //Run pathfinding, randomly choosing how the unit navigates based on their aggression and some random factors. This is only used by the tank enemy as default units start with 0 aggression.
         float _aggressionChance = 1.0f - (GameManager.Instance.aggressionPercentage * (GameManager.Instance.RoundCounter / 2.0f));
         if (groupAggression > _aggressionChance)
         {
@@ -201,26 +201,7 @@ public class EnemyBehaviour : MonoBehaviour
         {
             m_groupPath = new List<Node>();
             groupAggression = 1.0f;
-            if (groupAggression > _aggressionChance)
-            {
-                float _rand = Random.Range(0.0f, 1.0f);
-                if (_rand < 0.3f)
-                {
-                    RunPathfinding(enemyTargets.randomDestructableBuilding, groupAggression);
-                }
-                else if (_rand > 0.3f && _rand < 0.5f)
-                {
-                    RunPathfinding(enemyTargets.randomMine, groupAggression);
-                }
-                else
-                {
-                    RunPathfinding(enemyTargets.Gem, groupAggression);
-                }
-            }
-            else
-            {
-                RunPathfinding(enemyTargets.Gem, groupAggression);
-            }
+            RunPathfinding(enemyTargets.Gem, groupAggression);
         }
         m_targetPosition = new Vector3(m_groupPath[0].hex.transform.position.x, m_groupPath[0].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[0].hex.transform.position.z);
         m_unitInstantiated = true;

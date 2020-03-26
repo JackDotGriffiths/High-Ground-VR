@@ -74,13 +74,14 @@ public class InteractionManager : MonoBehaviour
         {
             return;
         }
+        RumbleManager.Instance.heavyVibration(InputManager.Instance.Handedness);
         //Player is large, attack a hex.
         if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
         {
             RaycastHit _hit;
             if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - _controller.transform.up, out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
             {
-                StartCoroutine(regularAttackEffect(1.0f, _controller, _hit.point));
+                StartCoroutine(regularAttackEffect(0.7f, _controller, _hit.point));
 
                 //Show the dust effect on the hex you hit
                 Vector3 _effectPos = new Vector3(_hit.collider.gameObject.transform.position.x, _hit.collider.gameObject.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _hit.collider.gameObject.transform.position.z);
@@ -127,7 +128,7 @@ public class InteractionManager : MonoBehaviour
             RaycastHit _hit;
             if (Physics.Raycast(_controller.transform.position, _controller.transform.forward, out _hit, 1000))
             {
-                StartCoroutine(regularAttackEffect(0.2f, _controller, _hit.point));
+                StartCoroutine(regularAttackEffect(0.1f, _controller, _hit.point));
                 //If it's a unit;
                 if (_hit.collider.gameObject.GetComponentInParent<UnitComponent>() != null)
                 {
@@ -236,6 +237,7 @@ public class InteractionManager : MonoBehaviour
         {
             return;
         }
+        RumbleManager.Instance.heavyVibration(InputManager.Instance.Handedness);
         //Player is large, attack a hex.
         if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
         {
@@ -374,6 +376,7 @@ public class InteractionManager : MonoBehaviour
         {
             return;
         }
+        RumbleManager.Instance.heavyVibration(InputManager.Instance.Handedness);
         //Player is large, attack a hex.
         if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
         {

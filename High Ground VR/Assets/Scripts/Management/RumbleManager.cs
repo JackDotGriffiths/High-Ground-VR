@@ -23,15 +23,33 @@ public class RumbleManager : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// Light vibration - Used for button confirmations 
+    /// </summary>
+    /// <param name="_hand"></param>
     public void lightVibration(HandTypes _hand)
     {
         if(_hand == HandTypes.left)
         {
-            Vibration.Execute(0, 0.3f, 1, 100, SteamVR_Input_Sources.LeftHand);
+            Vibration.Execute(0, 0.1f, 3, 1, SteamVR_Input_Sources.LeftHand);
         }
         else
         {
-            Vibration.Execute(0, 0.3f, 1, 100, SteamVR_Input_Sources.RightHand);
+            Vibration.Execute(0, 0.1f, 3, 1, SteamVR_Input_Sources.RightHand);
         }
     }
+
+
+    public void heavyVibration(HandTypes _hand)
+    {
+        if (_hand == HandTypes.left)
+        {
+            Vibration.Execute(0, 0.5f, 30, 10, SteamVR_Input_Sources.LeftHand);
+        }
+        else
+        {
+            Vibration.Execute(0, 0.5f, 30, 10, SteamVR_Input_Sources.RightHand);
+        }
+    }
+
 }

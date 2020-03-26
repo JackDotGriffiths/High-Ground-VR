@@ -12,7 +12,7 @@ public class InputManager : MonoBehaviour
     public enum SizeOptions { small, large }; //Whether the player is currently Large or Small.
 
     [Header("Player Config"), Space(5)]
-    public HandTypes m_handedness; //The handedness of the player, used to place the book and the laser pointer in the correct hand
+    public HandTypes Handedness; //The handedness of the player, used to place the book and the laser pointer in the correct hand
     public BookOptions m_bookControllerChoice = BookOptions.offHandController; // The tracking object from the controller.
     [SerializeField, Tooltip("The height at which the game board should sit relative to the player's height."), Range(0f, 1f)] private float m_playerHeightMultiplier = 0.5f;
 
@@ -79,12 +79,12 @@ public class InputManager : MonoBehaviour
     void Start()
     {
         //Handles whether the player is left or right handed.
-        if (m_handedness == HandTypes.left)
+        if (Handedness == HandTypes.left)
         {
             MainController = m_leftController;
             OffHandController = m_rightController;
         }
-        if (m_handedness == HandTypes.right)
+        if (Handedness == HandTypes.right)
         {
             MainController = m_rightController;
             OffHandController = m_leftController;
@@ -191,7 +191,7 @@ public class InputManager : MonoBehaviour
                     if (m_buildingValidation.verifyBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node, _angle))
                     {
                         m_buildingValidation.placeBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node, _angle);
-                        RumbleManager.Instance.lightVibration(m_handedness);
+                        RumbleManager.Instance.lightVibration(Handedness);
                     }
                 }
             }
@@ -387,7 +387,7 @@ public class InputManager : MonoBehaviour
             {
                 float _zOffset;
                 //Rotate based on Handedness
-                if (m_handedness == HandTypes.right)
+                if (Handedness == HandTypes.right)
                 {
                     _zOffset = 90;
                 }
@@ -523,11 +523,11 @@ public class InputManager : MonoBehaviour
     /// <param name="_time">The time the rumble lasts for (milliseconds)</param>
     public void rumble(float _time)
     {
-        //if (m_handedness == HandTypes.left)
+        //if (Handedness == HandTypes.left)
         //{
         //    SteamVR_Controller.Input((int)trackedObj.index).TriggerHapticPulse(500);
         //}
-        //if (m_handedness == HandTypes.right)
+        //if (Handedness == HandTypes.right)
         //{
         //    SteamVR_Controller.Input((int)trackedObj.index).TriggerHapticPulse(500);
         //}
