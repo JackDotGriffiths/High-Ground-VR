@@ -10,10 +10,10 @@ public class BarracksBehaviour : MonoBehaviour
 
 
     public bool inCombat;  //Tracks whether the unit is in combat or not.
+    public Node BarracksUnitNode; //The node on which the units are placed.
 
     private ValidateBuildingLocation m_buildingValidation; //Script used to validate a building position, it also stores the Y offset of all placed objects.
     private Node m_barracksPlacedNode; //The node on which the barracks is placed.
-    private Node m_barracksUnitNode; //The node on which the units are placed.
     private List<GameObject> m_units; //A list of all units associated with this barracks.
     private int m_currentUnits;  //The current amount of units associated with this barracks.
     private bool m_respawning = false;
@@ -44,22 +44,22 @@ public class BarracksBehaviour : MonoBehaviour
         //Based on the size of the player (Small or large), change the position of which the raycast comes from.
          _raycastPos = new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z);
 
-        //If the raycast hits a node, assign m_barracksUnitNode to this located node.
+        //If the raycast hits a node, assign BarracksUnitNode to this located node.
         Debug.DrawRay(_raycastPos, _raycastDir, Color.green);
         if (Physics.Raycast(_raycastPos, _raycastDir, out _hit))
         {
             if (_hit.collider.tag == "Environment")
             {
-                m_barracksUnitNode = _hit.collider.gameObject.GetComponent<NodeComponent>().node;
-                m_barracksUnitNode.navigability = navigabilityStates.playerUnit;
+                BarracksUnitNode = _hit.collider.gameObject.GetComponent<NodeComponent>().node;
+                BarracksUnitNode.navigability = navigabilityStates.playerUnit;
             }
         }
         //Spawn the correct amount of enemies 
         for (int i = 0; i < m_unitCount; i++)
         {
-            Vector3 _unitSpawnPos = new Vector3(m_barracksUnitNode.hex.transform.position.x, m_barracksUnitNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_barracksUnitNode.hex.transform.position.z);
-            GameObject _newUnit = Instantiate(m_unitPrefab, _unitSpawnPos, transform.rotation, m_barracksUnitNode.hex.transform);
-            m_barracksUnitNode.navigability = navigabilityStates.playerUnit;
+            Vector3 _unitSpawnPos = new Vector3(BarracksUnitNode.hex.transform.position.x, BarracksUnitNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, BarracksUnitNode.hex.transform.position.z);
+            GameObject _newUnit = Instantiate(m_unitPrefab, _unitSpawnPos, transform.rotation, BarracksUnitNode.hex.transform);
+            BarracksUnitNode.navigability = navigabilityStates.playerUnit;
             _newUnit.GetComponent<UnitComponent>().playerUnitConstructor();
             m_units.Add(_newUnit);
         }
@@ -80,14 +80,15 @@ public class BarracksBehaviour : MonoBehaviour
 
         if(m_currentUnits < m_unitCount)
         {
-            if(m_respawning == false)
+            if (m_respawning == false)
             {
                 m_respawning = true;
                 StartCoroutine("RespawnUnits");
             }
-            if(m_currentUnits == 0)
+
+            if(m_currentUnits == 0 && BarracksUnitNode.hex.transform.childCount == 0) // If there are no player units and there is nothing on the tile, make it navigable.
             {
-                m_barracksUnitNode.navigability = navigabilityStates.navigable;
+                BarracksUnitNode.navigability = navigabilityStates.navigable;
             }
         }
 
@@ -109,7 +110,7 @@ public class BarracksBehaviour : MonoBehaviour
     void EvaluateUnitPositions()
     {
         //Based on size of the environment, the position on which the units should be moved to has a different Y value.
-        Vector3 _hexPosition = new Vector3(m_barracksUnitNode.hex.transform.position.x, m_barracksUnitNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_barracksUnitNode.hex.transform.position.z);
+        Vector3 _hexPosition = new Vector3(BarracksUnitNode.hex.transform.position.x, BarracksUnitNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, BarracksUnitNode.hex.transform.position.z);
 
 
         //Divide the hex into angles, based on the amount of units associated with this barracks.
@@ -132,7 +133,7 @@ public class BarracksBehaviour : MonoBehaviour
     /// </summary>
     void CheckLocalNodes()
     {
-        foreach(Node _node in m_barracksUnitNode.adjecant)
+        foreach(Node _node in BarracksUnitNode.adjecant)
         {
             if (_node.navigability == navigabilityStates.enemyUnit)
             {
@@ -149,14 +150,16 @@ public class BarracksBehaviour : MonoBehaviour
                     List<Unit> _friendlyUnits = new List<Unit>();
                     List<Unit> _enemyUnits = new List<Unit>();
 
-                    foreach (GameObject _gameObj in m_units)
+                    for (int i = 0; i < m_units.Count; i++)
                     {
-                        _friendlyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
+                        _friendlyUnits.Add(m_units[i].GetComponent<UnitComponent>().unit);
+
                     }
-                    foreach (GameObject _gameObj in _enemy.m_units)
+                    for (int i = 0; i < _enemy.m_units.Count; i++)
                     {
-                        _enemyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
+                        _enemyUnits.Add(_enemy.m_units[i].GetComponent<UnitComponent>().unit);
                     }
+
 
                     BattleBehaviour _battle = this.gameObject.AddComponent<BattleBehaviour>();
                     _battle.StartBattle(_friendlyUnits, _enemyUnits);
@@ -165,7 +168,6 @@ public class BarracksBehaviour : MonoBehaviour
 
                     _enemy.inCombat = true;
                     inCombat = true;
-                    return;
                 }
             }
         }
@@ -176,7 +178,7 @@ public class BarracksBehaviour : MonoBehaviour
     /// </summary>
     void AddEnemyToBattle()
     {
-        foreach (Node _node in m_barracksUnitNode.adjecant)
+        foreach (Node _node in BarracksUnitNode.adjecant)
         {
             if (_node.navigability == navigabilityStates.enemyUnit)
             {
@@ -219,24 +221,23 @@ public class BarracksBehaviour : MonoBehaviour
     /// <returns></returns>
     IEnumerator RespawnUnits()
     {
-        do
+        yield return new WaitForSeconds(m_unitRespawnDelay);
+        //If the target node is completely clear , Spawn a unit.
+        if (BarracksUnitNode.hex.transform.childCount != 0)
         {
-            yield return new WaitForSeconds(m_unitRespawnDelay);
-            //If the target node is completely clear , Spawn a unit.
-            if (m_barracksUnitNode.hex.transform.childCount != 0)
-            {
-                if (m_barracksUnitNode.hex.transform.GetChild(0).GetComponent<EnemyBehaviour>() == null)
-                {
-                    AudioManager.Instance.PlaySound("barracksRespawn", AudioLists.Building, AudioMixers.Effects, false, true, false, this.gameObject, 0.1f);
-                    SpawnAUnit();
-                }
-            }
-            else if (m_barracksUnitNode.navigability == navigabilityStates.navigable || m_barracksUnitNode.navigability == navigabilityStates.playerUnit)
+            if (BarracksUnitNode.hex.transform.GetChild(0).GetComponent<EnemyBehaviour>() == null)
             {
                 AudioManager.Instance.PlaySound("barracksRespawn", AudioLists.Building, AudioMixers.Effects, false, true, false, this.gameObject, 0.1f);
+                BarracksUnitNode.navigability = navigabilityStates.playerUnit;
                 SpawnAUnit();
             }
-        } while (m_currentUnits < m_unitCount-1);
+        }
+        else if (BarracksUnitNode.navigability == navigabilityStates.navigable || BarracksUnitNode.navigability == navigabilityStates.playerUnit)
+        {
+            AudioManager.Instance.PlaySound("barracksRespawn", AudioLists.Building, AudioMixers.Effects, false, true, false, this.gameObject, 0.1f);
+            BarracksUnitNode.navigability = navigabilityStates.playerUnit;
+            SpawnAUnit();
+        }
         m_respawning = false;
         yield return null;
     }
@@ -247,9 +248,9 @@ public class BarracksBehaviour : MonoBehaviour
     void SpawnAUnit()
     {
         //Correctly position units around the hex - Only needs to happen when one dies/respawns
-        Vector3 _unitSpawnPos = new Vector3(m_barracksUnitNode.hex.transform.position.x, m_barracksUnitNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_barracksUnitNode.hex.transform.position.z);
-        GameObject _newUnit = Instantiate(m_unitPrefab, _unitSpawnPos, transform.rotation, m_barracksUnitNode.hex.transform);
-        m_barracksUnitNode.navigability = navigabilityStates.playerUnit;
+        Vector3 _unitSpawnPos = new Vector3(BarracksUnitNode.hex.transform.position.x, BarracksUnitNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, BarracksUnitNode.hex.transform.position.z);
+        GameObject _newUnit = Instantiate(m_unitPrefab, _unitSpawnPos, transform.rotation, BarracksUnitNode.hex.transform);
+        BarracksUnitNode.navigability = navigabilityStates.playerUnit;
         _newUnit.GetComponent<UnitComponent>().playerUnitConstructor();
         m_units.Add(_newUnit);
         EvaluateUnitPositions();

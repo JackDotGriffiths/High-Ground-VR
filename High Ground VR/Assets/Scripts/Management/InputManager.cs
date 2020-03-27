@@ -148,7 +148,7 @@ public class InputManager : MonoBehaviour
 
 
         //Raycast from the mainController forward.
-        if (Physics.Raycast(MainController.transform.position, MainController.transform.forward - MainController.transform.up, out _hit, 1000) && m_currentSize == SizeOptions.large)
+        if (Physics.Raycast(MainController.transform.position, MainController.transform.forward - (MainController.transform.up * 0.5f), out _hit, 1000) && m_currentSize == SizeOptions.large)
         {
             //If it hits an environment Hex, highlight.
             if (_hit.collider.gameObject.tag == "Environment")
@@ -377,7 +377,6 @@ public class InputManager : MonoBehaviour
             if (m_bookControllerChoice == BookOptions.offHandController)
             {
                 Destroy(m_viveTracker);
-                Destroy(OffHandController.transform.GetChild(0).gameObject);
                 m_bookObject = Instantiate(m_bookPrefab, OffHandController.transform);
                 //m_bookObject.transform.localPosition = Vector3.zero;
                 m_bookObject.transform.localEulerAngles = new Vector3(90, 0, 0);
@@ -442,6 +441,7 @@ public class InputManager : MonoBehaviour
             Transform _targetHex = m_gameEnvironment.transform.GetChild(i).transform;
             _targetHex.position = new Vector3(_targetHex.position.x, m_maxWorldHeight, _targetHex.position.z);
         }
+        m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 16);
     }
 
     /// <summary>

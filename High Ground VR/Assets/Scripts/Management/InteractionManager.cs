@@ -79,7 +79,7 @@ public class InteractionManager : MonoBehaviour
         if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
         {
             RaycastHit _hit;
-            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - _controller.transform.up, out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
+            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - (_controller.transform.up * 0.5f), out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
             {
                 StartCoroutine(regularAttackEffect(0.7f, _controller, _hit.point));
 
@@ -116,6 +116,7 @@ public class InteractionManager : MonoBehaviour
                     if(_buildingHealth.currentHealth < 0)
                     {
                         Destroy(_buildingHealth.gameObject);
+                        _hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability = navigabilityStates.navigable;
                     }
                 }
 
@@ -242,7 +243,7 @@ public class InteractionManager : MonoBehaviour
         if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
         {
             RaycastHit _hit;
-            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - _controller.transform.up, out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
+            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - (_controller.transform.up * 0.5f), out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
             {
 
                 StartCoroutine(slowDownAttackEffect(0.3f, _controller, _hit.point));
@@ -381,7 +382,7 @@ public class InteractionManager : MonoBehaviour
         if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
         {
             RaycastHit _hit;
-            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - _controller.transform.up, out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
+            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - (_controller.transform.up * 0.5f), out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
             {
                 StartCoroutine(speedUpAttackEffect(0.3f, _controller, _hit.point));
 

@@ -888,9 +888,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_gameSpeed: 1
-  m_buildingPhaseTime: 60
+  m_buildingPhaseTime: 10
   m_mainMenuAnim: {fileID: 1042678574}
-  enemyStartingSpawns: 3
+  enemyStartingSpawns: 1
   enemyAmount: 2
   enemySpawnDelay: 5
   spawnAggresiveAfter: 4
@@ -957,7 +957,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c60c9f0ab99f4574ba48bb305d18fc42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_handedness: 1
+  Handedness: 1
   m_bookControllerChoice: 0
   m_playerHeightMultiplier: 0.55
   m_vrRig: {fileID: 0}
@@ -997,7 +997,7 @@ MonoBehaviour:
   m_lightningTiming: 0.02
   m_lightningOccurance: 10
   m_lightningMaterial: {fileID: 2100000, guid: 41b85fa06819e234bbe2c384a0049fa1, type: 2}
-  m_playerLargeDamage: 4
+  m_playerLargeDamage: 6
   m_playerSmallDamage: 30
   m_slowDownTargetTime: 0.5
   m_slowDownDuration: 15

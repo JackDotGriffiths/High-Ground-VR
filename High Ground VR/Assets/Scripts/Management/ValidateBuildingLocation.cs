@@ -233,7 +233,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         if (!GameManager.Instance.spendGold(GameManager.Instance.barracksCost))
         {
             Debug.Log("Not Enough Money");
-            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
             return;
         }
         //Update Node navigability and surrounding nodes
@@ -257,7 +257,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         if (!GameManager.Instance.spendGold(GameManager.Instance.mineCost))
         {
             Debug.Log("Not Enough Money");
-            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
             return;
         }
         //Update Node navigability and surrounding nodes
@@ -278,7 +278,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         if (!GameManager.Instance.spendGold(GameManager.Instance.wallsCost))
         {
             Debug.Log("Not Enough Money");
-            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
             return;
         }
         //Update Node navigability and surrounding nodes
