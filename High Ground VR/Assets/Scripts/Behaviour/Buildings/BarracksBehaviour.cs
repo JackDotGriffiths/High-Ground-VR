@@ -138,36 +138,53 @@ public class BarracksBehaviour : MonoBehaviour
             if (_node.navigability == navigabilityStates.enemyUnit)
             {
                 //If it detects an enemy group in any adjecent nodes, start combat
-                EnemyBehaviour _enemy = _node.hex.transform.GetChild(0).GetComponent<EnemyBehaviour>();
-                //If the enemy is currently destroying a wall, stop it from doing so.
-                if(_enemy.inSiege == true)
+                if (_node.hex.transform.GetChild(0).TryGetComponent<EnemyBehaviour>(out EnemyBehaviour _enemy))
                 {
-                    Destroy(_enemy.gameObject.GetComponent<SiegeBehaviour>());
-                    _enemy.inSiege = false;
+                    //If the enemy is currently destroying a wall, stop it from doing so.
+                    if (_enemy.inSiege == true)
+                    {
+                        Destroy(_enemy.gameObject.GetComponent<SiegeBehaviour>());
+                        _enemy.inSiege = false;
+                    }
+                    if (_enemy.inCombat == false)
+                    {
+                        List<Unit> _friendlyUnits = new List<Unit>();
+                        List<Unit> _enemyUnits = new List<Unit>();
+
+                        for (int i = 0; i < m_units.Count; i++)
+                        {
+                            if (m_units[i] != null)
+                            {
+                                if (m_units[i].TryGetComponent(out UnitComponent _unitComp))
+                                {
+                                    _friendlyUnits.Add(_unitComp.unit);
+                                }
+                            }
+                        }
+                        for (int i = 0; i < _enemy.m_units.Count; i++)
+                        {
+                            if (_enemy.m_units[i] != null)
+                            {
+                                if (_enemy.m_units[i].TryGetComponent(out UnitComponent _unitComp))
+                                {
+                                    _enemyUnits.Add(_unitComp.unit);
+                                }
+                            }
+                        }
+
+
+                        BattleBehaviour _battle = this.gameObject.AddComponent<BattleBehaviour>();
+                        _battle.StartBattle(_friendlyUnits, _enemyUnits);
+                        _battle.friendlyGroups.Add(this);
+                        _battle.enemyGroups.Add(_enemy);
+
+                        _enemy.inCombat = true;
+                        inCombat = true;
+                    }
                 }
-                if(_enemy.inCombat == false)
+                else
                 {
-                    List<Unit> _friendlyUnits = new List<Unit>();
-                    List<Unit> _enemyUnits = new List<Unit>();
-
-                    for (int i = 0; i < m_units.Count; i++)
-                    {
-                        _friendlyUnits.Add(m_units[i].GetComponent<UnitComponent>().unit);
-
-                    }
-                    for (int i = 0; i < _enemy.m_units.Count; i++)
-                    {
-                        _enemyUnits.Add(_enemy.m_units[i].GetComponent<UnitComponent>().unit);
-                    }
-
-
-                    BattleBehaviour _battle = this.gameObject.AddComponent<BattleBehaviour>();
-                    _battle.StartBattle(_friendlyUnits, _enemyUnits);
-                    _battle.friendlyGroups.Add(this);
-                    _battle.enemyGroups.Add(_enemy);
-
-                    _enemy.inCombat = true;
-                    inCombat = true;
+                    return;
                 }
             }
         }

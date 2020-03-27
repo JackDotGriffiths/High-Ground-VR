@@ -89,6 +89,24 @@ public class BattleBehaviour : MonoBehaviour
 
             if (m_battleOccuring == true)
             {
+                if (enemyUnits.Count <= 0)
+                {
+                    //End the battle, Player Won
+                    battleOver();
+                    //m_battleOccuring = false;
+                    AudioManager.Instance.PlaySound("battleCheer" + Random.Range(1, 5), AudioLists.Combat, AudioMixers.Effects, true, true, false, this.gameObject, 0.2f);
+                    Destroy(this);
+
+                }
+                if (friendlyUnits.Count <= 0)
+                {
+                    //End the battle, Player Won
+                    battleOver();
+                    //m_battleOccuring = false;
+                    AudioManager.Instance.PlaySound("battleCheer" + Random.Range(1, 5), AudioLists.Combat, AudioMixers.Effects, true, true, false, this.gameObject, 0.2f);
+                    Destroy(this);
+                }
+
 
                 float _totalTimePerception = 0;
                 for (int i = 0; i < enemyGroups.Count; i++)
@@ -97,28 +115,9 @@ public class BattleBehaviour : MonoBehaviour
                 }
                 m_enemyTimePerception = _totalTimePerception / enemyGroups.Count;
 
-                //drawDebugLines();
+                drawDebugLines();
                 m_currentFriendlyTimer -= Time.deltaTime * GameManager.Instance.GameSpeed;
                 m_currentEnemyTimer -= Time.deltaTime * GameManager.Instance.GameSpeed * m_enemyTimePerception;
-
-
-                if (enemyUnits.Count == 0)
-                {
-                    //End the battle, Player Won
-                    battleOver();
-                    m_battleOccuring = false;
-                    AudioManager.Instance.PlaySound("battleCheer" + Random.Range(1, 5), AudioLists.Combat, AudioMixers.Effects, true, true, false, friendlyUnits[0].unitComp.gameObject, 0.2f);
-                    Destroy(this);
-
-                }
-                if (friendlyUnits.Count == 0)
-                {
-                    //End the battle, Player Won
-                    battleOver();
-                    m_battleOccuring = false;
-                    AudioManager.Instance.PlaySound("battleCheer" + Random.Range(1, 5), AudioLists.Combat, AudioMixers.Effects, true, true, false, enemyUnits[0].unitComp.gameObject, 0.2f);
-                    Destroy(this);
-                }
 
 
                 if (m_currentFriendlyTimer < 0)
