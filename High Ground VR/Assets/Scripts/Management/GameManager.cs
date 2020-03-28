@@ -13,7 +13,9 @@ public class GameManager : MonoBehaviour
     [SerializeField, Range(0.0f, 2.0f), Tooltip("The speed of objects in the game on a scale of 0-1")] private float m_gameSpeed = 1.0f; //Game speed multiplier used across the game for allowing for slowmo/pausing etc.
     [SerializeField, Tooltip("How long in seconds the building phase should be")] private float m_buildingPhaseTime; //Length of time the player should be allowed to build.
     [SerializeField, Tooltip("The animator of the Main Menu. Used to show/hide it.")] private Animator m_mainMenuAnim;
+    private bool m_gameStarted = false;
     private bool m_gameOver = false;
+
 
     [Header("Enemy Spawn Management"),Space(10)]
     [Tooltip("Amount of spawns the game rounds should start with")]public int enemyStartingSpawns = 1;
@@ -80,19 +82,7 @@ public class GameManager : MonoBehaviour
             return;
         }
     }
-   
-    void Start()
-    {
-        m_roundCounter = 1;
-        currentGold = m_startingGold;
-        m_buildingPhaseTimer = m_buildingPhaseTime;
-        CurrentPhase = Phases.Building;
-        //Invoke on a delay so GameBoard Graph has been created.
-        Invoke("instantiateGem", 0.05f);
-        Invoke("instantiateSpawns", 0.05f);
-        StartBuildingPhase();
-
-    }
+  
 
     void Update()
     {
@@ -118,26 +108,28 @@ public class GameManager : MonoBehaviour
             }
             return;
         }
-        if(CurrentPhase == Phases.Building)
+        else if(m_gameOver == false && m_gameStarted == true)
         {
-            m_buildingPhaseTimer -= Time.deltaTime * m_gameSpeed;
-            if(m_buildingPhaseTimer % 1.0f < 0.01f) // Plays a ticking sound with the timer.
+            if (CurrentPhase == Phases.Building)
             {
-                AudioManager.Instance.PlaySound("clockTick", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.1f);
+                m_buildingPhaseTimer -= Time.deltaTime * m_gameSpeed;
+                if (m_buildingPhaseTimer % 1.0f < 0.01f) // Plays a ticking sound with the timer.
+                {
+                    AudioManager.Instance.PlaySound("clockTick", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.1f);
+                }
             }
+            if (m_currentEnemies <= 0 && CurrentPhase == Phases.Building && m_buildingPhaseTimer <= 0.0f)
+            {
+                StartAttackPhase();
+            }
+            if (m_currentEnemies <= 0 && CurrentPhase == Phases.Attack && m_buildingPhaseTimer <= 0.0f)
+            {
+                StartBuildingPhase();
+            }
+            //Updating Debug Displays
+            m_goldValue.text = currentGold.ToString();
+            m_timerLeft.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString() + "s";
         }
-        if (m_currentEnemies <= 0 && CurrentPhase == Phases.Building && m_buildingPhaseTimer <= 0.0f)
-        {
-            StartAttackPhase();
-        }
-        if(m_currentEnemies <=0 && CurrentPhase == Phases.Attack && m_buildingPhaseTimer <= 0.0f)
-        {
-            StartBuildingPhase();
-        }
-        //Updating Debug Displays
-        m_goldValue.text = currentGold.ToString();
-        m_timerLeft.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString() + "s";
-
     }
 
     #region Phase Control
@@ -239,8 +231,6 @@ public class GameManager : MonoBehaviour
 
     }
     #endregion
-
-
 
     #region Enemy Spawning Control
 
@@ -377,19 +367,37 @@ public class GameManager : MonoBehaviour
 
     #region Main Menu Controls
 
-    public void ExitGame()
+    public void playGame()
+    {
+        Debug.Log("Play Game");
+        m_gameOver = false;
+        m_gameStarted = true;
+        m_currentEnemies = 0;
+        enemySpawns = new List<EnemySpawnBehaviour>();
+        GameBoardGeneration.Instance.generate();
+        InputManager.Instance.updateWorldHeight();
+        m_roundCounter = 1;
+        m_tankCount = 1;
+        m_gameSpeed = 1;
+        currentGold = m_startingGold;
+        m_buildingPhaseTimer = m_buildingPhaseTime;
+        CurrentPhase = Phases.Building;
+        //Invoke on a delay so GameBoard Graph has been created.
+        Invoke("instantiateGem", 0.05f);
+        Invoke("instantiateSpawns", 0.05f);
+        StartBuildingPhase();
+    }
+    public void exitGame()
     {
         Debug.Log("Exit Game");
         Application.Quit();
     }
 
-
     public void restartGame()
     {
-        Debug.Log("Restarting Game");
-        m_mainMenuAnim.Play("HideMenu");
-        m_menuVisible = false;
+        Debug.Log("Restart Game");
         m_gameOver = false;
+        m_gameStarted = true;
         m_currentEnemies = 0;
         enemySpawns = new List<EnemySpawnBehaviour>();
         GameBoardGeneration.Instance.generate();

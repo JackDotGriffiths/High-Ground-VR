@@ -7,8 +7,8 @@ TagManager:
   - Environment
   - ResizePlayer
   - location
-  - UIButton
   - Hand
+  - MenuCanvas
   layers:
   - Default
   - TransparentFX

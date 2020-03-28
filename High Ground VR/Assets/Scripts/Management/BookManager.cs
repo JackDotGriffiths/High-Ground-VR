@@ -146,7 +146,6 @@ public class BookManager : MonoBehaviour
         gameObject.GetComponent<Animator>().Play("TurnToBuildings");
         InputManager.Instance.CurrentlySelectedBuilding = null;
         InputManager.Instance.CurrentlySelectedSpell = (spellTypes)0;
-        Debug.Log("Show Buildings");
         m_isShowingSpells = false;
     }
     

@@ -161,17 +161,8 @@ public class InputManager : MonoBehaviour
 
 
                 //Show the laser
-                if (m_currentSize == SizeOptions.large)
-                {
-                    m_mainPointer.startWidth = 0.05f;
-                    m_mainPointer.endWidth = 0.00f;
-                }
-                else
-                {
-                    m_mainPointer.startWidth = 0.003f;
-                    m_mainPointer.endWidth = 0.00f;
-                }
-
+                m_mainPointer.startWidth = 0.05f;
+                m_mainPointer.endWidth = 0.00f;
 
                 //Turn laser colour to blue when you correctly collided with environment.
                 m_mainPointer.startColor = Color.blue;
@@ -194,6 +185,18 @@ public class InputManager : MonoBehaviour
                         RumbleManager.Instance.lightVibration(Handedness);
                     }
                 }
+            }
+
+            if(_hit.collider.gameObject.tag == "MenuCanvas")
+            {
+                Debug.Log("Oi that's the one");
+                //Show the laser
+                m_mainPointer.startWidth = 0.05f;
+                m_mainPointer.endWidth = 0.00f;
+
+                //Turn laser colour to blue when you correctly collided with environment.
+                m_mainPointer.startColor = Color.blue;
+                m_mainPointer.endColor = Color.blue;
             }
 
 
