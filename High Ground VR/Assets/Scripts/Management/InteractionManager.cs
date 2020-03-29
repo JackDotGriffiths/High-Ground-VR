@@ -46,16 +46,26 @@ public class InteractionManager : MonoBehaviour
     /// <param name="_spell">Spell to use from the spellTypes enum.</param>
     public void castSpell(spellTypes _spell)
     {
+        int _counter;
         switch (_spell)
         {
             case spellTypes.regularAttack:
                 regularAttack(InputManager.Instance.MainController);
+                //Usability Testing
+                _counter = PlayerPrefs.GetInt("Regular Spell");
+                PlayerPrefs.SetInt("Regular Spell", _counter++);
                 break;
             case spellTypes.speedUpUnit:
                 speedUpAttack(InputManager.Instance.MainController);
+                //Usability Testing
+                _counter = PlayerPrefs.GetInt("Speed Spell");
+                PlayerPrefs.SetInt("Speed Spell", _counter++);
                 break;
             case spellTypes.slowDownUnit:
                 slowDownAttack(InputManager.Instance.MainController);
+                //Usability Testing
+                _counter = PlayerPrefs.GetInt("Slow Spell");
+                PlayerPrefs.SetInt("Slow Spell", _counter++);
                 break;
         }
 

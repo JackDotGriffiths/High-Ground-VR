@@ -12,6 +12,7 @@ public class UIPointerBehaviour : MonoBehaviour
     [SerializeField,Space(10)] private RectTransform m_playButton;
     [SerializeField] private RectTransform m_restartButton;
     [SerializeField] private RectTransform m_quitButton;
+    [SerializeField] private RectTransform m_quitButton2;
 
     private Image m_cursorImage;
     private bool m_isUpdating;
@@ -28,7 +29,7 @@ public class UIPointerBehaviour : MonoBehaviour
         if(m_isUpdating == true)
         {
             m_cursor.gameObject.SetActive(true);
-            if (rectOverlap(m_cursor, m_playButton) || rectOverlap(m_cursor, m_restartButton) || rectOverlap(m_cursor, m_quitButton))
+            if (rectOverlap(m_cursor, m_playButton) || rectOverlap(m_cursor, m_restartButton) || rectOverlap(m_cursor, m_quitButton) || rectOverlap(m_cursor, m_quitButton2))
             {
                 m_cursorImage.color = m_highlightColour;
             }
@@ -39,19 +40,24 @@ public class UIPointerBehaviour : MonoBehaviour
 
             if (isClicked == true)
             {
-                if (rectOverlap(m_cursor, m_playButton))
+                if (rectOverlap(m_cursor, m_playButton) && m_playButton.gameObject.activeInHierarchy)
                 {
                     GameManager.Instance.playGame();
                     RumbleManager.Instance.lightVibration(InputManager.Instance.Handedness);
                 }
-                if (rectOverlap(m_cursor, m_quitButton))
+                if (rectOverlap(m_cursor, m_quitButton) && m_quitButton.gameObject.activeInHierarchy)
                 {
                     GameManager.Instance.exitGame();
                     RumbleManager.Instance.lightVibration(InputManager.Instance.Handedness);
                 }
-                if (rectOverlap(m_cursor, m_restartButton))
+                if (rectOverlap(m_cursor, m_restartButton) && m_restartButton.gameObject.activeInHierarchy)
                 {
                     GameManager.Instance.restartGame();
+                    RumbleManager.Instance.lightVibration(InputManager.Instance.Handedness);
+                }
+                if (rectOverlap(m_cursor, m_quitButton2) && m_quitButton2.gameObject.activeInHierarchy)
+                {
+                    GameManager.Instance.exitGame();
                     RumbleManager.Instance.lightVibration(InputManager.Instance.Handedness);
                 }
             }

@@ -63,6 +63,16 @@ public class EnemyBehaviour : MonoBehaviour
             m_groupPath[currentStepIndex].navigability = navigabilityStates.navigable;
             GameManager.Instance.CurrentEnemies -= 1;
             GameManager.Instance.enemyGold();
+            int _scoreCount = 0;
+            foreach(GameObject _unit in m_units)
+            {
+                if(_unit.TryGetComponent(out UnitComponent _unitComp))
+                {
+                    _scoreCount += Mathf.RoundToInt(_unitComp.unit.health); //Get score for the amount of health the units had.
+                }
+            }
+
+            GameManager.Instance.addScore(_scoreCount);
             Destroy(this.gameObject);
         }
 
