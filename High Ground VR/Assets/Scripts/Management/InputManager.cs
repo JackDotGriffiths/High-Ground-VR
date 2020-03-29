@@ -153,6 +153,7 @@ public class InputManager : MonoBehaviour
             //If it hits an environment Hex, highlight.
             if (_hit.collider.gameObject.tag == "Environment")
             {
+                removeHighlight();
                 m_enlargePlayer = false;
                 MeshRenderer _hitMesh = _hit.collider.gameObject.GetComponent<MeshRenderer>();
                 m_currentlySelectedHex = _hit.collider.gameObject;
@@ -189,7 +190,6 @@ public class InputManager : MonoBehaviour
 
             if(_hit.collider.gameObject.tag == "MenuCanvas")
             {
-                Debug.Log("Oi that's the one");
                 //Show the laser
                 m_mainPointer.startWidth = 0.05f;
                 m_mainPointer.endWidth = 0.00f;
@@ -197,6 +197,21 @@ public class InputManager : MonoBehaviour
                 //Turn laser colour to blue when you correctly collided with environment.
                 m_mainPointer.startColor = Color.blue;
                 m_mainPointer.endColor = Color.blue;
+
+
+                //Update the cursor position
+                if(_hit.collider.gameObject.TryGetComponent(out UIPointerBehaviour _pointer))
+                {
+                    _pointer.updateCursorPos(_hit.point);
+                    if(m_mainTrigger == true)
+                    {
+                        _pointer.isClicked = true;
+                    }
+                    else
+                    {
+                        _pointer.isClicked = false;
+                    }
+                }
             }
 
 
@@ -261,12 +276,6 @@ public class InputManager : MonoBehaviour
 
             m_currentlySelectedHex = null;
             m_enlargePlayer = true;
-
-            if (m_mainTrigger == true)
-            {
-                m_currentlySelectedBuilding = null;
-            }
-
             if (m_currentSize == SizeOptions.large)
             {
                 m_mainPointer.startWidth = 0;
@@ -302,23 +311,6 @@ public class InputManager : MonoBehaviour
 
         #endregion
 
-        #region Trigger Button Handling
-
-        //m_mainControllerPos = MainController.transform.position;
-        //if (m_mainTrigger == true && m_currentlySelectedHex == null && !(RightTrigger == true && LeftTrigger == true) && CurrentSize == SizeOptions.large)
-        //{
-        //    //Main trigger pressed and not pointing at any hex - Was used for rotation but may be useful later on.
-        //}
-        //m_mainControllerPreviousPos = m_mainControllerPos;
-
-        if (m_currentlySelectedHex == null && m_mainTrigger == true)
-        {
-            m_currentlySelectedBuilding = null;
-        }
-
-
-
-        #endregion
 
         #region Enemy Interaction Manager
         if (m_mainTrigger == true && m_currentlySelectedBuilding == null)
@@ -406,8 +398,10 @@ public class InputManager : MonoBehaviour
 
             GameManager.Instance.moneyBookText = m_bookObject.GetComponent<BookManager>().moneyText;
             GameManager.Instance.timerBookText = m_bookObject.GetComponent<BookManager>().timerText;
+            GameManager.Instance.roundBookText = m_bookObject.GetComponent<BookManager>().roundText;
             GameManager.Instance.moneyBookText2 = m_bookObject.GetComponent<BookManager>().moneyText2;
             GameManager.Instance.timerBookText2 = m_bookObject.GetComponent<BookManager>().timerText2;
+            GameManager.Instance.roundBookText2 = m_bookObject.GetComponent<BookManager>().roundText2;
 
 
         }
@@ -453,17 +447,20 @@ public class InputManager : MonoBehaviour
     /// <param name="_selectedMesh">The Mesh to not have in the list</param>
     private void updateObjectList(MeshRenderer _selectedMesh)
     {
-        m_objectMeshes = new List<MeshRenderer>();
-        //Add all of the environment object mesh renderers.
-        int _childCount = m_gameEnvironment.transform.GetChild(0).transform.childCount;
-        for (int i = 0; i < _childCount; i++)
+        if(GameManager.Instance.GameStarted == true)
         {
-            if (m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).tag == "Environment")
+            m_objectMeshes = new List<MeshRenderer>();
+            //Add all of the environment object mesh renderers.
+            int _childCount = m_gameEnvironment.transform.GetChild(0).transform.childCount;
+            for (int i = 0; i < _childCount; i++)
             {
-                MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).GetComponent<MeshRenderer>();
-                if (_mesh != _selectedMesh)
+                if (m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).tag == "Environment")
                 {
-                    m_objectMeshes.Add(_mesh);
+                    MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).GetComponent<MeshRenderer>();
+                    if (_mesh != _selectedMesh)
+                    {
+                        m_objectMeshes.Add(_mesh);
+                    }
                 }
             }
         }
@@ -474,15 +471,18 @@ public class InputManager : MonoBehaviour
     /// </summary>
     private void updateObjectList()
     {
-        m_objectMeshes = new List<MeshRenderer>();
-        //Add all of the environment object mesh renderers.
-        int _childCount = m_gameEnvironment.transform.GetChild(0).transform.childCount;
-        for (int i = 0; i < _childCount; i++)
+        if (GameManager.Instance.GameStarted == true)
         {
-            if (m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).tag == "Environment")
+            m_objectMeshes = new List<MeshRenderer>();
+            //Add all of the environment object mesh renderers.
+            int _childCount = m_gameEnvironment.transform.GetChild(0).transform.childCount;
+            for (int i = 0; i < _childCount; i++)
             {
-                MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).GetComponent<MeshRenderer>();
-                m_objectMeshes.Add(_mesh);
+                if (m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).tag == "Environment")
+                {
+                    MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).GetComponent<MeshRenderer>();
+                    m_objectMeshes.Add(_mesh);
+                }
             }
         }
     }
@@ -494,9 +494,12 @@ public class InputManager : MonoBehaviour
     {
         foreach (MeshRenderer _mesh in m_objectMeshes)
         {
-            List<Material> _matList = new List<Material>();
-            _matList.Add(m_grassMaterial);
-            _mesh.materials = _matList.ToArray();
+            if(_mesh != null)
+            {
+                List<Material> _matList = new List<Material>();
+                _matList.Add(m_grassMaterial);
+                _mesh.materials = _matList.ToArray();
+            }
         }
     }
 

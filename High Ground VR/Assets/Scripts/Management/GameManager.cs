@@ -12,10 +12,8 @@ public class GameManager : MonoBehaviour
     [Header("Game Config")]
     [SerializeField, Range(0.0f, 2.0f), Tooltip("The speed of objects in the game on a scale of 0-1")] private float m_gameSpeed = 1.0f; //Game speed multiplier used across the game for allowing for slowmo/pausing etc.
     [SerializeField, Tooltip("How long in seconds the building phase should be")] private float m_buildingPhaseTime; //Length of time the player should be allowed to build.
-    [SerializeField, Tooltip("The animator of the Main Menu. Used to show/hide it.")] private Animator m_mainMenuAnim;
-    private bool m_gameStarted = false;
     private bool m_gameOver = false;
-
+    public bool GameStarted = false;
 
     [Header("Enemy Spawn Management"),Space(10)]
     [Tooltip("Amount of spawns the game rounds should start with")]public int enemyStartingSpawns = 1;
@@ -43,7 +41,7 @@ public class GameManager : MonoBehaviour
     private int m_mineCount;
 
 
-    [HideInInspector] public TextMeshProUGUI moneyBookText, timerBookText, moneyBookText2, timerBookText2;
+    [HideInInspector] public TextMeshProUGUI moneyBookText, timerBookText, roundBookText, moneyBookText2, timerBookText2,roundBookText2;
 
     [Header ("Debug Wall Displays"), Space(10)]
     [SerializeField] private TextMeshProUGUI m_goldValue; //Debug Wall Text object that temporarily displays money
@@ -93,6 +91,16 @@ public class GameManager : MonoBehaviour
             timerBookText.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString();
             moneyBookText2.text = currentGold.ToString();
             timerBookText2.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString();
+            if(CurrentPhase == Phases.Building)
+            {
+                roundBookText.text = "Building";
+                roundBookText2.text = "Building";
+            }
+            else
+            {
+                roundBookText.text = "Round " + m_roundCounter;
+                roundBookText2.text = "Round " + m_roundCounter;
+            }
         }
         catch { }
 
@@ -104,11 +112,10 @@ public class GameManager : MonoBehaviour
             if(m_menuVisible == false)
             {
                 m_menuVisible = true;
-                m_mainMenuAnim.Play("ShowMenu");
             }
             return;
         }
-        else if(m_gameOver == false && m_gameStarted == true)
+        else if(m_gameOver == false && GameStarted == true)
         {
             if (CurrentPhase == Phases.Building)
             {
@@ -371,7 +378,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Play Game");
         m_gameOver = false;
-        m_gameStarted = true;
+        GameStarted = true;
         m_currentEnemies = 0;
         enemySpawns = new List<EnemySpawnBehaviour>();
         GameBoardGeneration.Instance.generate();
@@ -397,7 +404,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Restart Game");
         m_gameOver = false;
-        m_gameStarted = true;
+        GameStarted = true;
         m_currentEnemies = 0;
         enemySpawns = new List<EnemySpawnBehaviour>();
         GameBoardGeneration.Instance.generate();

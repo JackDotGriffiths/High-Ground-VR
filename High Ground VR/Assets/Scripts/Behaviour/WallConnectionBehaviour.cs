@@ -26,7 +26,7 @@ public class WallConnectionBehaviour : MonoBehaviour
                 _spawnPos = new Vector3(_spawnPos.x, _spawnPos.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _spawnPos.z);
 
                 Quaternion _rotation = Quaternion.FromToRotation(transform.forward, _thisPos - _goalPos);
-                GameObject _wall = Instantiate(connectorObject,_spawnPos, _rotation);
+                GameObject _wall = Instantiate(connectorObject,_spawnPos, _rotation,transform);
                 connectedWalls.Add(_wall);
                 if(_node.navigability == navigabilityStates.wall)
                 {

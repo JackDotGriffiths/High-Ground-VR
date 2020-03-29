@@ -88,7 +88,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         {
             return false ;
         }
-        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
+        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode) && checkGemAccessible(_targetNode))
         {
             _validLocation = true;
         }
@@ -117,11 +117,7 @@ public class ValidateBuildingLocation : MonoBehaviour
             if (_hit.collider.tag == "Environment")
             {
                 Node _hitNode = _hit.collider.gameObject.GetComponent<NodeComponent>().node;
-                if(nodeEmpty(_hitNode) && !adjacentToEnemySpawn(_hitNode) && !adjacentToGem(_targetNode))
-                {
-                    _validLocation = true;
-                }
-                else
+                if(!nodeEmpty(_hitNode) && adjacentToEnemySpawn(_hitNode) && adjacentToGem(_targetNode))
                 {
                     _validLocation = false;
                 }
@@ -156,7 +152,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     public bool verifyMine(Node _targetNode, float _angle)
     {
         bool _validLocation = false;
-        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
+        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode) && checkGemAccessible(_targetNode))
         {
             _validLocation = true;
         }
@@ -176,7 +172,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     public bool verifyWall(Node _targetNode, float _angle)
     {
         bool _validLocation = false;
-        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
+        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode) && checkGemAccessible(_targetNode))
         {
             _validLocation = true;
         }

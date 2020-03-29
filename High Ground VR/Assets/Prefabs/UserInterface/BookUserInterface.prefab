@@ -3204,7 +3204,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: ROUND ONE
+  m_text: ROUND 1
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 91b92baa12f985c43854a415bc87386d, type: 2}
   m_sharedMaterial: {fileID: -4031749410696095477, guid: 91b92baa12f985c43854a415bc87386d,
@@ -3274,7 +3274,7 @@ MonoBehaviour:
   m_margin: {x: 0.4707474, y: 0, z: -0.42475256, w: -22.02233}
   m_textInfo:
     textComponent: {fileID: 3394741846836942341}
-    characterCount: 9
+    characterCount: 7
     spriteCount: 0
     spaceCount: 1
     wordCount: 2
@@ -5020,7 +5020,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5812745442061284985
 Transform:
   m_ObjectHideFlags: 0
@@ -6345,8 +6345,10 @@ MonoBehaviour:
   - {fileID: 3406512687755910262}
   moneyText: {fileID: 2655426896851327135}
   timerText: {fileID: 1812000633748174690}
+  roundText: {fileID: 1875365090747985380}
   moneyText2: {fileID: 7322276261747750884}
   timerText2: {fileID: 4247747090880889779}
+  roundText2: {fileID: 3394741846836942341}
   m_wallCost: {fileID: 8093910400490643009}
   m_barracksCost: {fileID: 9083762793159588249}
   m_mineCost: {fileID: 503634418862706010}
@@ -6760,7 +6762,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4423446195074542618
 Transform:
   m_ObjectHideFlags: 0
@@ -7290,7 +7292,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: ROUND ONE
+  m_text: ROUND 1
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 91b92baa12f985c43854a415bc87386d, type: 2}
   m_sharedMaterial: {fileID: -4031749410696095477, guid: 91b92baa12f985c43854a415bc87386d,
@@ -7360,7 +7362,7 @@ MonoBehaviour:
   m_margin: {x: 0.4707474, y: 0, z: -0.42475256, w: -22.02233}
   m_textInfo:
     textComponent: {fileID: 1875365090747985380}
-    characterCount: 9
+    characterCount: 7
     spriteCount: 0
     spaceCount: 1
     wordCount: 2
@@ -7690,6 +7692,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2549027201484338338, guid: f56f2a61c7a97814b9285ca40acf4578,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -9285,6 +9292,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2549027201484338338, guid: f56f2a61c7a97814b9285ca40acf4578,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}

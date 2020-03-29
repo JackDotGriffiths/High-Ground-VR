@@ -26,8 +26,10 @@ public class BookManager : MonoBehaviour
     [Header ("Book Text Objects")]
     public TextMeshProUGUI moneyText;
     public TextMeshProUGUI timerText;
+    public TextMeshProUGUI roundText;
     public TextMeshProUGUI moneyText2;
     public TextMeshProUGUI timerText2;
+    public TextMeshProUGUI roundText2;
     [SerializeField,Tooltip("Text to show the cost of a wall")] private TextMeshPro m_wallCost;
     [SerializeField, Tooltip("Text to show the cost of a barracks")] private TextMeshPro m_barracksCost;
     [SerializeField, Tooltip("Text to show the cost of a mine")] private TextMeshPro m_mineCost;
