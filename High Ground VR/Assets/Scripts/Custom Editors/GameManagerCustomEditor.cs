@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
+
 
 [CustomEditor(typeof(GameManager))]
 public class GameManagerCustomEditor : Editor
@@ -28,3 +30,4 @@ public class GameManagerCustomEditor : Editor
         DrawDefaultInspector();
     }
 }
+#endif

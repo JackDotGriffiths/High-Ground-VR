@@ -29,7 +29,7 @@ public class EnemyBehaviour : MonoBehaviour
     private List<Node> m_groupPath = new List<Node>(); //List of Nodes that lead to the groups goal.
     private Vector3 m_targetPosition; //Position the node should be moving to.
     private int m_currentUnits;
-
+    private float m_timeAlive;
 
     void Start()
     {
@@ -46,6 +46,9 @@ public class EnemyBehaviour : MonoBehaviour
 
     void Update()
     {
+        //Timer that tracks how long an enemy has lived for. This is used for giving points to the player.
+        m_timeAlive += Time.deltaTime * GameManager.Instance.GameSpeed * timePerception;
+
         //Clear destroyed units from the list of units associated with this group.
         for (int i = 0; i < m_units.Count; i++)
         {
@@ -63,16 +66,9 @@ public class EnemyBehaviour : MonoBehaviour
             m_groupPath[currentStepIndex].navigability = navigabilityStates.navigable;
             GameManager.Instance.CurrentEnemies -= 1;
             GameManager.Instance.enemyGold();
-            int _scoreCount = 0;
-            foreach(GameObject _unit in m_units)
-            {
-                if(_unit.TryGetComponent(out UnitComponent _unitComp))
-                {
-                    _scoreCount += Mathf.RoundToInt(_unitComp.unit.health); //Get score for the amount of health the units had.
-                }
-            }
-
-            GameManager.Instance.addScore(_scoreCount);
+            //Reward the player for killing the enemies quicker.
+            Mathf.Clamp(100 - m_timeAlive, 0, 100);
+            GameManager.Instance.addScore(Mathf.RoundToInt(m_timeAlive));
             Destroy(this.gameObject);
         }
 

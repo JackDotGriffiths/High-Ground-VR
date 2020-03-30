@@ -28,7 +28,6 @@ public class GameManager : MonoBehaviour
     [Tooltip("Amount of spawns the game rounds should start with")] public int enemyStartingSpawns = 1;
     [Tooltip("Amount of enemies to spawn at the start of Round One.")] public int enemyAmount = 1;
     [Tooltip("Enemy Spawn Delay")] public int enemySpawnDelay = 10;
-    [Tooltip("Which round to start spawning enemies after")] public int spawnAggresiveAfter = 2;
     [Tooltip("Proportion of aggressive enemies. This is multiplied by the round number."), Range(0.0f, 1.0f)] public float aggressionPercentage = 0.1f;
     [Tooltip("Which round number to start spawning tank enemies after"), Space(10)] public int tankRoundStart = 5;
     [Tooltip("How many rounds have to pass before another one spawns")] public int tankRoundFrequency = 5;
@@ -56,7 +55,7 @@ public class GameManager : MonoBehaviour
 
     public int currentGold; //The current gold of the player.
     public int currentScore; //The current score of the player.
-    private int m_roundCounter;
+    private int m_roundCounter = 1;
     private float m_buildingPhaseTimer; //Track the current value of the countdown timer.
     private bool m_menuVisible;
 
@@ -108,12 +107,6 @@ public class GameManager : MonoBehaviour
                 roundBookText2.text = "Building";
                 m_roundUI.text = "Building";
             }
-            else
-            {
-                roundBookText.text = "Round " + m_roundCounter;
-                roundBookText2.text = "Round " + m_roundCounter;
-                m_roundUI.text = "Round " + m_roundCounter;
-            }
         }
         catch { }
 
@@ -157,7 +150,8 @@ public class GameManager : MonoBehaviour
 
         if (m_roundCounter != 1) //Stops this happening on the first round.
         {
-            currentGold += (m_mineCount * m_minedGoldPerRound) + 30;
+            currentGold += 30;
+            AudioManager.Instance.PlaySound("buildingPhaseStarted", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
             addScore(300);
         }
 
@@ -177,6 +171,7 @@ public class GameManager : MonoBehaviour
                 _node.navigability = navigabilityStates.navigable;
             }
         }
+        AudioManager.Instance.PlaySound("buildingPhaseStarted", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
         StartCoroutine("spawnEnemies");
 
 
@@ -226,10 +221,8 @@ public class GameManager : MonoBehaviour
         AudioManager.Instance.PlaySound("generateMoney", AudioLists.Building, AudioMixers.Effects, true, true, true, this.gameObject, 0.15f);
     }
 
-
     IEnumerator generateMineGold()
     {
-        currentGold += 30;
         yield return new WaitForSeconds(0.3f);
         AudioManager.Instance.PlaySound("generateMoney", AudioLists.Building, AudioMixers.Effects, true, true, true, this.gameObject, 0.15f);
 
@@ -242,7 +235,7 @@ public class GameManager : MonoBehaviour
                 yield return new WaitForSeconds(0.3f);
                 AudioManager.Instance.PlaySound("generateMoney", AudioLists.Building, AudioMixers.Effects, true, true, true, this.gameObject, 0.15f);
             }
-            currentGold += m_minedGoldPerRound + 30;
+            currentGold += m_minedGoldPerRound;
             _count++;
         }
 
@@ -306,6 +299,9 @@ public class GameManager : MonoBehaviour
     {
         if (m_gameOver == false)
         {
+            roundBookText.text = "Round " + m_roundCounter;
+            roundBookText2.text = "Round " + m_roundCounter;
+            m_roundUI.text = "Round " + m_roundCounter;
             if (RoundCounter != 1)
             {
                 //Increase the count of enemies based on Enemy Counter;
@@ -381,12 +377,12 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
-    #region Main Menu Controls
+    #region Play/Exit/Restart
 
     public void playGame()
     {
         setPlayerPrefs();
-
+        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
 
         Debug.Log("Play Game");
         resetScore();
@@ -420,6 +416,7 @@ public class GameManager : MonoBehaviour
     {
         submitData();
         setPlayerPrefs();
+        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
 
         Debug.Log("Restart Game");
         resetScore();
