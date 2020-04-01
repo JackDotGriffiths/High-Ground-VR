@@ -888,15 +888,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_gameSpeed: 1
-  m_buildingPhaseTime: 8000
+  m_buildingPhaseTime: 10
   m_mainMenuAnim: {fileID: 1042678574}
-  enemyStartingSpawns: 3
+  enemyStartingSpawns: 1
   enemyAmount: 2
   enemySpawnDelay: 5
   spawnAggresiveAfter: 4
   aggressionPercentage: 0.4
   tankRoundStart: 5
-  tankRoundFrequency: 5
+  tankRoundFrequency: 3
   enemySpawns: []
   m_startingGold: 500
   m_minedGoldPerRound: 30
@@ -923,6 +923,7 @@ GameObject:
   - component: {fileID: 1904518082708342614}
   - component: {fileID: 1904518082708342615}
   - component: {fileID: 1175438979}
+  - component: {fileID: 1820894278}
   m_Layer: 0
   m_Name: InputManagement
   m_TagString: Untagged
@@ -956,7 +957,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c60c9f0ab99f4574ba48bb305d18fc42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_handedness: 1
+  Handedness: 1
   m_bookControllerChoice: 0
   m_playerHeightMultiplier: 0.55
   m_vrRig: {fileID: 0}
@@ -988,18 +989,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_attackCooldown: 1
+  m_lightningHitEffect: {fileID: 135216028356342124, guid: 076a9b17450c4a24ea9c382c7c02413b,
+    type: 3}
   m_lightningStrikes: 5
   m_lightningStrikeBreakPoints: 4
   m_lightningWidth: 1
   m_lightningTiming: 0.02
   m_lightningOccurance: 10
   m_lightningMaterial: {fileID: 2100000, guid: 41b85fa06819e234bbe2c384a0049fa1, type: 2}
-  m_playerLargeDamage: 4
+  m_playerLargeDamage: 6
   m_playerSmallDamage: 30
   m_slowDownTargetTime: 0.5
   m_slowDownDuration: 15
   m_speedUpTargetTime: 1.5
   m_speedUpDuration: 15
+--- !u!114 &1820894278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1904518082708342612}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40852bcb09128dd4ca78ebc595f395b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Vibration:
+    actionPath: /actions/HighGroundControlSet/out/Rumble
+    needsReinit: 0
 --- !u!1 &1904518082795619587
 GameObject:
   m_ObjectHideFlags: 0
@@ -1053,7 +1071,7 @@ MonoBehaviour:
   - name: placeBuilding
     clip: {fileID: 8300000, guid: 7954b91d3f39de640b291fb08e305918, type: 3}
     volume: 1
-    pitch: 0
+    pitch: 1
     priority: 1
     spatialBlend: 1
     minDistance: 30
@@ -1062,8 +1080,8 @@ MonoBehaviour:
   - name: destroyBuilding
     clip: {fileID: 8300000, guid: 8e64f51e3020bc84abe90af7a23a6741, type: 3}
     volume: 1
-    pitch: 0
-    priority: 2
+    pitch: 1
+    priority: 1
     spatialBlend: 1
     minDistance: 30
     maxDistance: 500
@@ -1071,121 +1089,139 @@ MonoBehaviour:
   - name: generateMoney
     clip: {fileID: 8300000, guid: f068e101878fe9546a112b3aa60b917e, type: 3}
     volume: 0.2
-    pitch: 0
-    priority: 2
-    spatialBlend: 0
-    minDistance: 30
-    maxDistance: 500
-    loop: 0
-  - name: barracksRespawn
-    clip: {fileID: 8300000, guid: a3146d89811dea244997baecdc59e508, type: 3}
-    volume: 1
-    pitch: 0
+    pitch: 1
     priority: 1
     spatialBlend: 1
     minDistance: 30
     maxDistance: 500
     loop: 0
+  - name: barracksRespawn
+    clip: {fileID: 8300000, guid: a3146d89811dea244997baecdc59e508, type: 3}
+    volume: 0.5
+    pitch: 1
+    priority: 1
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 50
+    loop: 0
   combatSounds:
   - name: weaponClash1
     clip: {fileID: 8300000, guid: 13490593b7c6a9140a6eaa12a4584ae1, type: 3}
-    volume: 0
-    pitch: 0
-    priority: 0
-    spatialBlend: 0
-    minDistance: 0
-    maxDistance: 0
+    volume: 0.5
+    pitch: 1
+    priority: 1
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 30
     loop: 0
   - name: weaponClash2
     clip: {fileID: 8300000, guid: 4a8b85d3899c003489e23bf58ecf8162, type: 3}
-    volume: 0
-    pitch: 0
-    priority: 0
-    spatialBlend: 0
-    minDistance: 0
-    maxDistance: 0
+    volume: 0.5
+    pitch: 1
+    priority: 1
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 30
     loop: 0
   - name: regularLightning
     clip: {fileID: 8300000, guid: 9f2c73ba8f38d43439abdcaa3d3f8e5a, type: 3}
-    volume: 0
-    pitch: 0
-    priority: 0
-    spatialBlend: 0
-    minDistance: 0
-    maxDistance: 0
+    volume: 0.4
+    pitch: 1
+    priority: 1
+    spatialBlend: 1
+    minDistance: 30
+    maxDistance: 500
     loop: 0
   - name: slowAttackLightning
     clip: {fileID: 8300000, guid: 931c4fee3dd67c243aaf98578917c07c, type: 3}
-    volume: 0
-    pitch: 0
-    priority: 0
-    spatialBlend: 0
-    minDistance: 0
-    maxDistance: 0
+    volume: 0.4
+    pitch: 1
+    priority: 1
+    spatialBlend: 1
+    minDistance: 30
+    maxDistance: 500
     loop: 0
   - name: fastAttackLightning
     clip: {fileID: 8300000, guid: ae72df1f659f5d8439fd84095e9afd4e, type: 3}
-    volume: 0
-    pitch: 0
-    priority: 0
-    spatialBlend: 0
-    minDistance: 0
-    maxDistance: 0
+    volume: 0.4
+    pitch: 1
+    priority: 1
+    spatialBlend: 1
+    minDistance: 30
+    maxDistance: 500
     loop: 0
   - name: battleCheer1
     clip: {fileID: 8300000, guid: 847663da37aa25c4d99379bc390f7c21, type: 3}
-    volume: 0
-    pitch: 0
-    priority: 0
-    spatialBlend: 0
-    minDistance: 0
-    maxDistance: 0
+    volume: 0.3
+    pitch: 1
+    priority: 1
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 30
     loop: 0
   - name: battleCheer2
     clip: {fileID: 8300000, guid: e5501666272a9f14b8d3a8b910a8a0a3, type: 3}
-    volume: 0
-    pitch: 0
-    priority: 0
-    spatialBlend: 0
-    minDistance: 0
-    maxDistance: 0
+    volume: 0.3
+    pitch: 1
+    priority: 1
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 30
     loop: 0
   - name: battleCheer3
     clip: {fileID: 8300000, guid: e6934c4085cbd094885d98579e34f0c8, type: 3}
-    volume: 0
-    pitch: 0
-    priority: 0
-    spatialBlend: 0
-    minDistance: 0
-    maxDistance: 0
+    volume: 0.3
+    pitch: 1
+    priority: 1
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 30
     loop: 0
   - name: battleCheer4
     clip: {fileID: 8300000, guid: 251c37dbd294b384eb1160590cf05a40, type: 3}
-    volume: 0
-    pitch: 0
-    priority: 0
-    spatialBlend: 0
-    minDistance: 0
-    maxDistance: 0
+    volume: 0.3
+    pitch: 1
+    priority: 1
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 30
     loop: 0
   - name: battleCheer5
     clip: {fileID: 8300000, guid: b9ae055aa6b81e34d9ab7a52cceb9875, type: 3}
-    volume: 0
-    pitch: 0
-    priority: 0
-    spatialBlend: 0
-    minDistance: 0
-    maxDistance: 0
+    volume: 0.3
+    pitch: 1
+    priority: 1
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 30
     loop: 0
   userInterfaceSounds:
-  - name: ButtonClick
+  - name: buttonClick
     clip: {fileID: 8300000, guid: 4d32053e9b42eb247988eb52cbb819ab, type: 3}
-    volume: 0.473
-    pitch: 0
+    volume: 0.5
+    pitch: 1
+    priority: 1
+    spatialBlend: 1
+    minDistance: 30
+    maxDistance: 500
+    loop: 0
+  - name: incorrectSound
+    clip: {fileID: 8300000, guid: dd244c7656f43c6408c0d9694550c155, type: 3}
+    volume: 0.9
+    pitch: 1
+    priority: 1
+    spatialBlend: 1
+    minDistance: 30
+    maxDistance: 500
+    loop: 0
+  - name: clockTick
+    clip: {fileID: 8300000, guid: d90f14e33dfc28345ac37b18ccc24f64, type: 3}
+    volume: 0.4
+    pitch: 1
     priority: 1
     spatialBlend: 0
-    minDistance: 0
-    maxDistance: 0
+    minDistance: 30
+    maxDistance: 500
     loop: 0
 --- !u!1 &1904518083790628858
 GameObject:

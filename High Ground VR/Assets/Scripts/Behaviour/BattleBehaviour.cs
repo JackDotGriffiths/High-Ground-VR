@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BattleBehaviour : MonoBehaviour
 {
-    private bool m_battleStarted = false;
+    private bool m_battleOccuring = false;
     private float m_battleTimer = 2f; //Time between each attack
     private float m_currentFriendlyTimer;
     private float m_currentEnemyTimer;
@@ -32,7 +32,7 @@ public class BattleBehaviour : MonoBehaviour
         enemyUnits = _enemyUnits;
         m_currentFriendlyTimer = m_battleTimer;
         m_currentEnemyTimer = m_battleTimer;
-        m_battleStarted = true;
+        m_battleOccuring = true;
     }
 
     /// <summary>
@@ -41,93 +41,97 @@ public class BattleBehaviour : MonoBehaviour
     /// <param name="_enemyUnits">List of Units to join the battle </param>
     public void JoinBattle(List<Unit> _enemyUnits)
     {
-        //Add incoming enemies into the battle.
-        enemyUnits.AddRange(_enemyUnits);
+        if(m_battleOccuring == true)
+        {
+            //Add incoming enemies into the battle.
+            enemyUnits.AddRange(_enemyUnits);
+            m_currentFriendlyTimer = m_battleTimer;
+            m_currentEnemyTimer = m_battleTimer;
+        }
     }
 
     void Update()
     {
-        //Clear lists of units that may have been destroyed by the player.
-        for (int i = 0; i < enemyGroups.Count; i++)
-        {
-            if (enemyGroups[i] == null)
-            {
-                enemyGroups.Remove(enemyGroups[i]);
-            }
-        }
-
-        for (int i = 0; i < friendlyGroups.Count; i++)
-        {
-            if (friendlyGroups[i] == null)
-            {
-                friendlyGroups.Remove(friendlyGroups[i]);
-            }
-        }
-
-        for (int i = 0; i < enemyUnits.Count; i++)
-        {
-            if (enemyUnits[i] == null)
-            {
-                enemyUnits.Remove(enemyUnits[i]);
-            }
-        }
-
-        for (int i = 0; i < friendlyUnits.Count; i++)
-        {
-            if (friendlyUnits[i] == null)
-            {
-                friendlyUnits.Remove(friendlyUnits[i]);
-            }
-        }
-
-
-
-
-
-        if (m_battleStarted == true)
-        {
-
-            float _totalTimePerception = 0;
+            //Clear lists of units that may have been destroyed by the player.
             for (int i = 0; i < enemyGroups.Count; i++)
             {
-                _totalTimePerception += enemyGroups[i].timePerception;
-            }
-            m_enemyTimePerception = _totalTimePerception / enemyGroups.Count;
-
-            drawDebugLines();
-            m_currentFriendlyTimer -= Time.deltaTime * GameManager.Instance.GameSpeed;
-            m_currentEnemyTimer -= Time.deltaTime * GameManager.Instance.GameSpeed * m_enemyTimePerception;
-
-
-            if (enemyUnits.Count == 0)
-            {
-                //End the battle, Player Won
-                battleOver();
-                StartCoroutine(playFriendlyWinningSounds());
-
-            }
-            if(friendlyUnits.Count == 0)
-            {
-                //End the battle, Player Won
-                battleOver();
-                StartCoroutine(playEnemyWinningSounds());
+                if (enemyGroups[i] == null)
+                {
+                    enemyGroups.Remove(enemyGroups[i]);
+                }
             }
 
-
-
-
-            if (m_currentFriendlyTimer < 0)
+            for (int i = 0; i < friendlyGroups.Count; i++)
             {
-                StartCoroutine("friendlyAttack");
-                m_currentFriendlyTimer = m_battleTimer;
+                if (friendlyGroups[i] == null)
+                {
+                    friendlyGroups.Remove(friendlyGroups[i]);
+                }
             }
-            if(m_currentEnemyTimer < 0)
+
+            for (int i = 0; i < enemyUnits.Count; i++)
             {
-                StartCoroutine("enemyAttack");
-                m_currentEnemyTimer = m_battleTimer;
+                if (enemyUnits[i] == null)
+                {
+                    enemyUnits.Remove(enemyUnits[i]);
+                }
+            }
+
+            for (int i = 0; i < friendlyUnits.Count; i++)
+            {
+                if (friendlyUnits[i] == null)
+                {
+                    friendlyUnits.Remove(friendlyUnits[i]);
+                }
+            }
+
+
+
+            if (m_battleOccuring == true)
+            {
+                if (enemyUnits.Count <= 0)
+                {
+                    //End the battle, Player Won
+                    battleOver();
+                    //m_battleOccuring = false;
+                    AudioManager.Instance.PlaySound("battleCheer" + Random.Range(1, 5), AudioLists.Combat, AudioMixers.Effects, true, true, false, this.gameObject, 0.2f);
+                    Destroy(this);
+
+                }
+                if (friendlyUnits.Count <= 0)
+                {
+                    //End the battle, Player Won
+                    battleOver();
+                    //m_battleOccuring = false;
+                    AudioManager.Instance.PlaySound("battleCheer" + Random.Range(1, 5), AudioLists.Combat, AudioMixers.Effects, true, true, false, this.gameObject, 0.2f);
+                    Destroy(this);
+                }
+
+
+                float _totalTimePerception = 0;
+                for (int i = 0; i < enemyGroups.Count; i++)
+                {
+                    _totalTimePerception += enemyGroups[i].timePerception;
+                }
+                m_enemyTimePerception = _totalTimePerception / enemyGroups.Count;
+
+                drawDebugLines();
+                m_currentFriendlyTimer -= Time.deltaTime * GameManager.Instance.GameSpeed;
+                m_currentEnemyTimer -= Time.deltaTime * GameManager.Instance.GameSpeed * m_enemyTimePerception;
+
+
+                if (m_currentFriendlyTimer < 0)
+                {
+                    StartCoroutine("friendlyAttack");
+                    m_currentFriendlyTimer = m_battleTimer;
+                }
+                if (m_currentEnemyTimer < 0)
+                {
+                    StartCoroutine("enemyAttack");
+                    m_currentEnemyTimer = m_battleTimer;
+                }
             }
         }
-    }
 
     /// <summary>
     /// Tell all groups that the units belong to that the battle is over.
@@ -253,42 +257,6 @@ public class BattleBehaviour : MonoBehaviour
         }
         yield return null;
 
-    }
-
-
-
-    /// <summary>
-    /// Plays sounds for each of the friendly units once they've won a battle.
-    /// </summary>
-    /// <returns></returns>
-    IEnumerator playFriendlyWinningSounds()
-    {
-        //Stop timers
-        m_battleStarted = false;
-        for (int i = 0; i < friendlyUnits.Count; i++)
-        {
-            AudioManager.Instance.PlaySound("battleCheer" + Random.Range(1, 5), AudioLists.Combat, AudioMixers.Effects, true, true, false, friendlyUnits[i].unitComp.gameObject, 0.2f);
-            yield return new WaitForSeconds(0.06f);
-        }
-        yield return null;
-        Destroy(this);
-    }
-
-    /// <summary>
-    /// Plays sounds for each of the enemy units once they've won a battle.
-    /// </summary>
-    /// <returns></returns>
-    IEnumerator playEnemyWinningSounds()
-    {
-        //Stop timers
-        m_battleStarted = false;
-        for (int i = 0; i < enemyUnits.Count; i++)
-        {
-            AudioManager.Instance.PlaySound("battleCheer" + Random.Range(1, 5), AudioLists.Combat, AudioMixers.Effects, true, true, false, enemyUnits[i].unitComp.gameObject, 0.2f);
-            yield return new WaitForSeconds(0.06f);
-        }
-        yield return null;
-        Destroy(this);
     }
 
 

@@ -37,12 +37,6 @@ public class GameBoardGeneration : MonoBehaviour
  
     #endregion
 
-
-    void Start()
-    {
-        generate();
-    }
-
     void Awake()
     {
         //Singleton Implementation

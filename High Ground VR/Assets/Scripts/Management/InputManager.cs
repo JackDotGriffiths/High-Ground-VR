@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
 using Valve.VR.InteractionSystem;
-
+public enum HandTypes { left, right }; // Handedness
 public class InputManager : MonoBehaviour
 {
     #region Variable Decleration
     private static InputManager s_instance;
-    public enum HandTypes { left, right }; // Handedness
     public enum BookOptions { offHandController, ViveTracker }; // Handedness
     public enum SizeOptions { small, large }; //Whether the player is currently Large or Small.
 
     [Header("Player Config"), Space(5)]
-    public HandTypes m_handedness; //The handedness of the player, used to place the book and the laser pointer in the correct hand
+    public HandTypes Handedness; //The handedness of the player, used to place the book and the laser pointer in the correct hand
     public BookOptions m_bookControllerChoice = BookOptions.offHandController; // The tracking object from the controller.
     [SerializeField, Tooltip("The height at which the game board should sit relative to the player's height."), Range(0f, 1f)] private float m_playerHeightMultiplier = 0.5f;
 
@@ -80,12 +79,12 @@ public class InputManager : MonoBehaviour
     void Start()
     {
         //Handles whether the player is left or right handed.
-        if (m_handedness == HandTypes.left)
+        if (Handedness == HandTypes.left)
         {
             MainController = m_leftController;
             OffHandController = m_rightController;
         }
-        if (m_handedness == HandTypes.right)
+        if (Handedness == HandTypes.right)
         {
             MainController = m_rightController;
             OffHandController = m_leftController;
@@ -149,11 +148,12 @@ public class InputManager : MonoBehaviour
 
 
         //Raycast from the mainController forward.
-        if (Physics.Raycast(MainController.transform.position, MainController.transform.forward - MainController.transform.up, out _hit, 1000) && m_currentSize == SizeOptions.large)
+        if (Physics.Raycast(MainController.transform.position, MainController.transform.forward - (MainController.transform.up * 0.5f), out _hit, 1000) && m_currentSize == SizeOptions.large)
         {
             //If it hits an environment Hex, highlight.
             if (_hit.collider.gameObject.tag == "Environment")
             {
+                removeHighlight();
                 m_enlargePlayer = false;
                 MeshRenderer _hitMesh = _hit.collider.gameObject.GetComponent<MeshRenderer>();
                 m_currentlySelectedHex = _hit.collider.gameObject;
@@ -162,17 +162,8 @@ public class InputManager : MonoBehaviour
 
 
                 //Show the laser
-                if (m_currentSize == SizeOptions.large)
-                {
-                    m_mainPointer.startWidth = 0.05f;
-                    m_mainPointer.endWidth = 0.00f;
-                }
-                else
-                {
-                    m_mainPointer.startWidth = 0.003f;
-                    m_mainPointer.endWidth = 0.00f;
-                }
-
+                m_mainPointer.startWidth = 0.05f;
+                m_mainPointer.endWidth = 0.00f;
 
                 //Turn laser colour to blue when you correctly collided with environment.
                 m_mainPointer.startColor = Color.blue;
@@ -192,6 +183,33 @@ public class InputManager : MonoBehaviour
                     if (m_buildingValidation.verifyBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node, _angle))
                     {
                         m_buildingValidation.placeBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node, _angle);
+                        RumbleManager.Instance.lightVibration(Handedness);
+                    }
+                }
+            }
+
+            if(_hit.collider.gameObject.tag == "MenuCanvas")
+            {
+                //Show the laser
+                m_mainPointer.startWidth = 0.05f;
+                m_mainPointer.endWidth = 0.00f;
+
+                //Turn laser colour to blue when you correctly collided with environment.
+                m_mainPointer.startColor = Color.blue;
+                m_mainPointer.endColor = Color.blue;
+
+
+                //Update the cursor position
+                if(_hit.collider.gameObject.TryGetComponent(out UIPointerBehaviour _pointer))
+                {
+                    _pointer.updateCursorPos(_hit.point);
+                    if(m_mainTrigger == true)
+                    {
+                        _pointer.isClicked = true;
+                    }
+                    else
+                    {
+                        _pointer.isClicked = false;
                     }
                 }
             }
@@ -258,12 +276,6 @@ public class InputManager : MonoBehaviour
 
             m_currentlySelectedHex = null;
             m_enlargePlayer = true;
-
-            if (m_mainTrigger == true)
-            {
-                m_currentlySelectedBuilding = null;
-            }
-
             if (m_currentSize == SizeOptions.large)
             {
                 m_mainPointer.startWidth = 0;
@@ -299,23 +311,6 @@ public class InputManager : MonoBehaviour
 
         #endregion
 
-        #region Trigger Button Handling
-
-        //m_mainControllerPos = MainController.transform.position;
-        //if (m_mainTrigger == true && m_currentlySelectedHex == null && !(RightTrigger == true && LeftTrigger == true) && CurrentSize == SizeOptions.large)
-        //{
-        //    //Main trigger pressed and not pointing at any hex - Was used for rotation but may be useful later on.
-        //}
-        //m_mainControllerPreviousPos = m_mainControllerPos;
-
-        if (m_currentlySelectedHex == null && m_mainTrigger == true)
-        {
-            m_currentlySelectedBuilding = null;
-        }
-
-
-
-        #endregion
 
         #region Enemy Interaction Manager
         if (m_mainTrigger == true && m_currentlySelectedBuilding == null)
@@ -377,7 +372,6 @@ public class InputManager : MonoBehaviour
             if (m_bookControllerChoice == BookOptions.offHandController)
             {
                 Destroy(m_viveTracker);
-                Destroy(OffHandController.transform.GetChild(0).gameObject);
                 m_bookObject = Instantiate(m_bookPrefab, OffHandController.transform);
                 //m_bookObject.transform.localPosition = Vector3.zero;
                 m_bookObject.transform.localEulerAngles = new Vector3(90, 0, 0);
@@ -387,7 +381,7 @@ public class InputManager : MonoBehaviour
             {
                 float _zOffset;
                 //Rotate based on Handedness
-                if (m_handedness == HandTypes.right)
+                if (Handedness == HandTypes.right)
                 {
                     _zOffset = 90;
                 }
@@ -404,8 +398,10 @@ public class InputManager : MonoBehaviour
 
             GameManager.Instance.moneyBookText = m_bookObject.GetComponent<BookManager>().moneyText;
             GameManager.Instance.timerBookText = m_bookObject.GetComponent<BookManager>().timerText;
+            GameManager.Instance.roundBookText = m_bookObject.GetComponent<BookManager>().roundText;
             GameManager.Instance.moneyBookText2 = m_bookObject.GetComponent<BookManager>().moneyText2;
             GameManager.Instance.timerBookText2 = m_bookObject.GetComponent<BookManager>().timerText2;
+            GameManager.Instance.roundBookText2 = m_bookObject.GetComponent<BookManager>().roundText2;
 
 
         }
@@ -442,6 +438,7 @@ public class InputManager : MonoBehaviour
             Transform _targetHex = m_gameEnvironment.transform.GetChild(i).transform;
             _targetHex.position = new Vector3(_targetHex.position.x, m_maxWorldHeight, _targetHex.position.z);
         }
+        m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 16);
     }
 
     /// <summary>
@@ -450,17 +447,20 @@ public class InputManager : MonoBehaviour
     /// <param name="_selectedMesh">The Mesh to not have in the list</param>
     private void updateObjectList(MeshRenderer _selectedMesh)
     {
-        m_objectMeshes = new List<MeshRenderer>();
-        //Add all of the environment object mesh renderers.
-        int _childCount = m_gameEnvironment.transform.GetChild(0).transform.childCount;
-        for (int i = 0; i < _childCount; i++)
+        if(GameManager.Instance.GameStarted == true)
         {
-            if (m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).tag == "Environment")
+            m_objectMeshes = new List<MeshRenderer>();
+            //Add all of the environment object mesh renderers.
+            int _childCount = m_gameEnvironment.transform.GetChild(0).transform.childCount;
+            for (int i = 0; i < _childCount; i++)
             {
-                MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).GetComponent<MeshRenderer>();
-                if (_mesh != _selectedMesh)
+                if (m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).tag == "Environment")
                 {
-                    m_objectMeshes.Add(_mesh);
+                    MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).GetComponent<MeshRenderer>();
+                    if (_mesh != _selectedMesh)
+                    {
+                        m_objectMeshes.Add(_mesh);
+                    }
                 }
             }
         }
@@ -471,15 +471,18 @@ public class InputManager : MonoBehaviour
     /// </summary>
     private void updateObjectList()
     {
-        m_objectMeshes = new List<MeshRenderer>();
-        //Add all of the environment object mesh renderers.
-        int _childCount = m_gameEnvironment.transform.GetChild(0).transform.childCount;
-        for (int i = 0; i < _childCount; i++)
+        if (GameManager.Instance.GameStarted == true)
         {
-            if (m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).tag == "Environment")
+            m_objectMeshes = new List<MeshRenderer>();
+            //Add all of the environment object mesh renderers.
+            int _childCount = m_gameEnvironment.transform.GetChild(0).transform.childCount;
+            for (int i = 0; i < _childCount; i++)
             {
-                MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).GetComponent<MeshRenderer>();
-                m_objectMeshes.Add(_mesh);
+                if (m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).tag == "Environment")
+                {
+                    MeshRenderer _mesh = m_gameEnvironment.transform.GetChild(0).transform.GetChild(i).GetComponent<MeshRenderer>();
+                    m_objectMeshes.Add(_mesh);
+                }
             }
         }
     }
@@ -491,9 +494,12 @@ public class InputManager : MonoBehaviour
     {
         foreach (MeshRenderer _mesh in m_objectMeshes)
         {
-            List<Material> _matList = new List<Material>();
-            _matList.Add(m_grassMaterial);
-            _mesh.materials = _matList.ToArray();
+            if(_mesh != null)
+            {
+                List<Material> _matList = new List<Material>();
+                _matList.Add(m_grassMaterial);
+                _mesh.materials = _matList.ToArray();
+            }
         }
     }
 
@@ -523,11 +529,11 @@ public class InputManager : MonoBehaviour
     /// <param name="_time">The time the rumble lasts for (milliseconds)</param>
     public void rumble(float _time)
     {
-        //if (m_handedness == HandTypes.left)
+        //if (Handedness == HandTypes.left)
         //{
         //    SteamVR_Controller.Input((int)trackedObj.index).TriggerHapticPulse(500);
         //}
-        //if (m_handedness == HandTypes.right)
+        //if (Handedness == HandTypes.right)
         //{
         //    SteamVR_Controller.Input((int)trackedObj.index).TriggerHapticPulse(500);
         //}

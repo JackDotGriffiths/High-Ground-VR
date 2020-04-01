@@ -7,6 +7,7 @@ public enum spellTypes { none, regularAttack, speedUpUnit, slowDownUnit};
 public class InteractionManager : MonoBehaviour
 {
     [SerializeField, Tooltip("Time before being able to attack again")] private float m_attackCooldown;
+    [SerializeField, Tooltip("Lightning Hit Effect")] private GameObject m_lightningHitEffect;
 
     [Header("Lightning Effect Config"), Space(10)]
     [SerializeField, Tooltip("Number of LineRenderers to make up Lightning"), Space(3)] private int m_lightningStrikes;
@@ -45,16 +46,26 @@ public class InteractionManager : MonoBehaviour
     /// <param name="_spell">Spell to use from the spellTypes enum.</param>
     public void castSpell(spellTypes _spell)
     {
+        int _counter;
         switch (_spell)
         {
             case spellTypes.regularAttack:
                 regularAttack(InputManager.Instance.MainController);
+                //Usability Testing
+                _counter = PlayerPrefs.GetInt("Regular Spell");
+                PlayerPrefs.SetInt("Regular Spell", _counter++);
                 break;
             case spellTypes.speedUpUnit:
                 speedUpAttack(InputManager.Instance.MainController);
+                //Usability Testing
+                _counter = PlayerPrefs.GetInt("Speed Spell");
+                PlayerPrefs.SetInt("Speed Spell", _counter++);
                 break;
             case spellTypes.slowDownUnit:
                 slowDownAttack(InputManager.Instance.MainController);
+                //Usability Testing
+                _counter = PlayerPrefs.GetInt("Slow Spell");
+                PlayerPrefs.SetInt("Slow Spell", _counter++);
                 break;
         }
 
@@ -73,16 +84,24 @@ public class InteractionManager : MonoBehaviour
         {
             return;
         }
+        RumbleManager.Instance.heavyVibration(InputManager.Instance.Handedness);
         //Player is large, attack a hex.
         if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
         {
             RaycastHit _hit;
-            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - _controller.transform.up, out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
+            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - (_controller.transform.up * 0.5f), out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
             {
-                StartCoroutine(regularAttackEffect(1.0f, _controller, _hit.point));
-               //If you hit a collider of the environment which has an enemy on it.
+                StartCoroutine(regularAttackEffect(0.7f, _controller, _hit.point));
+
+                //Show the dust effect on the hex you hit
+                Vector3 _effectPos = new Vector3(_hit.collider.gameObject.transform.position.x, _hit.collider.gameObject.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _hit.collider.gameObject.transform.position.z);
+                GameObject _dustEffect = Instantiate(m_lightningHitEffect, _effectPos, Quaternion.Euler(-90, 0, 0));
+                Destroy(_dustEffect, 0.5f);
+
+                //If you hit a collider of the environment which has an enemy on it.
                 if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.enemyUnit)
                 {
+
                     //Find each unit within that group, and deal damage to them.
                     EnemyBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyBehaviour>();
                     List<Unit> _enemyUnits = new List<Unit>();
@@ -107,6 +126,7 @@ public class InteractionManager : MonoBehaviour
                     if(_buildingHealth.currentHealth < 0)
                     {
                         Destroy(_buildingHealth.gameObject);
+                        _hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability = navigabilityStates.navigable;
                     }
                 }
 
@@ -117,10 +137,9 @@ public class InteractionManager : MonoBehaviour
         else
         {
             RaycastHit _hit;
-
-            StartCoroutine(regularAttackEffect(0.5f, _controller, _controller.transform.position + _controller.transform.forward * 20f));
             if (Physics.Raycast(_controller.transform.position, _controller.transform.forward, out _hit, 1000))
             {
+                StartCoroutine(regularAttackEffect(0.1f, _controller, _hit.point));
                 //If it's a unit;
                 if (_hit.collider.gameObject.GetComponentInParent<UnitComponent>() != null)
                 {
@@ -135,6 +154,7 @@ public class InteractionManager : MonoBehaviour
             else
             {
                 //Miss 
+                StartCoroutine(regularAttackEffect(0.2f, _controller, _controller.transform.position + _controller.transform.forward * 20f));
             }
         }
 
@@ -228,13 +248,21 @@ public class InteractionManager : MonoBehaviour
         {
             return;
         }
+        RumbleManager.Instance.heavyVibration(InputManager.Instance.Handedness);
         //Player is large, attack a hex.
         if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
         {
             RaycastHit _hit;
-            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - _controller.transform.up, out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
+            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - (_controller.transform.up * 0.5f), out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
             {
+
                 StartCoroutine(slowDownAttackEffect(0.3f, _controller, _hit.point));
+
+                //Show the dust effect on the hex you hit
+                Vector3 _effectPos = new Vector3(_hit.collider.gameObject.transform.position.x, _hit.collider.gameObject.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _hit.collider.gameObject.transform.position.z);
+                GameObject _dustEffect = Instantiate(m_lightningHitEffect, _effectPos, Quaternion.Euler(-90, 0, 0));
+                Destroy(_dustEffect, 0.5f);
+
                 //If you hit a collider of the environment which has an enemy on it.
                 if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.enemyUnit)
                 {
@@ -359,13 +387,20 @@ public class InteractionManager : MonoBehaviour
         {
             return;
         }
+        RumbleManager.Instance.heavyVibration(InputManager.Instance.Handedness);
         //Player is large, attack a hex.
         if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
         {
             RaycastHit _hit;
-            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - _controller.transform.up, out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
+            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - (_controller.transform.up * 0.5f), out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
             {
                 StartCoroutine(speedUpAttackEffect(0.3f, _controller, _hit.point));
+
+                //Show the dust effect on the hex you hit
+                Vector3 _effectPos = new Vector3(_hit.collider.gameObject.transform.position.x, _hit.collider.gameObject.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _hit.collider.gameObject.transform.position.z);
+                GameObject _dustEffect = Instantiate(m_lightningHitEffect, _effectPos, Quaternion.Euler(-90, 0, 0));
+                Destroy(_dustEffect, 0.5f);
+
                 //If you hit a collider of the environment which has an enemy on it.
                 if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.enemyUnit)
                 {

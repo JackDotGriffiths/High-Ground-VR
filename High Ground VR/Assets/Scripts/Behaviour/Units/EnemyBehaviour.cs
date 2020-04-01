@@ -29,7 +29,7 @@ public class EnemyBehaviour : MonoBehaviour
     private List<Node> m_groupPath = new List<Node>(); //List of Nodes that lead to the groups goal.
     private Vector3 m_targetPosition; //Position the node should be moving to.
     private int m_currentUnits;
-
+    private float m_timeAlive;
 
     void Start()
     {
@@ -46,6 +46,9 @@ public class EnemyBehaviour : MonoBehaviour
 
     void Update()
     {
+        //Timer that tracks how long an enemy has lived for. This is used for giving points to the player.
+        m_timeAlive += Time.deltaTime * GameManager.Instance.GameSpeed * timePerception;
+
         //Clear destroyed units from the list of units associated with this group.
         for (int i = 0; i < m_units.Count; i++)
         {
@@ -63,6 +66,9 @@ public class EnemyBehaviour : MonoBehaviour
             m_groupPath[currentStepIndex].navigability = navigabilityStates.navigable;
             GameManager.Instance.CurrentEnemies -= 1;
             GameManager.Instance.enemyGold();
+            //Reward the player for killing the enemies quicker.
+            Mathf.Clamp(100 - m_timeAlive, 0, 100);
+            GameManager.Instance.addScore(Mathf.RoundToInt(m_timeAlive));
             Destroy(this.gameObject);
         }
 
@@ -175,7 +181,7 @@ public class EnemyBehaviour : MonoBehaviour
 
 
 
-        //Run pathfinding, randomly choosing how the unit navigates based on their aggression and some random factors.
+        //Run pathfinding, randomly choosing how the unit navigates based on their aggression and some random factors. This is only used by the tank enemy as default units start with 0 aggression.
         float _aggressionChance = 1.0f - (GameManager.Instance.aggressionPercentage * (GameManager.Instance.RoundCounter / 2.0f));
         if (groupAggression > _aggressionChance)
         {
@@ -201,26 +207,7 @@ public class EnemyBehaviour : MonoBehaviour
         {
             m_groupPath = new List<Node>();
             groupAggression = 1.0f;
-            if (groupAggression > _aggressionChance)
-            {
-                float _rand = Random.Range(0.0f, 1.0f);
-                if (_rand < 0.3f)
-                {
-                    RunPathfinding(enemyTargets.randomDestructableBuilding, groupAggression);
-                }
-                else if (_rand > 0.3f && _rand < 0.5f)
-                {
-                    RunPathfinding(enemyTargets.randomMine, groupAggression);
-                }
-                else
-                {
-                    RunPathfinding(enemyTargets.Gem, groupAggression);
-                }
-            }
-            else
-            {
-                RunPathfinding(enemyTargets.Gem, groupAggression);
-            }
+            RunPathfinding(enemyTargets.Gem, groupAggression);
         }
         m_targetPosition = new Vector3(m_groupPath[0].hex.transform.position.x, m_groupPath[0].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[0].hex.transform.position.z);
         m_unitInstantiated = true;

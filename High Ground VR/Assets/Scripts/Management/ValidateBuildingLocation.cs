@@ -88,7 +88,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         {
             return false ;
         }
-        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
+        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode) && checkGemAccessible(_targetNode))
         {
             _validLocation = true;
         }
@@ -117,11 +117,7 @@ public class ValidateBuildingLocation : MonoBehaviour
             if (_hit.collider.tag == "Environment")
             {
                 Node _hitNode = _hit.collider.gameObject.GetComponent<NodeComponent>().node;
-                if(nodeEmpty(_hitNode) && !adjacentToEnemySpawn(_hitNode) && !adjacentToGem(_targetNode))
-                {
-                    _validLocation = true;
-                }
-                else
+                if(!nodeEmpty(_hitNode) && adjacentToEnemySpawn(_hitNode) && adjacentToGem(_targetNode))
                 {
                     _validLocation = false;
                 }
@@ -142,7 +138,8 @@ public class ValidateBuildingLocation : MonoBehaviour
 
         if(_validLocation == false)
         {
-            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+            RumbleManager.Instance.heavyVibration(InputManager.Instance.Handedness);
         }
         return _validLocation;
     }
@@ -155,13 +152,14 @@ public class ValidateBuildingLocation : MonoBehaviour
     public bool verifyMine(Node _targetNode, float _angle)
     {
         bool _validLocation = false;
-        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
+        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode) && checkGemAccessible(_targetNode))
         {
             _validLocation = true;
         }
         if (_validLocation == false)
         {
-            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+            RumbleManager.Instance.heavyVibration(InputManager.Instance.Handedness);
         }
         return _validLocation;
     }
@@ -174,13 +172,14 @@ public class ValidateBuildingLocation : MonoBehaviour
     public bool verifyWall(Node _targetNode, float _angle)
     {
         bool _validLocation = false;
-        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode))
+        if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode) && checkGemAccessible(_targetNode))
         {
             _validLocation = true;
         }
         if (_validLocation == false)
         {
-            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+            RumbleManager.Instance.heavyVibration(InputManager.Instance.Handedness);
         }
         return _validLocation;
 
@@ -230,9 +229,10 @@ public class ValidateBuildingLocation : MonoBehaviour
         if (!GameManager.Instance.spendGold(GameManager.Instance.barracksCost))
         {
             Debug.Log("Not Enough Money");
-            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
             return;
         }
+        GameManager.Instance.addScore(50); //Add score for placing building.
         //Update Node navigability and surrounding nodes
         _targetNode.navigability = navigabilityStates.barracks;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
@@ -242,6 +242,10 @@ public class ValidateBuildingLocation : MonoBehaviour
 
 
         AudioManager.Instance.PlaySound("placeBuilding", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+
+        //Usability Testing
+        int _counter = PlayerPrefs.GetInt("Barracks Placed");
+        PlayerPrefs.SetInt("Barracks Placed", _counter++);
     }
 
 
@@ -254,9 +258,10 @@ public class ValidateBuildingLocation : MonoBehaviour
         if (!GameManager.Instance.spendGold(GameManager.Instance.mineCost))
         {
             Debug.Log("Not Enough Money");
-            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
             return;
         }
+        GameManager.Instance.addScore(30); //Add score for placing building.
         //Update Node navigability and surrounding nodes
         _targetNode.navigability = navigabilityStates.mine;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
@@ -264,6 +269,12 @@ public class ValidateBuildingLocation : MonoBehaviour
         Vector3 _rotation = new Vector3(0.0f, _angle, 0.0f);
         GameObject _building = Instantiate(m_mine, _position, Quaternion.Euler(_rotation), _targetNode.hex.transform);
         AudioManager.Instance.PlaySound("placeBuilding", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+
+
+        //Usability Testing
+        int _counter = PlayerPrefs.GetInt("Mine Placed");
+        PlayerPrefs.SetInt("Mine Placed", _counter++);
+
     }
 
     /// <summary>
@@ -275,15 +286,22 @@ public class ValidateBuildingLocation : MonoBehaviour
         if (!GameManager.Instance.spendGold(GameManager.Instance.wallsCost))
         {
             Debug.Log("Not Enough Money");
-            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.Building, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
             return;
         }
+        GameManager.Instance.addScore(10); //Add score for placing building.
         //Update Node navigability and surrounding nodes
         _targetNode.navigability = navigabilityStates.wall;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         GameObject _building = Instantiate(m_walls, _targetNode.hex.transform);
         _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
         AudioManager.Instance.PlaySound("placeBuilding", AudioLists.Building, AudioMixers.Effects,false, true, false, _targetNode.hex, 0.1f);
+
+
+        //Usability Testing
+        int _counter = PlayerPrefs.GetInt("Walls Placed");
+        PlayerPrefs.SetInt("Walls Placed", _counter++);
+
     }
 
     /// <summary>
@@ -410,7 +428,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         bool _validLocation = true;
         foreach(Node _node in _targetNode.adjecant)
         {
-            if(_node.navigability == navigabilityStates.barracks || _node.navigability == navigabilityStates.playerUnit)
+            if(_node.navigability == navigabilityStates.barracks)
             {
                 _validLocation = false;
             }

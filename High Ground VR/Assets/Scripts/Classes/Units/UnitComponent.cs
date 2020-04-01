@@ -42,10 +42,10 @@ public class UnitComponent : MonoBehaviour
 
     void Update()
     {
-        try
+        if(m_enemyDisplay != null)
         {
             m_enemyDisplay.transform.LookAt(Camera.main.transform);
-            if(InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
+            if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
             {
                 m_enemyDisplay.transform.eulerAngles = new Vector3(m_enemyDisplay.transform.eulerAngles.x, m_enemyDisplay.transform.eulerAngles.y, m_enemyDisplay.transform.eulerAngles.z);
             }
@@ -55,8 +55,6 @@ public class UnitComponent : MonoBehaviour
             }
             m_healthBar.fillAmount = Mathf.Lerp(m_healthBar.fillAmount, unit.health / m_maxHealth, 1.5f * Time.deltaTime);
         }
-        catch { }
-
     }
 
     public void playerUnitConstructor()

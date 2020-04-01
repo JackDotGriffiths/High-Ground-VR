@@ -107,7 +107,7 @@ public class Search
                 reachable.Add(adjacent);
             }
         }
-        else if(unitAggression > _aggressionChance && GameManager.Instance.RoundCounter > GameManager.Instance.spawnAggresiveAfter)
+        else if(unitAggression > _aggressionChance)
         {
             if (adjacent.navigability == navigabilityStates.wall || adjacent.navigability == navigabilityStates.mine)
             {
@@ -152,13 +152,13 @@ public class Search
     /// <returns></returns>
     public Node ChooseNode()
     {
-                //float _minDistance = Mathf.Infinity;
-                //for (int i = 0; i < reachable.Count - 1; i++)
-                //    Vector3 _nodePos = reachable[i].hex.transform.position;
-                //if (Vector3.Distance(_nodePos, _goalNodePos) < _minDistance)
-                //    _minDistance = Vector3.Distance(_nodePos, _goalNodePos);
-                //_closestNode = reachable[i];
-                //return _closestNode;
+        //float _minDistance = Mathf.Infinity;
+        //for (int i = 0; i < reachable.Count - 1; i++)
+        //    Vector3 _nodePos = reachable[i].hex.transform.position;
+        //if (Vector3.Distance(_nodePos, _goalNodePos) < _minDistance)
+        //    _minDistance = Vector3.Distance(_nodePos, _goalNodePos);
+        //_closestNode = reachable[i];
+        //return _closestNode;
 
         //Randomly chooses a node which is in the correct direction, giving some variety to enemy paths. The commented out section above is the perfect pathfinding.
 
@@ -172,25 +172,23 @@ public class Search
         }
         else if (_searchNodes.Count == 2) //Randomly choose if there's two available
         {
-            if (Random.Range(0.0f,1.0f) < 0.8f)
+            if (checkIfInCombat(_searchNodes[0])) // Check if it's in combat, if it is, avoid it.
             {
-                return _searchNodes[0];
+                return _searchNodes[1];
             }
             else
             {
-                return _searchNodes[1];
+                return _searchNodes[0];
             }
         }
 
 
-        Node _closestNode = reachable[Random.Range(0, reachable.Count)];
         Vector3 _goalNodePos = goalNode.hex.transform.position;
-
         //Bubble Sort in distance from _it to the gem
         Node _tempNode;
-        for (int j = 0; j < _searchNodes.Count-2; j++)
+        for (int j = 0; j < _searchNodes.Count - 2; j++)
         {
-            for (int i = 0; i < _searchNodes.Count-2; i++)
+            for (int i = 0; i < _searchNodes.Count - 2; i++)
             {
                 Vector3 _node1Pos = _searchNodes[i].hex.transform.position;
                 Vector3 _node2Pos = _searchNodes[i + 1].hex.transform.position;
@@ -205,35 +203,33 @@ public class Search
             }
         }
 
-        if(_searchNodes.Count > 1)
-        {
-            float _rand = Random.Range(0.0f, 1.0f);
 
-
-            _rand = Random.Range(0.0f, 1.0f);
-
-
-
-
-
-
-
-            if (_rand <= 0.85f)// 85% of picking the best
+        if (checkIfInCombat(_searchNodes[0])) // Check if it's in combat, if it is, avoid it.
             {
-                return _searchNodes[0];
-            }
-            else if (_rand > 0.85f && _rand < 0.95f)// 10% of picking second best
-            {
-                return _searchNodes[1];
-            }
-            else // 5% of picking third best
-            {
-                return _searchNodes[2];
-            }
+            return _searchNodes[1];
         }
         else
         {
             return _searchNodes[0];
         }
+
+    }
+
+    /// <summary>
+    /// Checks whether a node has a unit that's in combat on it, if so, it will try and avoid creating a queue.
+    /// </summary>
+    /// <param name="_node">The node to check</param>
+    /// <returns>True if the node contains a unit in combat.</returns>
+    private bool checkIfInCombat(Node _node)
+    {
+        bool _nodeInCombat = false;
+        if(_node.navigability == navigabilityStates.enemyUnit)
+        {
+            if(_node.hex.GetComponentInChildren<EnemyBehaviour>().inCombat == true || _node.hex.GetComponentInChildren<EnemyBehaviour>().inSiege == true)
+            {
+                _nodeInCombat = true;
+            }
+        }
+        return _nodeInCombat;
     }
 }

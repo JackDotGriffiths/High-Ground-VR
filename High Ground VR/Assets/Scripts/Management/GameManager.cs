@@ -12,26 +12,34 @@ public class GameManager : MonoBehaviour
     [Header("Game Config")]
     [SerializeField, Range(0.0f, 2.0f), Tooltip("The speed of objects in the game on a scale of 0-1")] private float m_gameSpeed = 1.0f; //Game speed multiplier used across the game for allowing for slowmo/pausing etc.
     [SerializeField, Tooltip("How long in seconds the building phase should be")] private float m_buildingPhaseTime; //Length of time the player should be allowed to build.
-    [SerializeField, Tooltip("The animator of the Main Menu. Used to show/hide it.")] private Animator m_mainMenuAnim;
-    private bool m_gameOver = false;
 
-    [Header("Enemy Spawn Management"),Space(10)]
-    [Tooltip("Amount of spawns the game rounds should start with")]public int enemyStartingSpawns = 1;
+    [Header ("UI Management")]
+    [SerializeField, Tooltip("Main Menu GameObject")] private GameObject m_mainMenu;
+    [SerializeField, Tooltip("Game Menu GameObject")] private GameObject m_gameMenu;
+    [SerializeField, Tooltip("Score UI Element")] private TextMeshProUGUI m_scoreUI;
+    [SerializeField, Tooltip("Gold UI Element")] private TextMeshProUGUI m_goldUI;
+    [SerializeField, Tooltip("Time UI Element")] private TextMeshProUGUI m_timeUI;
+    [SerializeField, Tooltip("Round UI Element")] private TextMeshProUGUI m_roundUI;
+
+    private bool m_gameOver = false;
+    public bool GameStarted = false;
+
+    [Header("Enemy Spawn Management"), Space(10)]
+    [Tooltip("Amount of spawns the game rounds should start with")] public int enemyStartingSpawns = 1;
     [Tooltip("Amount of enemies to spawn at the start of Round One.")] public int enemyAmount = 1;
     [Tooltip("Enemy Spawn Delay")] public int enemySpawnDelay = 10;
-    [Tooltip("Which round to start spawning enemies after")] public int spawnAggresiveAfter = 2;
-    [Tooltip("Proportion of aggressive enemies. This is multiplied by the round number."),Range(0.0f,1.0f)] public float aggressionPercentage = 0.1f;
+    [Tooltip("Proportion of aggressive enemies. This is multiplied by the round number."), Range(0.0f, 1.0f)] public float aggressionPercentage = 0.1f;
     [Tooltip("Which round number to start spawning tank enemies after"), Space(10)] public int tankRoundStart = 5;
     [Tooltip("How many rounds have to pass before another one spawns")] public int tankRoundFrequency = 5;
 
-    [HideInInspector]public List<EnemySpawnBehaviour> enemySpawns;
+    [HideInInspector] public List<EnemySpawnBehaviour> enemySpawns;
     private List<Node> m_outerEdgeNodes; //Set to the nodes on the outer edge of the map, used when spawning enemies.
     private int m_currentEnemies;
     private int m_tankCount = 1;
 
 
     [Header("Gold Management"), Space(10)]
-    [SerializeField,Tooltip("Gold the player should start with.")] private int m_startingGold = 10; //Starting gold for the player
+    [SerializeField, Tooltip("Gold the player should start with.")] private int m_startingGold = 10; //Starting gold for the player
     [SerializeField, Tooltip("Amount of gold for a player to earn per interval.")] private int m_minedGoldPerRound = 20; //Amount of gold per tick
     [SerializeField, Tooltip("Amount of gold for a player to earn from killing an enemy")] private int m_goldPerKill = 20; //Amount of enemyKilled
 
@@ -41,16 +49,13 @@ public class GameManager : MonoBehaviour
     private int m_mineCount;
 
 
-    [HideInInspector] public TextMeshProUGUI moneyBookText, timerBookText, moneyBookText2, timerBookText2;
+    [HideInInspector] public TextMeshProUGUI moneyBookText, timerBookText, roundBookText, moneyBookText2, timerBookText2, roundBookText2;
 
-    [Header ("Debug Wall Displays"), Space(10)]
-    [SerializeField] private TextMeshProUGUI m_goldValue; //Debug Wall Text object that temporarily displays money
-    [SerializeField] private TextMeshProUGUI m_round; //Debug Wall Text object that temporarily displays round no.
-    [SerializeField] private TextMeshProUGUI m_timerLeft; //Debug Wall Text object that temporarily displays time
 
 
     public int currentGold; //The current gold of the player.
-    private int m_roundCounter;
+    public int currentScore; //The current score of the player.
+    private int m_roundCounter = 1;
     private float m_buildingPhaseTimer; //Track the current value of the countdown timer.
     private bool m_menuVisible;
 
@@ -71,6 +76,8 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
+        m_mainMenu.SetActive(true);
+        m_gameMenu.SetActive(false);
         //Singleton Implementation
         if (s_instance == null)
             s_instance = this;
@@ -80,19 +87,7 @@ public class GameManager : MonoBehaviour
             return;
         }
     }
-   
-    void Start()
-    {
-        m_roundCounter = 1;
-        currentGold = m_startingGold;
-        m_buildingPhaseTimer = m_buildingPhaseTime;
-        CurrentPhase = Phases.Building;
-        //Invoke on a delay so GameBoard Graph has been created.
-        Invoke("instantiateGem", 0.05f);
-        Invoke("instantiateSpawns", 0.05f);
-        StartBuildingPhase();
 
-    }
 
     void Update()
     {
@@ -101,60 +96,68 @@ public class GameManager : MonoBehaviour
         {
             moneyBookText.text = currentGold.ToString();
             timerBookText.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString();
+            m_goldUI.text = currentGold.ToString();
+            m_timeUI.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString();
             moneyBookText2.text = currentGold.ToString();
             timerBookText2.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString();
+
+            if (CurrentPhase == Phases.Building)
+            {
+                roundBookText.text = "Building";
+                roundBookText2.text = "Building";
+                m_roundUI.text = "Building";
+            }
         }
         catch { }
 
 
         if (m_gameOver == true)
         {
-            m_round.text = "GAME OVER";
             m_gameSpeed = 0;
-            if(m_menuVisible == false)
-            {
-                m_menuVisible = true;
-                m_mainMenuAnim.Play("ShowMenu");
-            }
+            roundBookText.text = "Game Over";
+            roundBookText2.text = "Game Over";
+            m_roundUI.text = "Game Over";
+            submitData();
+            setPlayerPrefs();
             return;
         }
-        if(CurrentPhase == Phases.Building)
+        else if (m_gameOver == false && GameStarted == true)
         {
-            m_buildingPhaseTimer -= Time.deltaTime * m_gameSpeed;
-            if(m_buildingPhaseTimer % 1.0f < 0.01f) // Plays a ticking sound with the timer.
+            if (CurrentPhase == Phases.Building)
             {
-                AudioManager.Instance.PlaySound("clockTick", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.1f);
+                m_buildingPhaseTimer -= Time.deltaTime * m_gameSpeed;
+                if (m_buildingPhaseTimer % 1.0f < 0.01f) // Plays a ticking sound with the timer.
+                {
+                    AudioManager.Instance.PlaySound("clockTick", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.1f);
+                }
+            }
+            if (m_currentEnemies <= 0 && CurrentPhase == Phases.Building && m_buildingPhaseTimer <= 0.0f)
+            {
+                StartAttackPhase();
+            }
+            if (m_currentEnemies <= 0 && CurrentPhase == Phases.Attack && m_buildingPhaseTimer <= 0.0f)
+            {
+                StartBuildingPhase();
             }
         }
-        if (m_currentEnemies <= 0 && CurrentPhase == Phases.Building && m_buildingPhaseTimer <= 0.0f)
-        {
-            StartAttackPhase();
-        }
-        if(m_currentEnemies <=0 && CurrentPhase == Phases.Attack && m_buildingPhaseTimer <= 0.0f)
-        {
-            StartBuildingPhase();
-        }
-        //Updating Debug Displays
-        m_goldValue.text = currentGold.ToString();
-        m_timerLeft.text = Mathf.RoundToInt(m_buildingPhaseTimer).ToString() + "s";
-
     }
 
     #region Phase Control
     void StartBuildingPhase()
     {
         CurrentPhase = Phases.Building;
-        m_round.text = "Building";
         StartCoroutine(generateMineGold());
 
-        if(m_roundCounter != 1) //Stops this happening on the first round.
+        if (m_roundCounter != 1) //Stops this happening on the first round.
         {
-            currentGold += (m_mineCount * m_minedGoldPerRound) + 30;
+            currentGold += 30;
+            AudioManager.Instance.PlaySound("buildingPhaseStarted", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
+            addScore(300);
         }
 
 
 
-        m_buildingPhaseTimer = m_buildingPhaseTime/2;
+        m_buildingPhaseTimer = m_buildingPhaseTime / 2;
     }
     void StartAttackPhase()
     {
@@ -168,6 +171,7 @@ public class GameManager : MonoBehaviour
                 _node.navigability = navigabilityStates.navigable;
             }
         }
+        AudioManager.Instance.PlaySound("buildingPhaseStarted", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
         StartCoroutine("spawnEnemies");
 
 
@@ -197,7 +201,7 @@ public class GameManager : MonoBehaviour
     /// <returns>True/False depending on whether the transaction went through</returns>
     public bool spendGold(int _cost)
     {
-        if(_cost <= currentGold)
+        if (_cost <= currentGold)
         {
             currentGold -= _cost;
             return true;
@@ -217,30 +221,26 @@ public class GameManager : MonoBehaviour
         AudioManager.Instance.PlaySound("generateMoney", AudioLists.Building, AudioMixers.Effects, true, true, true, this.gameObject, 0.15f);
     }
 
-
     IEnumerator generateMineGold()
     {
-        currentGold += 30;
         yield return new WaitForSeconds(0.3f);
-        AudioManager.Instance.PlaySound("generateMoney",  AudioLists.Building, AudioMixers.Effects, true, true, true, this.gameObject, 0.15f);
+        AudioManager.Instance.PlaySound("generateMoney", AudioLists.Building, AudioMixers.Effects, true, true, true, this.gameObject, 0.15f);
 
         //Play a sound when the mines generate money, up to 5 mines.
         int _count = 0;
         for (int i = 0; i < m_mineCount; i++)
         {
-            if(_count < 5)
+            if (_count < 5)
             {
                 yield return new WaitForSeconds(0.3f);
                 AudioManager.Instance.PlaySound("generateMoney", AudioLists.Building, AudioMixers.Effects, true, true, true, this.gameObject, 0.15f);
             }
-            currentGold += m_minedGoldPerRound + 30;
+            currentGold += m_minedGoldPerRound;
             _count++;
         }
 
     }
     #endregion
-
-
 
     #region Enemy Spawning Control
 
@@ -261,17 +261,17 @@ public class GameManager : MonoBehaviour
         m_outerEdgeNodes = new List<Node>();
 
         //Bottom and Top Rows of the Game Board
-        for (int i = 0; i < GameBoardGeneration.Instance.Graph.GetLength(0)-1; i++)
+        for (int i = 0; i < GameBoardGeneration.Instance.Graph.GetLength(0) - 1; i++)
         {
             m_outerEdgeNodes.Add(GameBoardGeneration.Instance.Graph[i, 0]);
-            m_outerEdgeNodes.Add(GameBoardGeneration.Instance.Graph[i, GameBoardGeneration.Instance.Graph.GetLength(1)-1]);
+            m_outerEdgeNodes.Add(GameBoardGeneration.Instance.Graph[i, GameBoardGeneration.Instance.Graph.GetLength(1) - 1]);
         }
 
         //Left and Right of the Game Board
-        for (int i = 0; i < GameBoardGeneration.Instance.Graph.GetLength(1)-1; i++)
+        for (int i = 0; i < GameBoardGeneration.Instance.Graph.GetLength(1) - 1; i++)
         {
             m_outerEdgeNodes.Add(GameBoardGeneration.Instance.Graph[0, i]);
-            m_outerEdgeNodes.Add(GameBoardGeneration.Instance.Graph[GameBoardGeneration.Instance.Graph.GetLength(0)-1, i]);
+            m_outerEdgeNodes.Add(GameBoardGeneration.Instance.Graph[GameBoardGeneration.Instance.Graph.GetLength(0) - 1, i]);
         }
 
 
@@ -280,14 +280,14 @@ public class GameManager : MonoBehaviour
         {
             //Randomly choose a hex on the OUTSIDE
             Node _chosenNode = m_outerEdgeNodes[Random.Range(0, m_outerEdgeNodes.Count)];
-            
+
             //Verify and place the enemy spawn at this hex
             if (GameBoardGeneration.Instance.BuildingValidation.verifyEnemySpawn(_chosenNode, 0.0f) == true)
             {
-                    GameBoardGeneration.Instance.BuildingValidation.placeEnemySpawn(_chosenNode, 0.0f);
+                GameBoardGeneration.Instance.BuildingValidation.placeEnemySpawn(_chosenNode, 0.0f);
             }
-            else { 
-                i--; 
+            else {
+                i--;
             }
         }
     }
@@ -297,16 +297,18 @@ public class GameManager : MonoBehaviour
     /// </summary>
     IEnumerator spawnEnemies()
     {
-        if(m_gameOver == false)
+        if (m_gameOver == false)
         {
-            if(RoundCounter != 1)
+            roundBookText.text = "Round " + m_roundCounter;
+            roundBookText2.text = "Round " + m_roundCounter;
+            m_roundUI.text = "Round " + m_roundCounter;
+            if (RoundCounter != 1)
             {
                 //Increase the count of enemies based on Enemy Counter;
                 enemyAmount = Mathf.RoundToInt(3 * Mathf.Sqrt(RoundCounter));
             }
 
             CurrentEnemies = enemyAmount;
-            m_round.text = "Round " + m_roundCounter;
 
             //Create a list of the enemies to spawn this round.
             List<enemyTypes> _roundEnemies = new List<enemyTypes>(enemyAmount);
@@ -319,8 +321,8 @@ public class GameManager : MonoBehaviour
 
             //Work out the amount of Tank enemies to spawn from the current Round.
             int _tanksToSpawn = 0;
-            if ( RoundCounter == tankRoundStart)
-            {_tanksToSpawn = m_tankCount; }
+            if (RoundCounter == tankRoundStart)
+            { _tanksToSpawn = m_tankCount; }
             else if (RoundCounter % tankRoundFrequency == 0 && RoundCounter > tankRoundStart)
             {
                 m_tankCount++;
@@ -331,7 +333,7 @@ public class GameManager : MonoBehaviour
             for (int i = 0; i < _tanksToSpawn; i++)
             {
                 int _randomIndex = Random.Range(0, _roundEnemies.Count - 1);
-                if(_roundEnemies[_randomIndex] == enemyTypes.Regular)
+                if (_roundEnemies[_randomIndex] == enemyTypes.Regular)
                 {
                     _roundEnemies[_randomIndex] = enemyTypes.Tank;
                 }
@@ -343,11 +345,11 @@ public class GameManager : MonoBehaviour
 
 
 
-            
+
             //For each enemy to spawn, randomly choose a spawn and run spawnEnemy
             for (int i = 0; i < _roundEnemies.Count; i++)
             {
-                if(_roundEnemies[i] == enemyTypes.Regular)
+                if (_roundEnemies[i] == enemyTypes.Regular)
                 {
                     //Spawn a normal enemy;
                     if (!enemySpawns[Random.Range(0, enemySpawns.Count)].spawnEnemy()) //If it fails to spawn an enemy, try again.
@@ -364,7 +366,7 @@ public class GameManager : MonoBehaviour
                     }
                 }
 
-                yield return new WaitForSeconds(Random.Range(enemySpawnDelay/2,enemySpawnDelay)); //Random delay in spawning enemies, staggers them out.
+                yield return new WaitForSeconds(Random.Range(enemySpawnDelay / 2, enemySpawnDelay)); //Random delay in spawning enemies, staggers them out.
             }
             m_roundCounter++;
         }
@@ -375,21 +377,51 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
-    #region Main Menu Controls
+    #region Play/Exit/Restart
 
-    public void ExitGame()
+    public void playGame()
+    {
+        setPlayerPrefs();
+        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
+
+        Debug.Log("Play Game");
+        resetScore();
+        m_mainMenu.SetActive(false);
+        m_gameMenu.SetActive(true);
+        m_gameOver = false;
+        GameStarted = true;
+        m_currentEnemies = 0;
+        enemySpawns = new List<EnemySpawnBehaviour>();
+        GameBoardGeneration.Instance.generate();
+        InputManager.Instance.updateWorldHeight();
+        m_roundCounter = 1;
+        m_tankCount = 1;
+        m_mineCount = 0;
+        m_gameSpeed = 1;
+        currentGold = m_startingGold;
+        m_buildingPhaseTimer = m_buildingPhaseTime;
+        CurrentPhase = Phases.Building;
+        //Invoke on a delay so GameBoard Graph has been created.
+        Invoke("instantiateGem", 0.05f);
+        Invoke("instantiateSpawns", 0.05f);
+        StartBuildingPhase();
+    }
+    public void exitGame()
     {
         Debug.Log("Exit Game");
         Application.Quit();
     }
 
-
     public void restartGame()
     {
-        Debug.Log("Restarting Game");
-        m_mainMenuAnim.Play("HideMenu");
-        m_menuVisible = false;
+        submitData();
+        setPlayerPrefs();
+        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
+
+        Debug.Log("Restart Game");
+        resetScore();
         m_gameOver = false;
+        GameStarted = true;
         m_currentEnemies = 0;
         enemySpawns = new List<EnemySpawnBehaviour>();
         GameBoardGeneration.Instance.generate();
@@ -397,6 +429,7 @@ public class GameManager : MonoBehaviour
         m_roundCounter = 1;
         m_tankCount = 1;
         m_gameSpeed = 1;
+        m_mineCount = 0;
         currentGold = m_startingGold;
         m_buildingPhaseTimer = m_buildingPhaseTime;
         CurrentPhase = Phases.Building;
@@ -407,10 +440,9 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
-
     #region Pathfinding Control
 
-    public List<Node> RunPathfinding(enemyTargets _target, float _aggression,int _currentX,int _currentY)
+    public List<Node> RunPathfinding(enemyTargets _target, float _aggression, int _currentX, int _currentY)
     {
         //Find the X & Y of a goal node.
 
@@ -463,13 +495,13 @@ public class GameManager : MonoBehaviour
                 {
                     for (int j = 0; j < GameBoardGeneration.Instance.Graph.GetLength(1); j++)
                     {
-                        if(GameBoardGeneration.Instance.Graph[i,j].navigability == navigabilityStates.mine)
+                        if (GameBoardGeneration.Instance.Graph[i, j].navigability == navigabilityStates.mine)
                         {
                             _targetNode = GameBoardGeneration.Instance.Graph[i, j];
                             break;
                         }
                     }
-                    if(_targetNode != null)
+                    if (_targetNode != null)
                     {
                         break;
                     }
@@ -489,13 +521,13 @@ public class GameManager : MonoBehaviour
                 break;
         }
 
-        
+
 
         if (_currentX == _goalX && _currentY == _goalY)
         {
             return null;
         }
-        List <Node> _groupPath = new List<Node>();
+        List<Node> _groupPath = new List<Node>();
         var graph = GameBoardGeneration.Instance.Graph;
         var search = new Search(GameBoardGeneration.Instance.Graph);
         search.Start(graph[_currentX, _currentY], graph[_goalX, _goalY], _aggression);
@@ -522,6 +554,71 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
+    #region Score Control
+
+    /// <summary>
+    /// Adds to the player's current score
+    /// </summary>
+    /// <param name="_amount">Amount to Add</param>
+    public void addScore(int _amount)
+    {
+        currentScore += _amount;
+        m_scoreUI.text = currentScore.ToString("000000");
+    }
+
+    /// <summary>
+    /// Resets the players score to 0.
+    /// </summary>
+    private void resetScore()
+    {
+        currentScore = 0;
+        m_scoreUI.text = currentScore.ToString("000000");
+    }
+
+    #endregion
+
+    #region Usability Testing Control
+    private void setPlayerPrefs()
+    {
+        PlayerPrefs.SetInt("Score", 0);
+        PlayerPrefs.SetInt("Round Reached", 0);
+        PlayerPrefs.SetInt("Barracks Placed", 0);
+        PlayerPrefs.SetInt("Walls Placed", 0);
+        PlayerPrefs.SetInt("Mine Placed", 0);
+        PlayerPrefs.SetInt("Regular Spell", 0);
+        PlayerPrefs.SetInt("Speed Spell", 0);
+        PlayerPrefs.SetInt("Slow Spell", 0);
+    }
+    private void submitData()
+    {
+        if(currentScore == 0)
+        {
+            return;
+        }
+        PlayerPrefs.SetInt("Score", currentScore);
+        PlayerPrefs.SetInt("Round Reached", m_roundCounter);
+        StartCoroutine(Post(PlayerPrefs.GetInt("Score").ToString(), PlayerPrefs.GetInt("Round Reached").ToString(), PlayerPrefs.GetInt("Barracks Placed").ToString(), PlayerPrefs.GetInt("Walls Placed").ToString(),PlayerPrefs.GetInt("Mine Placed").ToString(), PlayerPrefs.GetInt("Regular Spell").ToString(), PlayerPrefs.GetInt("Speed Spell").ToString(), PlayerPrefs.GetInt("Slow Spell").ToString()));
+
+    }
+
+    IEnumerator Post(string score, string maxRound, string barracks, string walls, string mine, string regularSpell, string speedSpell, string slowSpell)
+    {
+        WWWForm form = new WWWForm();
+        form.AddField("entry.1404377732", score);
+        form.AddField("entry.224105009", maxRound);
+        form.AddField("entry.1340497501", barracks);
+        form.AddField("entry.938290357", walls);
+        form.AddField("entry.713143027", mine);
+        form.AddField("entry.705423035", regularSpell);
+        form.AddField("entry.1687568442", speedSpell);
+        form.AddField("entry.401115139", slowSpell);
+        byte[] rawData = form.data;
+        WWW www = new WWW("https://docs.google.com/forms/u/0/d/e/1FAIpQLSeC2ytHm1RVTDnlJAh8AeXjf0CJ2rnSVdRvqsENml7nAbsXbg/formResponse", rawData);
+        yield return www;
+    }
+
+
+    #endregion
 
 
 }
