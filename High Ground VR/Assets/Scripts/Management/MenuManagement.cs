@@ -68,15 +68,24 @@ public class MenuManagement : MonoBehaviour
     #region Info Panels Control
     private void loadStatusInfoPanels()
     {
-       if(PlayerPrefs.GetInt("InfoPanelsStatus") == 0)
-       {
-            //Info Panels Off
-            m_buildingBoard.Play("SlideDown");
-            m_spellsBoard.Play("SlideDown");
-            m_helperImage.color = m_optionOff;
+        if (PlayerPrefs.HasKey("InfoPanelsStatus"))
+        {
+            if (PlayerPrefs.GetInt("InfoPanelsStatus") == 0)
+            {
+                //Info Panels Off
+                m_buildingBoard.Play("SlideDown");
+                m_spellsBoard.Play("SlideDown");
+                m_helperImage.color = m_optionOff;
+            }
+            else
+            {
+                //Info Panels On
+                m_helperImage.color = m_optionOn;
+
+            }
         }
-       else
-       {
+        else
+        {
             //Create PlayerPrefs & Set Defaults
             PlayerPrefs.SetInt("InfoPanelsStatus", 1);
             m_helperImage.color = m_optionOn;
@@ -85,10 +94,10 @@ public class MenuManagement : MonoBehaviour
     }
     public void toggleInfoPanels()
     {
-        if (PlayerPrefs.GetInt("InfoPanelsStatus") == 1)
+        if (PlayerPrefs.GetInt("InfoPanelsStatus") == 0)
         {
             //Info Panels On
-            PlayerPrefs.SetInt("InfoPanelsStatus", 0);
+            PlayerPrefs.SetInt("InfoPanelsStatus", 1);
             m_buildingBoard.Play("SlideUp");
             m_spellsBoard.Play("SlideUp");
             m_helperImage.color = m_optionOn;
@@ -96,7 +105,7 @@ public class MenuManagement : MonoBehaviour
         else
         {
             //Info Panels Off
-            PlayerPrefs.SetInt("InfoPanelsStatus", 1);
+            PlayerPrefs.SetInt("InfoPanelsStatus", 0);
             m_buildingBoard.Play("SlideDown");
             m_spellsBoard.Play("SlideDown");
             m_helperImage.color = m_optionOff;
@@ -107,11 +116,21 @@ public class MenuManagement : MonoBehaviour
     #region Audio Control
     private void loadMusicStatus()
     {
-        if (PlayerPrefs.GetInt("MusicStatus") == 0)
+        if (PlayerPrefs.HasKey("MusicStatus"))
         {
-            //Music Off
-            m_mixer.SetFloat("musicVolume", -80); //Mute the music
-            m_musicImage.color = m_optionOff;
+            if (PlayerPrefs.GetInt("MusicStatus") == 0)
+            {
+                //Music Off
+                m_mixer.SetFloat("musicVolume", -80); //Mute the music
+                m_musicImage.color = m_optionOff;
+            }
+            else
+            {
+                //Music On
+                m_mixer.SetFloat("musicVolume", 0); //Unmute the music
+                m_musicImage.color = m_optionOn;
+
+            }
         }
         else
         {
@@ -129,25 +148,35 @@ public class MenuManagement : MonoBehaviour
             //Info Panels On
             PlayerPrefs.SetInt("MusicStatus", 0);
             m_mixer.SetFloat("musicVolume", -80); //Mute the music
-            m_musicImage.color = m_optionOn;
+            m_musicImage.color = m_optionOff;
         }
         else
         {
             //Info Panels Off
             PlayerPrefs.SetInt("MusicStatus", 1);
             m_mixer.SetFloat("musicVolume", 0); //Unmute the music
-            m_musicImage.color = m_optionOff;
+            m_musicImage.color = m_optionOn;
         }
     }
 
     private void loadEffectStatus()
     {
-        if (PlayerPrefs.GetInt("EffectsStatus") == 0)
+        if (PlayerPrefs.HasKey("EffectsStatus"))
         {
-            //Effects Off
-            m_mixer.SetFloat("effectsVolume", -80); //Mute the effects
-            m_mixer.SetFloat("userinterfaceVolume", -80);
-            m_effectsImage.color = m_optionOff;
+            if(PlayerPrefs.GetInt("EffectsStatus") == 0)
+            {
+                //Effects Off
+                m_mixer.SetFloat("effectsVolume", -80); //Mute the effects
+                m_mixer.SetFloat("userinterfaceVolume", -80);
+                m_effectsImage.color = m_optionOff;
+            }
+            else
+            {
+                //Effects On
+                m_mixer.SetFloat("effectsVolume", 0); //Unmute the effects
+                m_mixer.SetFloat("userinterfaceVolume", 0);
+                m_effectsImage.color = m_optionOn;
+            }
         }
         else
         {
@@ -164,17 +193,17 @@ public class MenuManagement : MonoBehaviour
         if (PlayerPrefs.GetInt("EffectsStatus") == 1)
         {
             PlayerPrefs.SetInt("EffectsStatus", 0);
-            m_mixer.SetFloat("effectsVolume", -80); //Unmute the effects
+            m_mixer.SetFloat("effectsVolume", -80); //Mute the effects
             m_mixer.SetFloat("userinterfaceVolume", -80);
-            m_effectsImage.color = m_optionOn;
+            m_effectsImage.color = m_optionOff;
         }
         else
         {
             PlayerPrefs.SetInt("EffectsStatus", 1);
             //Effects Off
-            m_mixer.SetFloat("effectsVolume", 0); //Mute the effects
+            m_mixer.SetFloat("effectsVolume", 0); //Unmute the effects
             m_mixer.SetFloat("userinterfaceVolume", 0);
-            m_effectsImage.color = m_optionOff;
+            m_effectsImage.color = m_optionOn;
         }
     }
 
