@@ -8,120 +8,63 @@ Preset:
   m_PrefabAsset: {fileID: 0}
   m_Name: Game Manager - Gameplay
   m_TargetType:
-    m_NativeTypeID: 114
-    m_ManagedTypePPtr: {fileID: 11500000, guid: 7bfbee88d2e2d9c4a8c1f2421caa3b47,
-      type: 3}
+    m_NativeTypeID: 4
+    m_ManagedTypePPtr: {fileID: 0}
     m_ManagedTypeFallback: 
   m_Properties:
   - target: {fileID: 0}
-    propertyPath: m_Enabled
+    propertyPath: m_LocalRotation.x
+    value: -0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_LocalRotation.y
+    value: -0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_LocalRotation.z
+    value: -0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_LocalRotation.w
     value: 1
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: m_EditorHideFlags
+    propertyPath: m_LocalPosition.x
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: m_EditorClassIdentifier
-    value: 
+    propertyPath: m_LocalPosition.y
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: m_gameSpeed
+    propertyPath: m_LocalPosition.z
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_LocalScale.x
     value: 1
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: m_buildingPhaseTime
-    value: 60
+    propertyPath: m_LocalScale.y
+    value: 1
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: GameStarted
+    propertyPath: m_LocalScale.z
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_RootOrder
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: enemyStartingSpawns
-    value: 3
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: enemyAmount
-    value: 2
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: enemySpawnDelay
-    value: 5
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: spawnAggresiveAfter
-    value: 4
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: aggressionPercentage
-    value: 0.4
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: tankRoundStart
-    value: 4
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: tankRoundFrequency
-    value: 3
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: enemySpawns.Array.size
+    propertyPath: m_LocalEulerAnglesHint.x
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: m_startingGold
-    value: 500
+    propertyPath: m_LocalEulerAnglesHint.y
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: m_minedGoldPerRound
-    value: 30
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: m_goldPerKill
-    value: 10
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: wallsCost
-    value: 10
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: barracksCost
-    value: 100
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: mineCost
-    value: 50
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: moneyBookText
-    value: 
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: timerBookText
-    value: 
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: moneyBookText2
-    value: 
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: timerBookText2
-    value: 
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: m_goldValue
-    value: 
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: m_round
-    value: 
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: m_timerLeft
-    value: 
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: currentGold
+    propertyPath: m_LocalEulerAnglesHint.z
     value: 0
     objectReference: {fileID: 0}
