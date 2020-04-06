@@ -5,14 +5,21 @@ using UnityEngine.UI;
 
 public class UIPointerBehaviour : MonoBehaviour
 {
+    [SerializeField] private MenuManagement m_menuManagement; //Holds all logic for the buttons
+
+
     [SerializeField] private RectTransform m_cursor;
     [SerializeField] private Color m_defaultColour;
     [SerializeField] private Color m_highlightColour;
 
     [SerializeField,Space(10)] private RectTransform m_playButton;
+    [SerializeField] private RectTransform m_handednessButton, m_infoButton, m_musicButton, m_effectsButton; // Main Menu Buttons
     [SerializeField] private RectTransform m_restartButton;
     [SerializeField] private RectTransform m_quitButton;
     [SerializeField] private RectTransform m_quitButton2;
+
+
+
 
     private Image m_cursorImage;
     private bool m_isUpdating;
@@ -29,7 +36,7 @@ public class UIPointerBehaviour : MonoBehaviour
         if(m_isUpdating == true)
         {
             m_cursor.gameObject.SetActive(true);
-            if (rectOverlap(m_cursor, m_playButton) || rectOverlap(m_cursor, m_restartButton) || rectOverlap(m_cursor, m_quitButton) || rectOverlap(m_cursor, m_quitButton2))
+            if (rectOverlap(m_cursor, m_playButton) || rectOverlap(m_cursor, m_handednessButton) || rectOverlap(m_cursor, m_infoButton) || rectOverlap(m_cursor, m_musicButton) || rectOverlap(m_cursor, m_effectsButton) || rectOverlap(m_cursor, m_restartButton) || rectOverlap(m_cursor, m_quitButton) || rectOverlap(m_cursor, m_quitButton2))
             {
                 m_cursorImage.color = m_highlightColour;
             }
@@ -43,8 +50,45 @@ public class UIPointerBehaviour : MonoBehaviour
                 if (rectOverlap(m_cursor, m_playButton) && m_playButton.gameObject.activeInHierarchy)
                 {
                     GameManager.Instance.playGame();
+                    AudioManager.Instance.PlaySound("buttonClick", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.1f);
                     RumbleManager.Instance.lightVibration(InputManager.Instance.Handedness);
                 }
+                if (rectOverlap(m_cursor, m_handednessButton) && m_handednessButton.gameObject.activeInHierarchy)
+                {
+                    m_menuManagement.toggleHandedness();
+                    AudioManager.Instance.PlaySound("buttonClick", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.1f);
+                    RumbleManager.Instance.lightVibration(InputManager.Instance.Handedness);
+                }
+                if (rectOverlap(m_cursor, m_infoButton) && m_infoButton.gameObject.activeInHierarchy)
+                {
+                    m_menuManagement.toggleInfoPanels();
+                    AudioManager.Instance.PlaySound("buttonClick", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.1f);
+                    RumbleManager.Instance.lightVibration(InputManager.Instance.Handedness);
+                }
+                if (rectOverlap(m_cursor, m_musicButton) && m_musicButton.gameObject.activeInHierarchy)
+                {
+                    m_menuManagement.toggleMusicStatus();
+                    AudioManager.Instance.PlaySound("buttonClick", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.1f);
+                    RumbleManager.Instance.lightVibration(InputManager.Instance.Handedness);
+                }
+                if (rectOverlap(m_cursor, m_effectsButton) && m_effectsButton.gameObject.activeInHierarchy)
+                {
+                    m_menuManagement.toggleEffectStatus();
+                    AudioManager.Instance.PlaySound("buttonClick", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.1f);
+                    RumbleManager.Instance.lightVibration(InputManager.Instance.Handedness);
+                }
+
+
+
+
+
+
+
+
+
+
+
+
                 if (rectOverlap(m_cursor, m_quitButton) && m_quitButton.gameObject.activeInHierarchy)
                 {
                     GameManager.Instance.exitGame();

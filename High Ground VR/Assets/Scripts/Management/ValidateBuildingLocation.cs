@@ -120,11 +120,15 @@ public class ValidateBuildingLocation : MonoBehaviour
                 if(!nodeEmpty(_hitNode) && adjacentToEnemySpawn(_hitNode) && adjacentToGem(_targetNode))
                 {
                     _validLocation = false;
+                    playIncorrectSound(_targetNode);
+                    return _validLocation;
                 }
             }
             else
             {
                 _validLocation = false;
+                playIncorrectSound(_targetNode);
+                return _validLocation;
             }
         }
 
@@ -133,13 +137,9 @@ public class ValidateBuildingLocation : MonoBehaviour
             if(_adjNode.navigability == navigabilityStates.enemySpawn)
             {
                 _validLocation = false;
+                playIncorrectSound(_targetNode);
+                return _validLocation;
             }
-        }
-
-        if(_validLocation == false)
-        {
-            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
-            RumbleManager.Instance.heavyVibration(InputManager.Instance.Handedness);
         }
         return _validLocation;
     }
@@ -158,7 +158,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         }
         if (_validLocation == false)
         {
-            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+            playIncorrectSound(_targetNode);
             RumbleManager.Instance.heavyVibration(InputManager.Instance.Handedness);
         }
         return _validLocation;
@@ -178,7 +178,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         }
         if (_validLocation == false)
         {
-            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+            playIncorrectSound(_targetNode);
             RumbleManager.Instance.heavyVibration(InputManager.Instance.Handedness);
         }
         return _validLocation;
@@ -200,6 +200,8 @@ public class ValidateBuildingLocation : MonoBehaviour
         else
         {
             _validLocation = false;
+            playIncorrectSound(_targetNode);
+            return _validLocation;
         }
 
         //Checks for any nonPlaceable adjecent nodes. This helps with ensuring spawns are spread out.
@@ -208,6 +210,8 @@ public class ValidateBuildingLocation : MonoBehaviour
             if(_adjNode.navigability == navigabilityStates.enemySpawn)
             {
                 _validLocation = false;
+                playIncorrectSound(_targetNode);
+                return _validLocation;
             }
         }
 
@@ -326,6 +330,13 @@ public class ValidateBuildingLocation : MonoBehaviour
 
 
 
+
+    private void playIncorrectSound(Node _targetNode)
+    {
+        AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
+        RumbleManager.Instance.heavyVibration(InputManager.Instance.Handedness);
+    }
+
     #region gameRules
 
     /// <summary>
@@ -344,6 +355,7 @@ public class ValidateBuildingLocation : MonoBehaviour
             return false;
         }
     }
+
     /// <summary>
     /// Checks whether the node to adjacent to any enemy spawns.
     /// </summary>
@@ -361,6 +373,7 @@ public class ValidateBuildingLocation : MonoBehaviour
 
         return false;
     }
+
     /// <summary>
     /// Checks whether the node to adjacent to the gem
     /// </summary>
@@ -378,7 +391,6 @@ public class ValidateBuildingLocation : MonoBehaviour
 
         return false;
     }
-
 
     /// <summary>
     /// Checks whether or not the gem is still accessible.
@@ -411,10 +423,11 @@ public class ValidateBuildingLocation : MonoBehaviour
             if (search.path.Count == 0)
             {
                 _result = false;
+                _targetNode.navigability = navigabilityStates.navigable;
+                return _result;
             }
         }
 
-        _targetNode.navigability = navigabilityStates.navigable;
         return _result;
     }
 
@@ -431,6 +444,7 @@ public class ValidateBuildingLocation : MonoBehaviour
             if(_node.navigability == navigabilityStates.barracks)
             {
                 _validLocation = false;
+                return _validLocation;
             }
         }
         return _validLocation;

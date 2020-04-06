@@ -55,6 +55,7 @@ public class GameManager : MonoBehaviour
 
     public int currentGold; //The current gold of the player.
     public int currentScore; //The current score of the player.
+    private int visibleScore;
     private int m_roundCounter = 1;
     private float m_buildingPhaseTimer; //Track the current value of the countdown timer.
     private bool m_menuVisible;
@@ -563,7 +564,7 @@ public class GameManager : MonoBehaviour
     public void addScore(int _amount)
     {
         currentScore += _amount;
-        m_scoreUI.text = currentScore.ToString("000000");
+        StartCoroutine(updateScoreScreen());
     }
 
     /// <summary>
@@ -575,6 +576,17 @@ public class GameManager : MonoBehaviour
         m_scoreUI.text = currentScore.ToString("000000");
     }
 
+
+    IEnumerator updateScoreScreen()
+    {
+        do
+        {
+            visibleScore++;
+            yield return new WaitForSeconds(0.03f);
+            m_scoreUI.text = visibleScore.ToString("000000");
+        } while (visibleScore != currentScore);
+        yield return null;
+    }
     #endregion
 
     #region Usability Testing Control
