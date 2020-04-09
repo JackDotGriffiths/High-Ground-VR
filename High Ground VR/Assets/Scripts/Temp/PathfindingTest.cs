@@ -91,12 +91,9 @@ public class PathfindingTest : MonoBehaviour
     {
         m_path = new List<Transform>();
         var graph = GameBoardGeneration.Instance.Graph;
-        var search = new Search(GameBoardGeneration.Instance.Graph);
-        search.Start(graph[startPosX, startPosY], graph[endPosX, endPosY],0.0f);
-        while (!search.finished)
-        {
-            search.Step();
-        }
+        var search = new Search();
+        search.StartSearch(graph[startPosX, startPosY], graph[endPosX, endPosY]);
+
 
         Transform[] _pathPositions = new Transform[search.path.Count];
         for (int i = 0; i < search.path.Count; i++)
@@ -111,7 +108,7 @@ public class PathfindingTest : MonoBehaviour
             return;
         }
 
-        Debug.Log("Search " + m_testingCountIndex + " done. Path length : " + search.path.Count + ". Iterations : " + search.iterations);
+        Debug.Log("Search " + m_testingCountIndex + " done. Path length : " + search.path.Count);
     }
     void DrawPath(Transform[] _positions)
     {
