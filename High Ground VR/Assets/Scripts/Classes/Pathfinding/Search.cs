@@ -4,60 +4,130 @@ using UnityEngine;
 
 public class Search
 {
-    public Node[,] graph; //Graph of all nodes
-    public List<Node> explored; //Complete list of explored nodes within the search
+    public Node[,] graph = GameBoardGeneration.Instance.Graph; //The entire game board representation as a 2D array of Nodes.
+    
+    
     public List<Node> path; //The Chosen path after the search has occured
+    private List<Node> openNodes;
+    private List<Node> closedNodes;
+    private int m_straightCost = 10;
+    private int m_diagonalCost = 14;
 
 
 
-    public float unitAggression;
-
+    public float unitAggression; // Remember to use this at some point.
 
     //////////////////////////////////////////////////// NEW IMPLEMENTATION
-    
-    private float heuristicSearch(Node a,Node b)
-    {
-        return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
-    }
 
-    public void StartSearch(Node _start, Node _goal)
+    public void StartSearch(Node _startNode, Node _endNode)
     {
         path = new List<Node>();
-        explored = new List<Node>();
+        openNodes = new List<Node>();
+        closedNodes = new List<Node>();
 
-
-
-
-        Node[,] _graph = GameBoardGeneration.Instance.Graph; //Get the graph from GameBoard Generation
-        path.Add(_start); //Add the first position.
-        explored.Add(_start); 
-        int _costSoFar = 0;
-        while(path.Count > 0)
+        openNodes.Add(_startNode);
+        foreach(Node _adjacentNode in _startNode.adjecant)
         {
-            Node _currentNode = path[path.Count-1];
+            openNodes.Add(_adjacentNode);
+            _adjacentNode.searchData.parentNode = _startNode;
+        }
 
-            if(_currentNode == _goal)
+        openNodes.Remove(_startNode);
+        closedNodes.Add(_startNode);
+
+        while (openNodes.Count > 0)
+        {
+            //Lowest F cost out of all of the nodes in openNodes.
+            float _lowestF = Mathf.Infinity;
+            Node _currentNode = null;
+            foreach(Node _node in openNodes)
+            {
+                if (_node.searchData.F < _lowestF)
+                {
+                    _currentNode = _node;
+                    _lowestF = _node.searchData.F;
+                }
+            }
+
+            openNodes.Remove(_currentNode);
+            closedNodes.Add(_currentNode);
+
+            if(_currentNode == _endNode)
             {
                 break;
             }
-
-            foreach (Node _next in _currentNode.adjecant)
+            foreach (Node _adjacentNode in _currentNode.adjecant)
             {
-                int _newCost = _costSoFar + 2; //CURRENTLY, EACH NODE IS WORTH 2. THIS CAN BE ALTERED/UPDATED.
-                if (!explored.Contains(_next) || _newCost < _costSoFar)
+                if (closedNodes.Contains(_adjacentNode))
                 {
-                    _costSoFar = _newCost;
-                    float priority = _newCost + heuristicSearch(_next, _goal);
-                    path.Add(_next);
+                    break;
+                }
+                else if (!openNodes.Contains(_adjacentNode))
+                {
+                    openNodes.Add(_adjacentNode);
+                    _adjacentNode.searchData.parentNode = _currentNode;
+                    _adjacentNode.searchData.G = _adjacentNode.searchData.parentNode.searchData.G + calculateDiagonalCost(_currentNode, _adjacentNode);
+                    _adjacentNode.searchData.H = hexagonalHeuristicCost(_adjacentNode, _endNode) * m_straightCost;
+                    _adjacentNode.searchData.F = _adjacentNode.searchData.G + _adjacentNode.searchData.H;
+                }
+                else if (openNodes.Contains(_adjacentNode))
+                {
+                    //If G cost of adjacent is LOWER than G cost of current
+                    if(_adjacentNode.searchData.G < _currentNode.searchData.G)
+                    {
+                        _adjacentNode.searchData.parentNode = _currentNode;
+                        _adjacentNode.searchData.G = _adjacentNode.searchData.parentNode.searchData.G + calculateDiagonalCost(_currentNode, _adjacentNode);
+                        _adjacentNode.searchData.F = _adjacentNode.searchData.G + _adjacentNode.searchData.H;
+                    }
                 }
             }
-            explored.Add(_currentNode);
         }
+
+        //Work out the path now
+        if(openNodes.Count == 0)
+        {
+            Debug.Log("Pathfinding Failed");
+        }
+        else
+        {
+            Node _currentNode = _endNode;
+            Node _parentNode = _endNode.searchData.parentNode; 
+            path.Add(_currentNode);
+            while(_currentNode != _startNode)
+            {
+                _parentNode = _currentNode.searchData.parentNode;
+                path.Add(_parentNode);
+                _currentNode = _parentNode;
+            }
+            path.Reverse();
+        }
+
 
 
     }
 
+    private int calculateDiagonalCost(Node _fromNode, Node _toNode)
+    {
+        if(_fromNode.y == _toNode.y)
+        {
+            //Nodes are straight next to eachother.
+            return m_straightCost;
+        }
+        else
+        {
+            //Nodes are diagonal across from eachother.
+            return m_diagonalCost;
+        }
+    }
+
+    private int hexagonalHeuristicCost(Node _fromNode, Node _endNode)
+    {
+        int _xDifference = Mathf.Abs(_fromNode.x- _endNode.x);
+        int _yDifference = Mathf.Abs(_fromNode.y- _endNode.y);
+        int _xyDifference = Mathf.Abs(_xDifference - _yDifference);
+
+        return Mathf.Max(_xDifference, Mathf.Max(_yDifference, _xyDifference)); //Returns the largest.
 
 
-
+    }
 }

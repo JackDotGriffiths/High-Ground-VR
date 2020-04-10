@@ -298,7 +298,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     IEnumerator spawnEnemies()
     {
-        if (m_gameOver == false)
+        if (m_gameOver == false && GameStarted == true)
         {
             roundBookText.text = "Round " + m_roundCounter;
             roundBookText2.text = "Round " + m_roundCounter;
@@ -443,113 +443,11 @@ public class GameManager : MonoBehaviour
 
     #region Pathfinding Control
 
-    public List<Node> RunPathfinding(enemyTargets _target, float _aggression, int _currentX, int _currentY)
+    public List<Node> RunPathfinding(Node _currentNode, Node _goalNode)
     {
-        //Find the X & Y of a goal node.
-
-        int _goalX = 0;
-        int _goalY = 0;
-
-
-        _goalX = GameGemNode.x;
-        _goalY = GameGemNode.y;
-
-        //switch (_target)
-        //{
-        //    case enemyTargets.Gem:
-        //        _goalX = GameGemNode.x;
-        //        _goalY = GameGemNode.y;
-        //        break;
-        //    case enemyTargets.randomDestructableBuilding:
-        //        //Search all adjacent nodes for a building, if not, search adjecent of those. 
-        //        Node _targetNode = null;
-        //        //Search all nodes and adjacent nodes until it finds a mine.
-        //        for (int i = 0; i < GameBoardGeneration.Instance.Graph.GetLength(0); i++)
-        //        {
-        //            for (int j = 0; j < GameBoardGeneration.Instance.Graph.GetLength(1); j++)
-        //            {
-        //                if (GameBoardGeneration.Instance.Graph[i, j].navigability == navigabilityStates.mine || GameBoardGeneration.Instance.Graph[i, j].navigability == navigabilityStates.wall)
-        //                {
-        //                    _targetNode = GameBoardGeneration.Instance.Graph[i, j];
-        //                    break;
-        //                }
-        //            }
-        //            if (_targetNode != null)
-        //            {
-        //                break;
-        //            }
-        //        }
-
-        //        //If there are no buildings, head for the gem.
-        //        if (_targetNode == null)
-        //        {
-        //            _goalX = GameGemNode.x;
-        //            _goalY = GameGemNode.y;
-        //        }
-        //        else
-        //        {
-        //            _goalX = _targetNode.x;
-        //            _goalY = _targetNode.y;
-        //        }
-        //        break;
-        //    case enemyTargets.randomMine:
-        //        //Search all adjacent nodes for a building, if not, search adjecent of those. 
-        //        _targetNode = null;
-        //        //Search all nodes and adjacent nodes until it finds a mine.
-        //        for (int i = 0; i < GameBoardGeneration.Instance.Graph.GetLength(0); i++)
-        //        {
-        //            for (int j = 0; j < GameBoardGeneration.Instance.Graph.GetLength(1); j++)
-        //            {
-        //                if (GameBoardGeneration.Instance.Graph[i, j].navigability == navigabilityStates.mine)
-        //                {
-        //                    _targetNode = GameBoardGeneration.Instance.Graph[i, j];
-        //                    break;
-        //                }
-        //            }
-        //            if (_targetNode != null)
-        //            {
-        //                break;
-        //            }
-        //        }
-
-        //        //If there are no buildings, head for the gem.
-        //        if (_targetNode == null)
-        //        {
-        //            _goalX = GameGemNode.x;
-        //            _goalY = GameGemNode.y;
-        //        }
-        //        else
-        //        {
-        //            _goalX = _targetNode.x;
-        //            _goalY = _targetNode.y;
-        //        }
-        //        break;
-        //}
-
-
-        if (_currentX == _goalX && _currentY == _goalY)
-        {
-            return null;
-        }
-
-        List<Node> _groupPath = new List<Node>();
-        var graph = GameBoardGeneration.Instance.Graph;
         var search = new Search();
-        search.StartSearch(graph[_currentX, _currentY], graph[_goalX, _goalY]);
-
-        Transform[] _pathPositions = new Transform[search.path.Count];
-        for (int i = 0; i < search.path.Count; i++)
-        {
-            _groupPath.Add(search.path[i]);
-        }
-
-        if (search.path.Count == 0)
-        {
-            Debug.Log("Search Failed");
-            return null;
-        }
-
-        return _groupPath;
+        search.StartSearch(_currentNode, _goalNode);
+        return search.path;
     }
 
 

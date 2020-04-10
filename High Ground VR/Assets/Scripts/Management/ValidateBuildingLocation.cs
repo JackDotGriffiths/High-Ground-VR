@@ -411,11 +411,6 @@ public class ValidateBuildingLocation : MonoBehaviour
             var graph = GameBoardGeneration.Instance.Graph;
             var search = new Search();
             search.StartSearch(graph[_spawnNode.x, _spawnNode.y], graph[GameManager.Instance.GameGemNode.x, GameManager.Instance.GameGemNode.y]);
-            Transform[] _pathPositions = new Transform[search.path.Count];
-            for (int i = 0; i < search.path.Count; i++)
-            {
-                _path.Add(search.path[i]);
-            }
             if (search.path.Count == 0)
             {
                 _result = false;

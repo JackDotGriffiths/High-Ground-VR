@@ -166,7 +166,7 @@ public class TankBehaviour : MonoBehaviour
     public void RunPathfinding(enemyTargets _target, float _aggression)
     {
         currentStepIndex = 0;
-        m_groupPath = GameManager.Instance.RunPathfinding(_target, _aggression, currentX, currentY);
+        m_groupPath = GameManager.Instance.RunPathfinding(GameBoardGeneration.Instance.Graph[currentX, currentY], GameManager.Instance.GameGemNode);
     }
 
     /// <summary>

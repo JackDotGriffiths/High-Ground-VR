@@ -100,7 +100,6 @@ public class PathfindingTest : MonoBehaviour
         {
             m_path.Add(search.path[i].hex.transform);
         }
-        exploredPositions = search.explored;
 
         if (search.path.Count == 0)
         {
