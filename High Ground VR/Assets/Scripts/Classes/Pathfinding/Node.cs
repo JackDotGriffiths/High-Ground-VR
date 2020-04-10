@@ -26,6 +26,6 @@ public class Node
         this.y = y;
         this.hex = hex;
         this.navigability = navigability;
-        this.searchData = new PathfindingData();
+        this.searchData = new PathfindingData(null,0,0,0);
     }
 }

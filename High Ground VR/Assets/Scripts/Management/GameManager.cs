@@ -531,4 +531,37 @@ public class GameManager : MonoBehaviour
     #endregion
 
 
+
+    //private void OnDrawGizmos()
+    //{
+    //    foreach (Node _node in GameBoardGeneration.Instance.Graph)
+    //    {
+    //        try
+    //        {
+    //            Gizmos.color = Color.grey;
+    //            Gizmos.DrawCube(newPos(_node.hex.transform.position,2), new Vector3(0.2f,0.2f,0.2f));
+    //            Gizmos.DrawCube(newPos(_node.searchData.parentNode.hex.transform.position,2), new Vector3(0.2f, 0.2f, 0.2f));
+    //            Gizmos.color = Color.green;
+    //            Gizmos.DrawLine(newPos(_node.hex.transform.position,2), newPos(_node.searchData.parentNode.hex.transform.position,2));
+    //        }
+    //        catch
+    //        {
+
+    //        }
+
+
+    //        foreach (Node _adjNode in _node.adjecant)
+    //        {
+    //            Gizmos.color = Color.red;
+    //            Gizmos.DrawLine(newPos(_node.hex.transform.position, 1), newPos(_adjNode.hex.transform.position, 1));
+    //        }
+    //    }
+    //}
+
+    //private Vector3 newPos(Vector3 _pos,int offset)
+    //{
+    //    return new Vector3(_pos.x, _pos.y + offset, _pos.z);
+    //}
+
+
 }

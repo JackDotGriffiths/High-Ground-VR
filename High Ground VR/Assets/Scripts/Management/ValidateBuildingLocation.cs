@@ -329,8 +329,6 @@ public class ValidateBuildingLocation : MonoBehaviour
     #endregion
 
 
-
-
     private void playIncorrectSound(Node _targetNode)
     {
         AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, _targetNode.hex, 0.1f);
