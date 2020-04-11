@@ -49,60 +49,42 @@ public class Search
                     _lowestF = _node.searchData.F;
                 }
             }
-            if(_currentNode == _endNode)
+            openNodes.Remove(_currentNode);
+            if (_currentNode == _endNode)
             {
                 break;
             }
-
-            openNodes.Remove(_currentNode);
             closedNodes.Add(_currentNode);
+
             foreach (Node _adjacentNode in _currentNode.adjecant)
             {
-                //if (closedNodes.Contains(_adjacentNode))
-                //{
-                //    break;
-                //}
-                //else if (!openNodes.Contains(_adjacentNode))
-                //{
-                //    openNodes.Add(_adjacentNode);
-                //    _adjacentNode.searchData.parentNode = _currentNode;
-                //    _adjacentNode.searchData.G = _adjacentNode.searchData.parentNode.searchData.G + calculateDirectionalCost(_currentNode, _adjacentNode);
-                //    _adjacentNode.searchData.H = hexagonalHeuristicCost(_adjacentNode, _endNode) * m_straightCost;
-                //    _adjacentNode.searchData.F = _adjacentNode.searchData.G + _adjacentNode.searchData.H;
-                //}
-                //else if (openNodes.Contains(_adjacentNode))
-                //{
-                //    //If G cost of adjacent is LOWER than G cost of current
-                //    if(_adjacentNode.searchData.G < _currentNode.searchData.G + calculateDirectionalCost(_currentNode,_adjacentNode))
-                //    {
-                //        _adjacentNode.searchData.parentNode = _currentNode;
-                //        _adjacentNode.searchData.G = _adjacentNode.searchData.parentNode.searchData.G + calculateDirectionalCost(_currentNode, _adjacentNode);
-                //        _adjacentNode.searchData.F = _adjacentNode.searchData.G + _adjacentNode.searchData.H;
-                //    }
-                //    else
-                //    {
-
-                //    }
-                //}
-                float tentative_gScore = _currentNode.searchData.G + calculateDirectionalCost(_currentNode, _adjacentNode);
-                if(tentative_gScore < _adjacentNode.searchData.G)
+                if (!closedNodes.Contains(_adjacentNode))
                 {
-                    _adjacentNode.searchData.parentNode = _currentNode;
-                    _adjacentNode.searchData.G = _adjacentNode.searchData.parentNode.searchData.G + calculateDirectionalCost(_currentNode, _adjacentNode);
-                    _adjacentNode.searchData.F = _adjacentNode.searchData.G + _adjacentNode.searchData.H;
-                    if (!closedNodes.Contains(_adjacentNode))
+                   if (!openNodes.Contains(_adjacentNode))
                     {
                         openNodes.Add(_adjacentNode);
+                        _adjacentNode.searchData.parentNode = _currentNode;
+                        _adjacentNode.searchData.G = _adjacentNode.searchData.parentNode.searchData.G + calculateDirectionalCost(_currentNode, _adjacentNode);
+                        _adjacentNode.searchData.H = hexagonalHeuristicCost(_adjacentNode, _endNode) * m_straightCost;
+                        _adjacentNode.searchData.F = _adjacentNode.searchData.G + _adjacentNode.searchData.H;
+                    }
+                    else if (openNodes.Contains(_adjacentNode))
+                    {
+                        //If G cost of adjacent is LOWER than G cost of current
+                        if (_adjacentNode.searchData.G < _currentNode.searchData.G + calculateDirectionalCost(_currentNode, _adjacentNode))
+                        {
+                            _adjacentNode.searchData.parentNode = _currentNode;
+                            _adjacentNode.searchData.G = _adjacentNode.searchData.parentNode.searchData.G + calculateDirectionalCost(_currentNode, _adjacentNode);
+                            _adjacentNode.searchData.F = _adjacentNode.searchData.G + _adjacentNode.searchData.H;
+                        }
                     }
                 }
-
             }
 
         }
 
 
-
-        if(openNodes.Count == 0)
+       if(openNodes.Count == 0)
         {
             Debug.Log("Pathfinding Failed");
         }
@@ -115,10 +97,6 @@ public class Search
             while (_currentNode != _startNode)
             {
                 _parentNode = _currentNode.searchData.parentNode;
-                if (_parentNode == null)
-                {
-                    Debug.Log("FAILED");
-                }
                 path.Add(_parentNode);
                 _currentNode = _parentNode;
             }
@@ -151,7 +129,7 @@ public class Search
 
         int _max = Mathf.Max(_xDifference, Mathf.Max(_yDifference, _xyDifference));
 
-        return _max; //Returns the largest.
+        return _xDifference + _yDifference;
 
         //return Mathf.RoundToInt(Vector3.Distance(_fromNode.hex.transform.position, _endNode.hex.transform.position));  //Absolute Distance between two nodes.
 
