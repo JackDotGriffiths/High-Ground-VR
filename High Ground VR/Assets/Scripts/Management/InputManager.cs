@@ -23,6 +23,9 @@ public class InputManager : MonoBehaviour
     [SerializeField, Tooltip("The Gameobject of the players right controller.")] private GameObject m_rightController;
     [SerializeField, Tooltip("The Gameobject of the Vive tracker.")] private GameObject m_viveTracker;
     [SerializeField, Tooltip("The Gameobject of the game environment. Used for scaling and positioning.")] private GameObject m_gameEnvironment;
+    [SerializeField, Tooltip("GameObject for each of the hand positions. Swapped round when handedness is changed")] private GameObject m_bookHand, m_pointerHand;
+    [SerializeField, Tooltip("Pointer Position Object")] private GameObject m_pointerPosition;
+
 
     //
     [Header("Point & Click")]
@@ -54,6 +57,7 @@ public class InputManager : MonoBehaviour
     private bool m_mainTrigger, m_mainTeleport; //Whether or not the main hand buttons are pressed
     private Vector3 m_mainControllerPos, m_mainControllerPreviousPos; // Position of the controller, used for tracking swiping movements for rotation.
     private LineRenderer m_mainPointer; //The Line Renderer used for pointing 
+    private Vector3 m_pointerStartPos;
     private ValidateBuildingLocation m_buildingValidation; //The ValidateBuildingLocation script, which checks the position of a building before it's placed.
     private List<MeshRenderer> m_objectMeshes = new List<MeshRenderer>(); //List of all of the meshrenderers of the hexagons in the environment.
     private SizeOptions m_currentSize;
@@ -113,6 +117,9 @@ public class InputManager : MonoBehaviour
         //Add all of the environment object mesh renderers.
         updateObjectList();
 
+        //Ensures correct hand models based on handedness
+        swapHandModels();
+
         //TryCatch to catch any missing references.
         try { m_buildingValidation = m_gameEnvironment.GetComponent<ValidateBuildingLocation>(); } catch { Debug.LogWarning("Error getting the ValidateBuildingLocation from the gameEnvironment object."); }
         Invoke("updateWorldHeight", 0.01f);
@@ -144,11 +151,11 @@ public class InputManager : MonoBehaviour
         //Raycasting from the controllers
         RaycastHit _hit;
 
-        //Debug.DrawRay(MainController.transform.position, MainController.transform.forward * 1000);
-
+        Debug.DrawRay(m_pointerPosition.transform.position, (MainController.transform.forward - (MainController.transform.up * 0.5f)) * 1000);
+      
 
         //Raycast from the mainController forward.
-        if (Physics.Raycast(MainController.transform.position, MainController.transform.forward - (MainController.transform.up * 0.5f), out _hit, 1000) && m_currentSize == SizeOptions.large)
+        if (Physics.Raycast(m_pointerPosition.transform.position, MainController.transform.forward - (MainController.transform.up * 0.5f), out _hit, 1000) && m_currentSize == SizeOptions.large)
         {
             //If it hits an environment Hex, highlight.
             if (_hit.collider.gameObject.tag == "Environment")
@@ -216,10 +223,10 @@ public class InputManager : MonoBehaviour
 
 
             //Update the laser position so it continues to update.
-            m_mainPointer.SetPosition(0, MainController.transform.position);
+            m_mainPointer.SetPosition(0, m_pointerPosition.transform.position);
             m_mainPointer.SetPosition(1, _hit.point);
         }
-        else if (Physics.Raycast(MainController.transform.position, MainController.transform.forward, out _hit, 1000) && m_currentSize == SizeOptions.small)
+        else if (Physics.Raycast(m_pointerPosition.transform.position, MainController.transform.forward, out _hit, 1000) && m_currentSize == SizeOptions.small)
         {
             //If it hits an environment Hex, highlight.
             if (_hit.collider.gameObject.tag == "Environment")
@@ -268,7 +275,7 @@ public class InputManager : MonoBehaviour
             }
 
             //Update the laser position so it continues to update.
-            m_mainPointer.SetPosition(0, MainController.transform.position);
+            m_mainPointer.SetPosition(0, m_pointerPosition.transform.position);
             m_mainPointer.SetPosition(1, _hit.point);
         }
         else
@@ -285,8 +292,8 @@ public class InputManager : MonoBehaviour
             {
                 m_mainPointer.startWidth = 0.003f;
                 m_mainPointer.endWidth = 0;
-                m_mainPointer.SetPosition(0, MainController.transform.position);
-                m_mainPointer.SetPosition(1, MainController.transform.position + MainController.transform.forward * 20f);
+                m_mainPointer.SetPosition(0, m_pointerStartPos);
+                m_mainPointer.SetPosition(1, m_pointerStartPos + MainController.transform.forward * 20f);
 
             }
 
@@ -537,5 +544,38 @@ public class InputManager : MonoBehaviour
         //{
         //    SteamVR_Controller.Input((int)trackedObj.index).TriggerHapticPulse(500);
         //}
+    }
+
+    /// <summary>
+    /// Makes sure the pointer and book hand models are in the correct places.
+    /// </summary>
+    public void swapHandModels()
+    {
+        //Handles whether the player is left or right handed.
+        if (Handedness == HandTypes.left)
+        {
+            MainController = m_leftController;
+            OffHandController = m_rightController;
+            m_pointerHand.transform.localScale = new Vector3(-1, 1, 1);
+            m_bookHand.transform.localScale = new Vector3(-1, 1, 1);
+        }
+        if (Handedness == HandTypes.right)
+        {
+            MainController = m_rightController;
+            OffHandController = m_leftController;
+            m_pointerHand.transform.localScale = new Vector3(1, 1, 1);
+            m_bookHand.transform.localScale = new Vector3(1, 1, 1);
+        }
+
+
+
+        m_pointerHand.transform.SetParent(MainController.transform);
+        m_bookHand.transform.SetParent(OffHandController.transform);
+
+        m_pointerHand.transform.localPosition = Vector3.zero;
+        m_pointerHand.transform.localRotation = Quaternion.Euler(36.0f, 0, 0);
+
+        m_bookHand.transform.localPosition = Vector3.zero;
+        m_bookHand.transform.localRotation = Quaternion.Euler(Vector3.zero);
     }
 }
