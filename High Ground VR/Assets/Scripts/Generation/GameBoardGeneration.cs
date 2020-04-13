@@ -172,7 +172,7 @@ public class GameBoardGeneration : MonoBehaviour
     public void placeGem()
     {
         Node _gemNode = Graph[ Mathf.RoundToInt(m_length / 2f), Mathf.RoundToInt(m_width / 2f)];
-        _gemNode.navigability = navigabilityStates.gem;
+        _gemNode.navigability = nodeTypes.gem;
         Vector3 _gemPosition = new Vector3(_gemNode.hex.transform.position.x, _gemNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _gemNode.hex.transform.position.z);
         Instantiate(m_gem, _gemPosition, Quaternion.identity, _gemNode.hex.transform);
         GameManager.Instance.GameGemNode = _gemNode;
@@ -231,7 +231,7 @@ public class GameBoardGeneration : MonoBehaviour
             for (int j = 0; j < m_width; j++)
             {
                 //Create a node, and attach a NodeComponent object to the GameObject and store the node within that.
-                var _node = new Node(i + "," + j,i,j, nodes[hexCount], navigabilityStates.navigable);
+                var _node = new Node(i + "," + j,i,j, nodes[hexCount], nodeTypes.navigable);
                 NodeComponent _nodeComp =  nodes[hexCount].AddComponent<NodeComponent>();
                 _nodeComp.node = _node;
                 try { _nodeComp.buildingPlacementValidation = this.GetComponent<ValidateBuildingLocation>(); }

@@ -99,7 +99,7 @@ public class InteractionManager : MonoBehaviour
                 Destroy(_dustEffect, 0.5f);
 
                 //If you hit a collider of the environment which has an enemy on it.
-                if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.enemyUnit)
+                if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == nodeTypes.enemyUnit)
                 {
 
                     //Find each unit within that group, and deal damage to them.
@@ -118,7 +118,7 @@ public class InteractionManager : MonoBehaviour
                         }
                     }
                 }
-                if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.wall || _hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.mine )
+                if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == nodeTypes.wall || _hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == nodeTypes.mine )
                 {
                     //Find each unit within that group, and deal damage to them.
                     BuildingHealth _buildingHealth = _hit.collider.gameObject.GetComponentInChildren<BuildingHealth>();
@@ -126,7 +126,7 @@ public class InteractionManager : MonoBehaviour
                     if(_buildingHealth.currentHealth < 0)
                     {
                         Destroy(_buildingHealth.gameObject);
-                        _hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability = navigabilityStates.navigable;
+                        _hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability = nodeTypes.navigable;
                     }
                 }
 
@@ -264,7 +264,7 @@ public class InteractionManager : MonoBehaviour
                 Destroy(_dustEffect, 0.5f);
 
                 //If you hit a collider of the environment which has an enemy on it.
-                if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.enemyUnit)
+                if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == nodeTypes.enemyUnit)
                 {
                     //Find each unit within that group, and deal damage to them.
                     EnemyBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyBehaviour>();
@@ -402,7 +402,7 @@ public class InteractionManager : MonoBehaviour
                 Destroy(_dustEffect, 0.5f);
 
                 //If you hit a collider of the environment which has an enemy on it.
-                if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == navigabilityStates.enemyUnit)
+                if (_hit.collider.gameObject.GetComponent<NodeComponent>().node.navigability == nodeTypes.enemyUnit)
                 {
                     //Find each unit within that group, and deal damage to them.
                     EnemyBehaviour _enemies = _hit.collider.gameObject.GetComponentInChildren<EnemyBehaviour>();

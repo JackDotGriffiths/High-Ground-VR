@@ -28,7 +28,7 @@ public class EnemySpawnBehaviour : MonoBehaviour
         do
         {
             _spawnNode = thisNode.adjecant[Random.Range(0, thisNode.adjecant.Count)];
-            if(_spawnNode.navigability == navigabilityStates.navigable)
+            if(_spawnNode.navigability == nodeTypes.navigable)
             {
                 _spawnPosition = new Vector3(_spawnNode.hex.transform.position.x, _spawnNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _spawnNode.hex.transform.position.z);
             }
@@ -39,7 +39,7 @@ public class EnemySpawnBehaviour : MonoBehaviour
         {
             return false; //Failed to spawn enemy, try again.
         }
-        if(_spawnNode.navigability == navigabilityStates.navigable && _spawnNode.hex.transform.childCount == 0)
+        if(_spawnNode.navigability == nodeTypes.navigable && _spawnNode.hex.transform.childCount == 0)
         {
             GameObject _enemy = Instantiate(m_enemyUnit, _spawnPosition, Quaternion.identity, _spawnNode.hex.transform);
             _enemy.GetComponent<EnemyBehaviour>().currentX = _spawnNode.x;
@@ -64,7 +64,7 @@ public class EnemySpawnBehaviour : MonoBehaviour
         do
         {
             _spawnNode = thisNode.adjecant[Random.Range(0, thisNode.adjecant.Count)];
-            if (_spawnNode.navigability == navigabilityStates.navigable)
+            if (_spawnNode.navigability == nodeTypes.navigable)
             {
                 _spawnPosition = new Vector3(_spawnNode.hex.transform.position.x, _spawnNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _spawnNode.hex.transform.position.z);
             }
@@ -75,7 +75,7 @@ public class EnemySpawnBehaviour : MonoBehaviour
         {
             return false; //Failed to spawn enemy, try again.
         }
-        if (_spawnNode.navigability == navigabilityStates.navigable && _spawnNode.hex.transform.childCount == 0)
+        if (_spawnNode.navigability == nodeTypes.navigable && _spawnNode.hex.transform.childCount == 0)
         {
             GameObject _tank = Instantiate(m_tankUnit, _spawnPosition, Quaternion.identity, _spawnNode.hex.transform);
             _tank.GetComponent<EnemyBehaviour>().currentX = _spawnNode.x;

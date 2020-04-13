@@ -169,7 +169,7 @@ public class GameManager : MonoBehaviour
             List<Node> _adjNodes = _spawn.gameObject.GetComponentInParent<NodeComponent>().node.adjecant;
             foreach (Node _node in _adjNodes)
             {
-                _node.navigability = navigabilityStates.navigable;
+                _node.navigability = nodeTypes.navigable;
             }
         }
         AudioManager.Instance.PlaySound("buildingPhaseStarted", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
@@ -443,10 +443,80 @@ public class GameManager : MonoBehaviour
 
     #region Pathfinding Control
 
-    public List<Node> RunPathfinding(Node _currentNode, Node _goalNode)
+    /// <summary>
+    /// General Pathfinding, used for getting around the board to a passed in location.
+    /// </summary>
+    /// <param name="_currentNode"> Start of the pathfinding</param>
+    /// <param name="_goalNode"> End of the pathfinding</param>
+    /// <param name="_unitAggression">Current Aggression value.</param>
+    /// <returns></returns>
+    public List<Node> RunPathfinding(Node _currentNode, Node _goalNode, float _unitAggression)
+    {
+        SearchTypes _searchType;
+        float _currentAggressionBoundary = 1.0f - (aggressionPercentage * (RoundCounter / 2.0f));
+        if (_unitAggression > _currentAggressionBoundary)
+        {
+            _searchType = SearchTypes.Aggressive;
+        }
+        else
+        {
+            _searchType = SearchTypes.Passive;
+        }
+
+        var search = new Search();
+        search.StartSearch(_currentNode, _goalNode, _searchType);
+        return search.path;
+    }
+
+    /// <summary>
+    /// Alternative pathfinding which can override the searchType.
+    /// </summary>
+    /// <param name="_currentNode"></param>
+    /// <param name="_goalNode"></param>
+    /// <param name="_searchType"></param>
+    /// <returns></returns>
+    public List<Node> RunPathfinding(Node _currentNode, Node _goalNode, SearchTypes _searchType)
     {
         var search = new Search();
-        search.StartSearch(_currentNode, _goalNode);
+        search.StartSearch(_currentNode, _goalNode, _searchType);
+        return search.path;
+    }
+
+
+
+    public List<Node> RunTankPathfinding(Node _currentNode)
+    {
+        Node _goalNode = null;
+        SearchTypes _searchType = SearchTypes.Aggressive;
+
+        //Random chance the tank will go towards a random building.
+        float _rand = Random.Range(0.0f, 1.0f);
+        //40% chance of picking a random building
+        if (_rand < 0.4f)
+        {
+
+            int _count = 0;
+            while(_goalNode == null & _count < 15) // 15 Attempts at finding a random building
+            {
+                //Randomly pick a node.
+                Node _chosenNode = GameBoardGeneration.Instance.Graph[Random.Range(0, GameBoardGeneration.Instance.Graph.GetLength(0)), Random.Range(0, GameBoardGeneration.Instance.Graph.GetLength(1))];
+                if(_chosenNode.navigability == nodeTypes.wall || _chosenNode.navigability == nodeTypes.mine)
+                {
+                    _goalNode = _chosenNode;
+                }
+            }
+            if(_goalNode == null) //If it failed to find anything, set the goal to the gem.
+            {
+                _goalNode = GameGemNode;
+            }
+        }
+        else
+        {
+            _goalNode = GameGemNode; // Gem as the tank's goal
+        }
+
+        var search = new Search();
+        search.StartSearch(_currentNode, _goalNode, _searchType);
         return search.path;
     }
 

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+public enum SearchTypes {Aggressive,Passive};
 public class Search
 {
     public Node[,] graph = GameBoardGeneration.Instance.Graph; //The entire game board representation as a 2D array of Nodes.
@@ -10,8 +12,16 @@ public class Search
     public List<Node> path; //The Chosen path after the search has occured
     private List<Node> openNodes;
     private List<Node> closedNodes;
-    private int m_straightCost = 10;
-    private int m_diagonalCost = 8;
+    private int m_straightCost = 8;
+    private int m_diagonalCost = 10;
+
+    private int m_enemyInSiegeCost = 40; // This encourages enemies to go around those in siege. If a new route is open, they'll all notice it as it appears.
+    private int m_enemyInCombatCost = 10; //An enemy should try and avoid enemies in combat, possibly creating paths around them if possible.
+    private int m_enemyUnitCost = 5; // Cost of an enemy being in the way. Promotes moving around them if possible. 
+    private int m_adjacentToPlayerUnitCost = 20; //This is also definite combat, so should try and be avoided by the pathfinding.
+    private int m_playerUnitCost = 20; // The cost of navigating through a player. This means definite combat so the pathfinding may try and avoid that.
+    private int m_destructableBuildingCost = 5; // This is low because the only time it's used is by the tank, which needs to be destructive
+
 
 
 
@@ -19,7 +29,7 @@ public class Search
 
     //////////////////////////////////////////////////// NEW IMPLEMENTATION
 
-    public void StartSearch(Node _startNode, Node _endNode)
+    public void StartSearch(Node _startNode, Node _endNode, SearchTypes _searchType)
     {
         path = new List<Node>();
         openNodes = new List<Node>();
@@ -58,13 +68,13 @@ public class Search
 
             foreach (Node _adjacentNode in _currentNode.adjecant)
             {
-                if (!closedNodes.Contains(_adjacentNode))
+                if (!closedNodes.Contains(_adjacentNode) && isNavigable(_adjacentNode, _searchType))
                 {
                    if (!openNodes.Contains(_adjacentNode))
                     {
                         openNodes.Add(_adjacentNode);
                         _adjacentNode.searchData.parentNode = _currentNode;
-                        _adjacentNode.searchData.G = _adjacentNode.searchData.parentNode.searchData.G + calculateDirectionalCost(_currentNode, _adjacentNode);
+                        _adjacentNode.searchData.G = _adjacentNode.searchData.parentNode.searchData.G + calculateDirectionalCost(_currentNode, _adjacentNode) + nodeCost(_adjacentNode);
                         _adjacentNode.searchData.H = hexagonalHeuristicCost(_adjacentNode, _endNode) * m_straightCost;
                         _adjacentNode.searchData.F = _adjacentNode.searchData.G + _adjacentNode.searchData.H;
                     }
@@ -74,7 +84,7 @@ public class Search
                         if (_adjacentNode.searchData.G < _currentNode.searchData.G + calculateDirectionalCost(_currentNode, _adjacentNode))
                         {
                             _adjacentNode.searchData.parentNode = _currentNode;
-                            _adjacentNode.searchData.G = _adjacentNode.searchData.parentNode.searchData.G + calculateDirectionalCost(_currentNode, _adjacentNode);
+                            _adjacentNode.searchData.G = _adjacentNode.searchData.parentNode.searchData.G + calculateDirectionalCost(_currentNode, _adjacentNode) + nodeCost(_adjacentNode); ;
                             _adjacentNode.searchData.F = _adjacentNode.searchData.G + _adjacentNode.searchData.H;
                         }
                     }
@@ -88,7 +98,7 @@ public class Search
         {
             Debug.Log("Pathfinding Failed");
         }
-        else
+       else
         {
             //Work out the path now
             _currentNode = _endNode;
@@ -135,5 +145,108 @@ public class Search
 
 
 
+    }
+
+    private bool isNavigable(Node _targetNode, SearchTypes _searchType)
+    {
+        if (_targetNode.navigability == nodeTypes.navigable || _targetNode.navigability == nodeTypes.gem || _targetNode.navigability == nodeTypes.enemyUnit || _targetNode.navigability == nodeTypes.playerUnit)
+        {
+            return true;
+        }
+        else if (_searchType== SearchTypes.Aggressive)
+        {
+            if(_targetNode.navigability == nodeTypes.mine || _targetNode.navigability == nodeTypes.wall || _targetNode.navigability == nodeTypes.navigable || _targetNode.navigability == nodeTypes.gem || _targetNode.navigability == nodeTypes.enemyUnit)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Returns a cost for the a node. This is based on it's Type.
+    /// </summary>
+    /// <param name="_targetNode"></param>
+    /// <returns></returns>
+    private int nodeCost(Node _targetNode)
+    {
+        switch (_targetNode.navigability)
+        {
+            case nodeTypes.enemyUnit:
+                if (inCombat(_targetNode))
+                {
+                    return m_enemyInCombatCost;
+                }
+                else if (inSiege(_targetNode))
+                {
+                    return m_enemyInSiegeCost;
+                }
+                else
+                {
+                    return m_enemyUnitCost;
+                }
+            case nodeTypes.playerUnit:
+                return m_playerUnitCost;
+            case nodeTypes.mine:
+                return m_destructableBuildingCost;
+            case nodeTypes.wall:
+                return m_destructableBuildingCost;
+        }
+        foreach(Node _adjNode in _targetNode.adjecant)
+        {
+            if(_adjNode.navigability == nodeTypes.playerUnit)
+            {
+                return m_adjacentToPlayerUnitCost;
+            }
+        }
+        return 0; //0 Cost for empty navigable areas.
+    }
+
+    /// <summary>
+    /// Returns whether a node is in Combat currently.
+    /// </summary>
+    /// <param name="_targetNode"></param>
+    /// <returns></returns>
+    private bool inCombat(Node _targetNode)
+    {
+        if(_targetNode.hex.transform.GetChild(0).TryGetComponent(out EnemyBehaviour _enemyBehaviour)) //Get the enemyBehaviour of the target Hex
+        {
+            if(_enemyBehaviour.inCombat == true)
+            {
+                return true;
+            }
+        }
+        if (_targetNode.hex.transform.GetChild(0).TryGetComponent(out TankBehaviour _tankBehaviour)) //Alternatively, get the tankBehaviour
+        {
+            if (_tankBehaviour.inCombat == true)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Returns whether a node is in Siege currently.
+    /// </summary>
+    /// <param name="_targetNode"></param>
+    /// <returns></returns>
+    private bool inSiege(Node _targetNode)
+    {
+        if (_targetNode.hex.transform.GetChild(0).TryGetComponent(out EnemyBehaviour _enemyBehaviour)) //Get the enemyBehaviour of the target Hex
+        {
+            if (_enemyBehaviour.inSiege == true)
+            {
+                return true;
+            }
+        }
+        if (_targetNode.hex.transform.GetChild(0).TryGetComponent(out TankBehaviour _tankBehaviour)) //Alternatively, get the tankBehaviour
+        {
+            if (_tankBehaviour.inSiege == true)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

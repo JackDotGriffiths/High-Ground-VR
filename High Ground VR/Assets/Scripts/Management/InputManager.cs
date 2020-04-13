@@ -332,7 +332,7 @@ public class InputManager : MonoBehaviour
         if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelectedHex != null && m_enlargePlayer == false)
         {
             //If the node is able to be teleported onto, teleport the player.
-            if (m_currentlySelectedHex.GetComponent<NodeComponent>().node.navigability == navigabilityStates.navigable)
+            if (m_currentlySelectedHex.GetComponent<NodeComponent>().node.navigability == nodeTypes.navigable)
             {
                 //Debug.Log("Teleported");
                 m_teleporterPrimed = false;
