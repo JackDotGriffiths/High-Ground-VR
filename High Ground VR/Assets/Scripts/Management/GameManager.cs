@@ -118,8 +118,6 @@ public class GameManager : MonoBehaviour
             roundBookText.text = "Game Over";
             roundBookText2.text = "Game Over";
             m_roundUI.text = "Game Over";
-            submitData();
-            setPlayerPrefs();
             return;
         }
         else if (m_gameOver == false && GameStarted == true)
@@ -169,7 +167,7 @@ public class GameManager : MonoBehaviour
             List<Node> _adjNodes = _spawn.gameObject.GetComponentInParent<NodeComponent>().node.adjecant;
             foreach (Node _node in _adjNodes)
             {
-                _node.navigability = navigabilityStates.navigable;
+                _node.navigability = nodeTypes.navigable;
             }
         }
         AudioManager.Instance.PlaySound("buildingPhaseStarted", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
@@ -298,7 +296,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     IEnumerator spawnEnemies()
     {
-        if (m_gameOver == false)
+        if (m_gameOver == false && GameStarted == true)
         {
             roundBookText.text = "Round " + m_roundCounter;
             roundBookText2.text = "Round " + m_roundCounter;
@@ -382,9 +380,8 @@ public class GameManager : MonoBehaviour
 
     public void playGame()
     {
-        setPlayerPrefs();
         AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
-
+        InputManager.Instance.SpawnBook();
         Debug.Log("Play Game");
         resetScore();
         m_mainMenu.SetActive(false);
@@ -412,13 +409,10 @@ public class GameManager : MonoBehaviour
         Debug.Log("Exit Game");
         Application.Quit();
     }
-
     public void restartGame()
     {
-        submitData();
-        setPlayerPrefs();
         AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
-
+        InputManager.Instance.SpawnBook();
         Debug.Log("Restart Game");
         resetScore();
         m_gameOver = false;
@@ -439,117 +433,100 @@ public class GameManager : MonoBehaviour
         Invoke("instantiateSpawns", 0.05f);
         StartBuildingPhase();
     }
+
+    public void GoToMainMenu()
+    {
+        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
+        InputManager.Instance.RemoveBook();
+        Debug.Log("Go To Main Menu");
+        resetScore();
+        m_mainMenu.SetActive(true);
+        m_gameMenu.SetActive(false);
+        m_gameOver = true;
+        GameStarted = false;
+        GameBoardGeneration.Instance.destroyAll();
+    }
+
+
     #endregion
 
     #region Pathfinding Control
 
-    public List<Node> RunPathfinding(enemyTargets _target, float _aggression, int _currentX, int _currentY)
+    /// <summary>
+    /// General Pathfinding, used for getting around the board to a passed in location.
+    /// </summary>
+    /// <param name="_currentNode"> Start of the pathfinding</param>
+    /// <param name="_goalNode"> End of the pathfinding</param>
+    /// <param name="_unitAggression">Current Aggression value.</param>
+    /// <returns></returns>
+    public List<Node> RunPathfinding(Node _currentNode, Node _goalNode, float _unitAggression)
     {
-        //Find the X & Y of a goal node.
-
-        int _goalX = 0;
-        int _goalY = 0;
-
-        switch (_target)
+        SearchTypes _searchType;
+        float _currentAggressionBoundary = 1.0f - (aggressionPercentage * (RoundCounter / 2.0f));
+        if (_unitAggression > _currentAggressionBoundary)
         {
-            case enemyTargets.Gem:
-                _goalX = GameGemNode.x;
-                _goalY = GameGemNode.y;
-                break;
-            case enemyTargets.randomDestructableBuilding:
-                //Search all adjacent nodes for a building, if not, search adjecent of those. 
-                Node _targetNode = null;
-                //Search all nodes and adjacent nodes until it finds a mine.
-                for (int i = 0; i < GameBoardGeneration.Instance.Graph.GetLength(0); i++)
-                {
-                    for (int j = 0; j < GameBoardGeneration.Instance.Graph.GetLength(1); j++)
-                    {
-                        if (GameBoardGeneration.Instance.Graph[i, j].navigability == navigabilityStates.mine || GameBoardGeneration.Instance.Graph[i, j].navigability == navigabilityStates.wall)
-                        {
-                            _targetNode = GameBoardGeneration.Instance.Graph[i, j];
-                            break;
-                        }
-                    }
-                    if (_targetNode != null)
-                    {
-                        break;
-                    }
-                }
-
-                //If there are no buildings, head for the gem.
-                if (_targetNode == null)
-                {
-                    _goalX = GameGemNode.x;
-                    _goalY = GameGemNode.y;
-                }
-                else
-                {
-                    _goalX = _targetNode.x;
-                    _goalY = _targetNode.y;
-                }
-                break;
-            case enemyTargets.randomMine:
-                //Search all adjacent nodes for a building, if not, search adjecent of those. 
-                _targetNode = null;
-                //Search all nodes and adjacent nodes until it finds a mine.
-                for (int i = 0; i < GameBoardGeneration.Instance.Graph.GetLength(0); i++)
-                {
-                    for (int j = 0; j < GameBoardGeneration.Instance.Graph.GetLength(1); j++)
-                    {
-                        if (GameBoardGeneration.Instance.Graph[i, j].navigability == navigabilityStates.mine)
-                        {
-                            _targetNode = GameBoardGeneration.Instance.Graph[i, j];
-                            break;
-                        }
-                    }
-                    if (_targetNode != null)
-                    {
-                        break;
-                    }
-                }
-
-                //If there are no buildings, head for the gem.
-                if (_targetNode == null)
-                {
-                    _goalX = GameGemNode.x;
-                    _goalY = GameGemNode.y;
-                }
-                else
-                {
-                    _goalX = _targetNode.x;
-                    _goalY = _targetNode.y;
-                }
-                break;
+            _searchType = SearchTypes.Aggressive;
+        }
+        else
+        {
+            _searchType = SearchTypes.Passive;
         }
 
+        var search = new Search();
+        search.StartSearch(_currentNode, _goalNode, _searchType);
+        return search.path;
+    }
+
+    /// <summary>
+    /// Alternative pathfinding which can override the searchType.
+    /// </summary>
+    /// <param name="_currentNode"></param>
+    /// <param name="_goalNode"></param>
+    /// <param name="_searchType"></param>
+    /// <returns></returns>
+    public List<Node> RunPathfinding(Node _currentNode, Node _goalNode, SearchTypes _searchType)
+    {
+        var search = new Search();
+        search.StartSearch(_currentNode, _goalNode, _searchType);
+        return search.path;
+    }
 
 
-        if (_currentX == _goalX && _currentY == _goalY)
+
+    public List<Node> RunTankPathfinding(Node _currentNode)
+    {
+        Node _goalNode = null;
+        SearchTypes _searchType = SearchTypes.Aggressive;
+
+        //Random chance the tank will go towards a random building.
+        float _rand = Random.Range(0.0f, 1.0f);
+        //40% chance of picking a random building
+        if (_rand < 0.4f)
         {
-            return null;
+
+            int _count = 0;
+            while(_goalNode == null & _count < 15) // 15 Attempts at finding a random building
+            {
+                //Randomly pick a node.
+                Node _chosenNode = GameBoardGeneration.Instance.Graph[Random.Range(0, GameBoardGeneration.Instance.Graph.GetLength(0)), Random.Range(0, GameBoardGeneration.Instance.Graph.GetLength(1))];
+                if(_chosenNode.navigability == nodeTypes.wall || _chosenNode.navigability == nodeTypes.mine)
+                {
+                    _goalNode = _chosenNode;
+                }
+            }
+            if(_goalNode == null) //If it failed to find anything, set the goal to the gem.
+            {
+                _goalNode = GameGemNode;
+            }
         }
-        List<Node> _groupPath = new List<Node>();
-        var graph = GameBoardGeneration.Instance.Graph;
-        var search = new Search(GameBoardGeneration.Instance.Graph);
-        search.Start(graph[_currentX, _currentY], graph[_goalX, _goalY], _aggression);
-        while (!search.finished)
+        else
         {
-            search.Step();
+            _goalNode = GameGemNode; // Gem as the tank's goal
         }
 
-        Transform[] _pathPositions = new Transform[search.path.Count];
-        for (int i = 0; i < search.path.Count; i++)
-        {
-            _groupPath.Add(search.path[i]);
-        }
-
-        if (search.path.Count == 0)
-        {
-            Debug.Log("Search Failed");
-            return null;
-        }
-
-        return _groupPath;
+        var search = new Search();
+        search.StartSearch(_currentNode, _goalNode, _searchType);
+        return search.path;
     }
 
 
@@ -589,45 +566,46 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
-    #region Usability Testing Control
-    private void setPlayerPrefs()
-    {
-        PlayerPrefs.SetInt("Score", 0);
-        PlayerPrefs.SetInt("Round Reached", 0);
-        PlayerPrefs.SetInt("Barracks Placed", 0);
-        PlayerPrefs.SetInt("Walls Placed", 0);
-        PlayerPrefs.SetInt("Mine Placed", 0);
-        PlayerPrefs.SetInt("Regular Spell", 0);
-        PlayerPrefs.SetInt("Speed Spell", 0);
-        PlayerPrefs.SetInt("Slow Spell", 0);
-    }
-    private void submitData()
-    {
-        if(currentScore == 0)
-        {
-            return;
-        }
-        PlayerPrefs.SetInt("Score", currentScore);
-        PlayerPrefs.SetInt("Round Reached", m_roundCounter);
-        StartCoroutine(Post(PlayerPrefs.GetInt("Score").ToString(), PlayerPrefs.GetInt("Round Reached").ToString(), PlayerPrefs.GetInt("Barracks Placed").ToString(), PlayerPrefs.GetInt("Walls Placed").ToString(),PlayerPrefs.GetInt("Mine Placed").ToString(), PlayerPrefs.GetInt("Regular Spell").ToString(), PlayerPrefs.GetInt("Speed Spell").ToString(), PlayerPrefs.GetInt("Slow Spell").ToString()));
+    #region Usability Testing Control - Removed for release
 
-    }
+    //private void setPlayerPrefs()
+    //{
+    //    PlayerPrefs.SetInt("Score", 0);
+    //    PlayerPrefs.SetInt("Round Reached", 0);
+    //    PlayerPrefs.SetInt("Barracks Placed", 0);
+    //    PlayerPrefs.SetInt("Walls Placed", 0);
+    //    PlayerPrefs.SetInt("Mine Placed", 0);
+    //    PlayerPrefs.SetInt("Regular Spell", 0);
+    //    PlayerPrefs.SetInt("Speed Spell", 0);
+    //    PlayerPrefs.SetInt("Slow Spell", 0);
+    //}
+    //private void submitData()
+    //{
+    //    if(currentScore == 0)
+    //    {
+    //        return;
+    //    }
+    //    PlayerPrefs.SetInt("Score", currentScore);
+    //    PlayerPrefs.SetInt("Round Reached", m_roundCounter);
+    //    StartCoroutine(Post(PlayerPrefs.GetInt("Score").ToString(), PlayerPrefs.GetInt("Round Reached").ToString(), PlayerPrefs.GetInt("Barracks Placed").ToString(), PlayerPrefs.GetInt("Walls Placed").ToString(),PlayerPrefs.GetInt("Mine Placed").ToString(), PlayerPrefs.GetInt("Regular Spell").ToString(), PlayerPrefs.GetInt("Speed Spell").ToString(), PlayerPrefs.GetInt("Slow Spell").ToString()));
 
-    IEnumerator Post(string score, string maxRound, string barracks, string walls, string mine, string regularSpell, string speedSpell, string slowSpell)
-    {
-        WWWForm form = new WWWForm();
-        form.AddField("entry.1404377732", score);
-        form.AddField("entry.224105009", maxRound);
-        form.AddField("entry.1340497501", barracks);
-        form.AddField("entry.938290357", walls);
-        form.AddField("entry.713143027", mine);
-        form.AddField("entry.705423035", regularSpell);
-        form.AddField("entry.1687568442", speedSpell);
-        form.AddField("entry.401115139", slowSpell);
-        byte[] rawData = form.data;
-        WWW www = new WWW("https://docs.google.com/forms/u/0/d/e/1FAIpQLSeC2ytHm1RVTDnlJAh8AeXjf0CJ2rnSVdRvqsENml7nAbsXbg/formResponse", rawData);
-        yield return www;
-    }
+    //}
+
+    //IEnumerator Post(string score, string maxRound, string barracks, string walls, string mine, string regularSpell, string speedSpell, string slowSpell)
+    //{
+    //    WWWForm form = new WWWForm();
+    //    form.AddField("entry.1404377732", score);
+    //    form.AddField("entry.224105009", maxRound);
+    //    form.AddField("entry.1340497501", barracks);
+    //    form.AddField("entry.938290357", walls);
+    //    form.AddField("entry.713143027", mine);
+    //    form.AddField("entry.705423035", regularSpell);
+    //    form.AddField("entry.1687568442", speedSpell);
+    //    form.AddField("entry.401115139", slowSpell);
+    //    byte[] rawData = form.data;
+    //    WWW www = new WWW("https://docs.google.com/forms/u/0/d/e/1FAIpQLSeC2ytHm1RVTDnlJAh8AeXjf0CJ2rnSVdRvqsENml7nAbsXbg/formResponse", rawData);
+    //    yield return www;
+    //}
 
 
     #endregion

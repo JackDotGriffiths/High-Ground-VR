@@ -30,7 +30,6 @@ public class TankBehaviour : MonoBehaviour
 
     void Start()
     {
-        tankAggression = 1.0f;
         List<GameObject> m_units = new List<GameObject>();
         m_tankInstantiated = false;
         m_validMove = false;
@@ -42,7 +41,7 @@ public class TankBehaviour : MonoBehaviour
     {
         if (m_currentUnits == 0 && m_tankInstantiated == true)
         {
-            m_groupPath[currentStepIndex].navigability = navigabilityStates.navigable;
+            m_groupPath[currentStepIndex].navigability = nodeTypes.navigable;
             GameManager.Instance.CurrentEnemies -= 1;
             GameManager.Instance.enemyGold();
             Destroy(this.gameObject);
@@ -83,12 +82,12 @@ public class TankBehaviour : MonoBehaviour
                 //RunPathfinding();
 
                 //If the next node is navigable, move the node forward
-                if (m_groupPath[currentStepIndex + 1].navigability == navigabilityStates.navigable && m_groupPath[currentStepIndex + 1].hex.transform.childCount == 0 && inSiege == false)
+                if (m_groupPath[currentStepIndex + 1].navigability == nodeTypes.navigable && m_groupPath[currentStepIndex + 1].hex.transform.childCount == 0 && inSiege == false)
                 {
                     m_validMove = true;
-                    m_groupPath[currentStepIndex + 1].navigability = navigabilityStates.enemyUnit;
-                    //Update previous and new node with the correct navigabilityStates
-                    m_groupPath[currentStepIndex].navigability = navigabilityStates.navigable;
+                    m_groupPath[currentStepIndex + 1].navigability = nodeTypes.enemyUnit;
+                    //Update previous and new node with the correct nodeTypes
+                    m_groupPath[currentStepIndex].navigability = nodeTypes.navigable;
                     currentStepIndex++;
                     //Sets the parent so scaling works correclty.
                     this.transform.SetParent(m_groupPath[currentStepIndex].hex.transform);
@@ -97,7 +96,7 @@ public class TankBehaviour : MonoBehaviour
                     currentX = m_groupPath[currentStepIndex].x;
                     currentY = m_groupPath[currentStepIndex].y;
                 }
-                else if ((m_groupPath[currentStepIndex + 1].navigability == navigabilityStates.wall || m_groupPath[currentStepIndex + 1].navigability == navigabilityStates.mine) && inSiege == false)
+                else if ((m_groupPath[currentStepIndex + 1].navigability == nodeTypes.wall || m_groupPath[currentStepIndex + 1].navigability == nodeTypes.mine) && inSiege == false)
                 {
                     //Start combat with the building in the way.
                     inSiege = true;
@@ -131,30 +130,7 @@ public class TankBehaviour : MonoBehaviour
         m_currentTimer = m_tickTimer;
         currentStepIndex = 0;
         inCombat = false;
-        GameBoardGeneration.Instance.Graph[currentX, currentY].navigability = navigabilityStates.enemyUnit;
-        //Run pathfinding, randomly choosing how the unit navigates based on their aggression and some random factors.
-        float _aggressionChance = 1.0f - (GameManager.Instance.aggressionPercentage * (GameManager.Instance.RoundCounter / 2.0f));
-        if (tankAggression > _aggressionChance)
-        {
-            float _rand = Random.Range(0.0f, 1.0f);
-            if (_rand < 0.3f)
-            {
-                RunPathfinding(enemyTargets.randomDestructableBuilding, tankAggression);
-            }
-            else if (_rand > 0.3f && _rand < 0.5f)
-            {
-                RunPathfinding(enemyTargets.randomMine, tankAggression);
-            }
-            else
-            {
-                RunPathfinding(enemyTargets.Gem, tankAggression);
-            }
-        }
-        else
-        {
-            RunPathfinding(enemyTargets.Gem, tankAggression);
-        }
-
+    
         m_targetPosition = new Vector3(m_groupPath[0].hex.transform.position.x, m_groupPath[0].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[0].hex.transform.position.z);
         m_tankInstantiated = true;
         m_unit = Instantiate(m_tankPrefab, this.transform.position, Quaternion.identity, this.transform);
@@ -163,10 +139,10 @@ public class TankBehaviour : MonoBehaviour
     /// <summary>
     /// Run the A* pathfinding
     /// </summary>
-    public void RunPathfinding(enemyTargets _target, float _aggression)
+    public void RunPathfinding()
     {
         currentStepIndex = 0;
-        m_groupPath = GameManager.Instance.RunPathfinding(_target, _aggression, currentX, currentY);
+        m_groupPath = GameManager.Instance.RunTankPathfinding(GameBoardGeneration.Instance.Graph[currentX, currentY]);
     }
 
     /// <summary>

@@ -8,12 +8,10 @@ public class InputManager : MonoBehaviour
 {
     #region Variable Decleration
     private static InputManager s_instance;
-    public enum BookOptions { offHandController, ViveTracker }; // Handedness
     public enum SizeOptions { small, large }; //Whether the player is currently Large or Small.
 
     [Header("Player Config"), Space(5)]
     public HandTypes Handedness; //The handedness of the player, used to place the book and the laser pointer in the correct hand
-    public BookOptions m_bookControllerChoice = BookOptions.offHandController; // The tracking object from the controller.
     [SerializeField, Tooltip("The height at which the game board should sit relative to the player's height."), Range(0f, 1f)] private float m_playerHeightMultiplier = 0.5f;
 
     [Header("Input Config"), Space(5)]
@@ -21,8 +19,10 @@ public class InputManager : MonoBehaviour
     [SerializeField, Tooltip("The Gameobject of the players camera.")] private GameObject m_camera;
     [SerializeField, Tooltip("The Gameobject of the players left controller.")] private GameObject m_leftController;
     [SerializeField, Tooltip("The Gameobject of the players right controller.")] private GameObject m_rightController;
-    [SerializeField, Tooltip("The Gameobject of the Vive tracker.")] private GameObject m_viveTracker;
     [SerializeField, Tooltip("The Gameobject of the game environment. Used for scaling and positioning.")] private GameObject m_gameEnvironment;
+    [SerializeField, Tooltip("GameObject for each of the hand positions. Swapped round when handedness is changed")] private GameObject m_bookHand, m_pointerHand;
+    [SerializeField, Tooltip("Pointer Position Object")] private GameObject m_pointerPosition;
+
 
     //
     [Header("Point & Click")]
@@ -54,9 +54,11 @@ public class InputManager : MonoBehaviour
     private bool m_mainTrigger, m_mainTeleport; //Whether or not the main hand buttons are pressed
     private Vector3 m_mainControllerPos, m_mainControllerPreviousPos; // Position of the controller, used for tracking swiping movements for rotation.
     private LineRenderer m_mainPointer; //The Line Renderer used for pointing 
+    private Vector3 m_pointerStartPos;
     private ValidateBuildingLocation m_buildingValidation; //The ValidateBuildingLocation script, which checks the position of a building before it's placed.
     private List<MeshRenderer> m_objectMeshes = new List<MeshRenderer>(); //List of all of the meshrenderers of the hexagons in the environment.
     private SizeOptions m_currentSize;
+    private bool m_bookAttatched = true;
     #endregion
 
     #region Accessors
@@ -113,6 +115,9 @@ public class InputManager : MonoBehaviour
         //Add all of the environment object mesh renderers.
         updateObjectList();
 
+        //Ensures correct hand models based on handedness
+        swapHandModels();
+
         //TryCatch to catch any missing references.
         try { m_buildingValidation = m_gameEnvironment.GetComponent<ValidateBuildingLocation>(); } catch { Debug.LogWarning("Error getting the ValidateBuildingLocation from the gameEnvironment object."); }
         Invoke("updateWorldHeight", 0.01f);
@@ -144,11 +149,11 @@ public class InputManager : MonoBehaviour
         //Raycasting from the controllers
         RaycastHit _hit;
 
-        //Debug.DrawRay(MainController.transform.position, MainController.transform.forward * 1000);
-
+        Debug.DrawRay(m_pointerPosition.transform.position, (MainController.transform.forward - (MainController.transform.up * 0.5f)) * 1000);
+      
 
         //Raycast from the mainController forward.
-        if (Physics.Raycast(MainController.transform.position, MainController.transform.forward - (MainController.transform.up * 0.5f), out _hit, 1000) && m_currentSize == SizeOptions.large)
+        if (Physics.Raycast(m_pointerPosition.transform.position, MainController.transform.forward - (MainController.transform.up * 0.5f), out _hit, 1000) && m_currentSize == SizeOptions.large)
         {
             //If it hits an environment Hex, highlight.
             if (_hit.collider.gameObject.tag == "Environment")
@@ -216,10 +221,10 @@ public class InputManager : MonoBehaviour
 
 
             //Update the laser position so it continues to update.
-            m_mainPointer.SetPosition(0, MainController.transform.position);
+            m_mainPointer.SetPosition(0, m_pointerPosition.transform.position);
             m_mainPointer.SetPosition(1, _hit.point);
         }
-        else if (Physics.Raycast(MainController.transform.position, MainController.transform.forward, out _hit, 1000) && m_currentSize == SizeOptions.small)
+        else if (Physics.Raycast(m_pointerPosition.transform.position, MainController.transform.forward, out _hit, 1000) && m_currentSize == SizeOptions.small)
         {
             //If it hits an environment Hex, highlight.
             if (_hit.collider.gameObject.tag == "Environment")
@@ -268,7 +273,7 @@ public class InputManager : MonoBehaviour
             }
 
             //Update the laser position so it continues to update.
-            m_mainPointer.SetPosition(0, MainController.transform.position);
+            m_mainPointer.SetPosition(0, m_pointerPosition.transform.position);
             m_mainPointer.SetPosition(1, _hit.point);
         }
         else
@@ -285,8 +290,8 @@ public class InputManager : MonoBehaviour
             {
                 m_mainPointer.startWidth = 0.003f;
                 m_mainPointer.endWidth = 0;
-                m_mainPointer.SetPosition(0, MainController.transform.position);
-                m_mainPointer.SetPosition(1, MainController.transform.position + MainController.transform.forward * 20f);
+                m_mainPointer.SetPosition(0, m_pointerStartPos);
+                m_mainPointer.SetPosition(1, m_pointerStartPos + MainController.transform.forward * 20f);
 
             }
 
@@ -332,7 +337,7 @@ public class InputManager : MonoBehaviour
         if (m_teleporterPrimed == true && m_mainTeleport == false && m_currentlySelectedHex != null && m_enlargePlayer == false)
         {
             //If the node is able to be teleported onto, teleport the player.
-            if (m_currentlySelectedHex.GetComponent<NodeComponent>().node.navigability == navigabilityStates.navigable)
+            if (m_currentlySelectedHex.GetComponent<NodeComponent>().node.navigability == nodeTypes.navigable)
             {
                 //Debug.Log("Teleported");
                 m_teleporterPrimed = false;
@@ -364,54 +369,14 @@ public class InputManager : MonoBehaviour
             m_mainPointer.endWidth = 0.00f;
         }
         #endregion
-
-        #region Book UI
-        //Place the book in the Player's hand
-        if (m_bookObject == null)
-        {
-            if (m_bookControllerChoice == BookOptions.offHandController)
-            {
-                Destroy(m_viveTracker);
-                m_bookObject = Instantiate(m_bookPrefab, OffHandController.transform);
-                //m_bookObject.transform.localPosition = Vector3.zero;
-                m_bookObject.transform.localEulerAngles = new Vector3(90, 0, 0);
-                m_bookObject.transform.localPosition = new Vector3(0, 0, m_bookHandOffset * 0.75f);
-            }
-            else if (m_bookControllerChoice == BookOptions.ViveTracker)
-            {
-                float _zOffset;
-                //Rotate based on Handedness
-                if (Handedness == HandTypes.right)
-                {
-                    _zOffset = 90;
-                }
-                else
-                {
-                    _zOffset = -90;
-                }
-                Destroy(OffHandController);
-                m_bookObject = Instantiate(m_bookPrefab, m_viveTracker.transform);
-                //m_bookObject.transform.localPosition = Vector3.zero;
-                m_bookObject.transform.localEulerAngles = new Vector3(0, 0, _zOffset);
-                m_bookObject.transform.localPosition = new Vector3(0, 0, -m_bookHandOffset);
-            }
-
-            GameManager.Instance.moneyBookText = m_bookObject.GetComponent<BookManager>().moneyText;
-            GameManager.Instance.timerBookText = m_bookObject.GetComponent<BookManager>().timerText;
-            GameManager.Instance.roundBookText = m_bookObject.GetComponent<BookManager>().roundText;
-            GameManager.Instance.moneyBookText2 = m_bookObject.GetComponent<BookManager>().moneyText2;
-            GameManager.Instance.timerBookText2 = m_bookObject.GetComponent<BookManager>().timerText2;
-            GameManager.Instance.roundBookText2 = m_bookObject.GetComponent<BookManager>().roundText2;
-
-
-        }
-        #endregion
-
         //Lerp the Rig to it's new position - Teleportation
         m_vrRig.transform.position = Vector3.Lerp(m_vrRig.transform.position, m_newPosition, m_rigTeleportationSpeed);
 
-
-        if (RightGripped == true && LeftGripped == true)
+        if((LeftGripped && Handedness == HandTypes.right) || (RightGripped && Handedness == HandTypes.left))
+        {
+            toggleBookAttatched();
+        }
+        else if (RightGripped == true && LeftGripped == true)
         {
             updateWorldHeight();
         }
@@ -441,6 +406,8 @@ public class InputManager : MonoBehaviour
         m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 16);
     }
 
+
+    #region Hexagon Highlighting
     /// <summary>
     /// Updates the list of Hexagon Meshes, without the passed in mesh. Used for highlighting
     /// </summary>
@@ -503,6 +470,66 @@ public class InputManager : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Book Spawning + Detatching
+
+    /// <summary>
+    /// Spawns the book in the players hand
+    /// </summary>
+    public void SpawnBook()
+    {
+        if (m_bookObject == null)
+        {
+            m_bookObject = Instantiate(m_bookPrefab, OffHandController.transform);
+            if (Handedness == HandTypes.left)
+            {
+                m_bookObject.transform.localEulerAngles = new Vector3(0, 0, 0);
+            }
+            else
+            {
+                m_bookObject.transform.localEulerAngles = new Vector3(0, -90, 0);
+            }
+            m_bookObject.transform.localPosition = new Vector3(m_bookHandOffset, 0, 0.07f);
+            GameManager.Instance.moneyBookText = m_bookObject.GetComponent<BookManager>().moneyText;
+            GameManager.Instance.timerBookText = m_bookObject.GetComponent<BookManager>().timerText;
+            GameManager.Instance.roundBookText = m_bookObject.GetComponent<BookManager>().roundText;
+            GameManager.Instance.moneyBookText2 = m_bookObject.GetComponent<BookManager>().moneyText2;
+            GameManager.Instance.timerBookText2 = m_bookObject.GetComponent<BookManager>().timerText2;
+            GameManager.Instance.roundBookText2 = m_bookObject.GetComponent<BookManager>().roundText2;
+        }
+    }
+
+    /// <summary>
+    /// Removes the book from the player's hand.
+    /// </summary>
+    public void RemoveBook()
+    {
+        Destroy(m_bookObject);
+    }
+
+    /// <summary>
+    /// Removes the book from being attatched to the player's hand.
+    /// </summary>
+    public void toggleBookAttatched()
+    {
+        if(m_bookAttatched == true)
+        {
+            m_bookAttatched = false;
+            m_bookObject.transform.SetParent(null);
+        }
+        else
+        {
+            m_bookAttatched = true;
+            m_bookObject.transform.SetParent(OffHandController.transform);
+            m_bookObject.transform.localEulerAngles = new Vector3(0, -90, 0);
+            m_bookObject.transform.localPosition = new Vector3(m_bookHandOffset, 0, 0.07f);
+        } 
+    }
+    #endregion
+
+
+
     /// <summary>
     /// Retrieve the angle of the headset to the selected hex.
     /// </summary>
@@ -524,18 +551,37 @@ public class InputManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Rumbles the Main Hand controller. Useful for spells and UI interactions.
+    /// Makes sure the pointer and book hand models are in the correct places.
     /// </summary>
-    /// <param name="_time">The time the rumble lasts for (milliseconds)</param>
-    public void rumble(float _time)
+    public void swapHandModels()
     {
-        //if (Handedness == HandTypes.left)
-        //{
-        //    SteamVR_Controller.Input((int)trackedObj.index).TriggerHapticPulse(500);
-        //}
-        //if (Handedness == HandTypes.right)
-        //{
-        //    SteamVR_Controller.Input((int)trackedObj.index).TriggerHapticPulse(500);
-        //}
+        //Handles whether the player is left or right handed.
+        if (Handedness == HandTypes.left)
+        {
+            MainController = m_leftController;
+            OffHandController = m_rightController;
+            m_pointerHand.transform.localScale = new Vector3(-1, 1, 1);
+            m_bookHand.transform.localScale = new Vector3(-1, 1, 1);
+        }
+        if (Handedness == HandTypes.right)
+        {
+            MainController = m_rightController;
+            OffHandController = m_leftController;
+            m_pointerHand.transform.localScale = new Vector3(1, 1, 1);
+            m_bookHand.transform.localScale = new Vector3(1, 1, 1);
+        }
+
+
+
+        m_pointerHand.transform.SetParent(MainController.transform);
+        m_bookHand.transform.SetParent(OffHandController.transform);
+
+        m_pointerHand.transform.localPosition = Vector3.zero;
+        m_pointerHand.transform.localRotation = Quaternion.Euler(36.0f, 0, 0);
+
+        m_bookHand.transform.localPosition = Vector3.zero;
+        m_bookHand.transform.localRotation = Quaternion.Euler(Vector3.zero);
     }
+    
+
 }

@@ -44,6 +44,7 @@ public class MenuManagement : MonoBehaviour
         m_leftHandIcon.SetActive(false);
         m_rightHandIcon.SetActive(true);
         InputManager.Instance.Handedness = HandTypes.right;
+        InputManager.Instance.swapHandModels();
     }
 
     public void toggleHandedness()
@@ -54,6 +55,7 @@ public class MenuManagement : MonoBehaviour
             m_leftHandIcon.SetActive(true);
             m_rightHandIcon.SetActive(false);
             InputManager.Instance.Handedness = HandTypes.left;
+            InputManager.Instance.swapHandModels();
         }
         else
         {
@@ -61,6 +63,7 @@ public class MenuManagement : MonoBehaviour
             m_leftHandIcon.SetActive(false);
             m_rightHandIcon.SetActive(true);
             InputManager.Instance.Handedness = HandTypes.right;
+            InputManager.Instance.swapHandModels();
         }
     }
     #endregion

@@ -63,7 +63,7 @@ public class EnemyBehaviour : MonoBehaviour
 
         if(m_currentUnits == 0 && m_unitInstantiated == true)
         {
-            m_groupPath[currentStepIndex].navigability = navigabilityStates.navigable;
+            m_groupPath[currentStepIndex].navigability = nodeTypes.navigable;
             GameManager.Instance.CurrentEnemies -= 1;
             GameManager.Instance.enemyGold();
             //Reward the player for killing the enemies quicker.
@@ -103,11 +103,11 @@ public class EnemyBehaviour : MonoBehaviour
 
 
                 }
-                else
-                {
-                    RunPathfinding(enemyTargets.Gem,groupAggression);
-                    m_validMove = false;
-                }
+                //else
+                //{
+                //    RunPathfinding(enemyTargets.Gem,groupAggression);
+                //    m_validMove = false;
+                //}
 
                 //Reset the timer
                 m_currentTimer = m_tickTimer;
@@ -115,12 +115,12 @@ public class EnemyBehaviour : MonoBehaviour
                 //RunPathfinding();
 
                 //If the next node is navigable, move the node forward
-                if (m_groupPath[currentStepIndex + 1].navigability == navigabilityStates.navigable && m_groupPath[currentStepIndex + 1].hex.transform.childCount == 0 && inSiege == false)
+                if (m_groupPath[currentStepIndex + 1].navigability == nodeTypes.navigable && m_groupPath[currentStepIndex + 1].hex.transform.childCount == 0 && inSiege == false)
                 {
                     m_validMove = true;
-                    m_groupPath[currentStepIndex + 1].navigability = navigabilityStates.enemyUnit;
-                    //Update previous and new node with the correct navigabilityStates
-                    m_groupPath[currentStepIndex].navigability = navigabilityStates.navigable;
+                    m_groupPath[currentStepIndex + 1].navigability = nodeTypes.enemyUnit;
+                    //Update previous and new node with the correct nodeTypes
+                    m_groupPath[currentStepIndex].navigability = nodeTypes.navigable;
                     currentStepIndex++;
                     //Sets the parent so scaling works correclty.
                     this.transform.SetParent(m_groupPath[currentStepIndex].hex.transform);
@@ -129,7 +129,7 @@ public class EnemyBehaviour : MonoBehaviour
                     currentX = m_groupPath[currentStepIndex].x;
                     currentY = m_groupPath[currentStepIndex].y;
                 }
-                else if ((m_groupPath[currentStepIndex + 1].navigability == navigabilityStates.wall || m_groupPath[currentStepIndex + 1].navigability == navigabilityStates.mine) && inSiege == false)
+                else if ((m_groupPath[currentStepIndex + 1].navigability == nodeTypes.wall || m_groupPath[currentStepIndex + 1].navigability == nodeTypes.mine) && inSiege == false)
                 {
                     //Start combat with the building in the way.
                     inSiege = true;
@@ -177,38 +177,9 @@ public class EnemyBehaviour : MonoBehaviour
         m_currentTimer = m_tickTimer;
         currentStepIndex = 0;
         inCombat = false;
-        GameBoardGeneration.Instance.Graph[currentX,currentY].navigability = navigabilityStates.enemyUnit;
+        GameBoardGeneration.Instance.Graph[currentX,currentY].navigability = nodeTypes.enemyUnit;
 
-
-
-        //Run pathfinding, randomly choosing how the unit navigates based on their aggression and some random factors. This is only used by the tank enemy as default units start with 0 aggression.
-        float _aggressionChance = 1.0f - (GameManager.Instance.aggressionPercentage * (GameManager.Instance.RoundCounter / 2.0f));
-        if (groupAggression > _aggressionChance)
-        {
-            float _rand = Random.Range(0.0f, 1.0f);
-            if (_rand < 0.3f)
-            {
-                RunPathfinding(enemyTargets.randomDestructableBuilding, groupAggression);
-            }
-            else if (_rand > 0.3f && _rand < 0.5f)
-            {
-                RunPathfinding(enemyTargets.randomMine, groupAggression);
-            }
-            else
-            {
-                RunPathfinding(enemyTargets.Gem, groupAggression);
-            }
-        }
-        else
-        {
-            RunPathfinding(enemyTargets.Gem, groupAggression);
-        }
-        if(m_groupPath.Count == 0)//If they were unable to get to their desired goal, run the pathfinding aggressively.
-        {
-            m_groupPath = new List<Node>();
-            groupAggression = 1.0f;
-            RunPathfinding(enemyTargets.Gem, groupAggression);
-        }
+        RunPathfinding(enemyTargets.Gem, groupAggression);
         m_targetPosition = new Vector3(m_groupPath[0].hex.transform.position.x, m_groupPath[0].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[0].hex.transform.position.z);
         m_unitInstantiated = true;
 
@@ -246,7 +217,7 @@ public class EnemyBehaviour : MonoBehaviour
     public void RunPathfinding(enemyTargets _target, float _aggression)
     {
         currentStepIndex = 0;
-        m_groupPath = GameManager.Instance.RunPathfinding(_target, _aggression, currentX, currentY);
+        m_groupPath = GameManager.Instance.RunPathfinding(GameBoardGeneration.Instance.Graph[currentX,currentY],GameManager.Instance.GameGemNode,_aggression);
     }
 
     /// <summary>

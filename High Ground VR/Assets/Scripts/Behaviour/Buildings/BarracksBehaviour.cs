@@ -51,7 +51,7 @@ public class BarracksBehaviour : MonoBehaviour
             if (_hit.collider.tag == "Environment")
             {
                 BarracksUnitNode = _hit.collider.gameObject.GetComponent<NodeComponent>().node;
-                BarracksUnitNode.navigability = navigabilityStates.playerUnit;
+                BarracksUnitNode.navigability = nodeTypes.playerUnit;
             }
         }
         //Spawn the correct amount of enemies 
@@ -59,7 +59,7 @@ public class BarracksBehaviour : MonoBehaviour
         {
             Vector3 _unitSpawnPos = new Vector3(BarracksUnitNode.hex.transform.position.x, BarracksUnitNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, BarracksUnitNode.hex.transform.position.z);
             GameObject _newUnit = Instantiate(m_unitPrefab, _unitSpawnPos, transform.rotation, BarracksUnitNode.hex.transform);
-            BarracksUnitNode.navigability = navigabilityStates.playerUnit;
+            BarracksUnitNode.navigability = nodeTypes.playerUnit;
             _newUnit.GetComponent<UnitComponent>().playerUnitConstructor();
             m_units.Add(_newUnit);
         }
@@ -88,7 +88,7 @@ public class BarracksBehaviour : MonoBehaviour
 
             if(m_currentUnits == 0 && BarracksUnitNode.hex.transform.childCount == 0) // If there are no player units and there is nothing on the tile, make it navigable.
             {
-                BarracksUnitNode.navigability = navigabilityStates.navigable;
+                BarracksUnitNode.navigability = nodeTypes.navigable;
             }
         }
 
@@ -135,7 +135,7 @@ public class BarracksBehaviour : MonoBehaviour
     {
         foreach(Node _node in BarracksUnitNode.adjecant)
         {
-            if (_node.navigability == navigabilityStates.enemyUnit)
+            if (_node.navigability == nodeTypes.enemyUnit)
             {
                 //If it detects an enemy group in any adjecent nodes, start combat
                 if (_node.hex.transform.GetChild(0).TryGetComponent<EnemyBehaviour>(out EnemyBehaviour _enemy))
@@ -197,7 +197,7 @@ public class BarracksBehaviour : MonoBehaviour
     {
         foreach (Node _node in BarracksUnitNode.adjecant)
         {
-            if (_node.navigability == navigabilityStates.enemyUnit)
+            if (_node.navigability == nodeTypes.enemyUnit)
             {
                 //If it detects an enemy group in any adjecent nodes, get all of the units from that enemy group
                 EnemyBehaviour _enemy = _node.hex.transform.GetChild(0).GetComponent<EnemyBehaviour>();
@@ -245,14 +245,14 @@ public class BarracksBehaviour : MonoBehaviour
             if (BarracksUnitNode.hex.transform.GetChild(0).GetComponent<EnemyBehaviour>() == null)
             {
                 AudioManager.Instance.PlaySound("barracksRespawn", AudioLists.Building, AudioMixers.Effects, false, true, false, this.gameObject, 0.1f);
-                BarracksUnitNode.navigability = navigabilityStates.playerUnit;
+                BarracksUnitNode.navigability = nodeTypes.playerUnit;
                 SpawnAUnit();
             }
         }
-        else if (BarracksUnitNode.navigability == navigabilityStates.navigable || BarracksUnitNode.navigability == navigabilityStates.playerUnit)
+        else if (BarracksUnitNode.navigability == nodeTypes.navigable || BarracksUnitNode.navigability == nodeTypes.playerUnit)
         {
             AudioManager.Instance.PlaySound("barracksRespawn", AudioLists.Building, AudioMixers.Effects, false, true, false, this.gameObject, 0.1f);
-            BarracksUnitNode.navigability = navigabilityStates.playerUnit;
+            BarracksUnitNode.navigability = nodeTypes.playerUnit;
             SpawnAUnit();
         }
         m_respawning = false;
@@ -267,7 +267,7 @@ public class BarracksBehaviour : MonoBehaviour
         //Correctly position units around the hex - Only needs to happen when one dies/respawns
         Vector3 _unitSpawnPos = new Vector3(BarracksUnitNode.hex.transform.position.x, BarracksUnitNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, BarracksUnitNode.hex.transform.position.z);
         GameObject _newUnit = Instantiate(m_unitPrefab, _unitSpawnPos, transform.rotation, BarracksUnitNode.hex.transform);
-        BarracksUnitNode.navigability = navigabilityStates.playerUnit;
+        BarracksUnitNode.navigability = nodeTypes.playerUnit;
         _newUnit.GetComponent<UnitComponent>().playerUnitConstructor();
         m_units.Add(_newUnit);
         EvaluateUnitPositions();

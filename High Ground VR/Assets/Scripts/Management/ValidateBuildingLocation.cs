@@ -134,7 +134,7 @@ public class ValidateBuildingLocation : MonoBehaviour
 
         foreach (Node _adjNode in _targetNode.adjecant)
         {
-            if(_adjNode.navigability == navigabilityStates.enemySpawn)
+            if(_adjNode.navigability == nodeTypes.enemySpawn)
             {
                 _validLocation = false;
                 playIncorrectSound(_targetNode);
@@ -207,7 +207,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         //Checks for any nonPlaceable adjecent nodes. This helps with ensuring spawns are spread out.
         foreach (Node _adjNode in _targetNode.adjecant)
         {
-            if(_adjNode.navigability == navigabilityStates.enemySpawn)
+            if(_adjNode.navigability == nodeTypes.enemySpawn)
             {
                 _validLocation = false;
                 playIncorrectSound(_targetNode);
@@ -238,7 +238,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         }
         GameManager.Instance.addScore(50); //Add score for placing building.
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = navigabilityStates.barracks;
+        _targetNode.navigability = nodeTypes.barracks;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         Vector3 _position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
         Vector3 _rotation = new Vector3(0.0f, _angle, 0.0f);
@@ -267,7 +267,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         }
         GameManager.Instance.addScore(30); //Add score for placing building.
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = navigabilityStates.mine;
+        _targetNode.navigability = nodeTypes.mine;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         Vector3 _position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
         Vector3 _rotation = new Vector3(0.0f, _angle, 0.0f);
@@ -295,7 +295,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         }
         GameManager.Instance.addScore(10); //Add score for placing building.
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = navigabilityStates.wall;
+        _targetNode.navigability = nodeTypes.wall;
         //Instantiate Relevant Prefab & Position Accordingly, based on the players current size.
         GameObject _building = Instantiate(m_walls, _targetNode.hex.transform);
         _building.transform.position = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + buildingHeightOffset, _targetNode.hex.transform.position.z);
@@ -315,10 +315,10 @@ public class ValidateBuildingLocation : MonoBehaviour
     public void placeEnemySpawn(Node _targetNode, float _angle)
     {
         //Update Node navigability and surrounding nodes
-        _targetNode.navigability = navigabilityStates.enemySpawn;
+        _targetNode.navigability = nodeTypes.enemySpawn;
         //foreach (Node _adjNode in _targetNode.adjecant)
         //{
-        //    _adjNode.navigability = navigabilityStates.nonPlaceable;
+        //    _adjNode.navigability = nodeTypes.nonPlaceable;
         //}
         //Instantiate Relevant Prefab. Position + Scale Based on size of the environment.
         GameObject _spawn = Instantiate(m_enemySpawn, _targetNode.hex.transform);
@@ -327,8 +327,6 @@ public class ValidateBuildingLocation : MonoBehaviour
         GameManager.Instance.enemySpawns.Add(_spawn.GetComponent<EnemySpawnBehaviour>());
     }
     #endregion
-
-
 
 
     private void playIncorrectSound(Node _targetNode)
@@ -346,7 +344,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// <returns>True/False based on whether the node is empty.</returns>
     private bool nodeEmpty(Node _targetNode)
     {
-        if (_targetNode.navigability == navigabilityStates.navigable)
+        if (_targetNode.navigability == nodeTypes.navigable)
         {
             return true;
         }
@@ -365,7 +363,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     {
         foreach (Node _adjNode in _targetNode.adjecant)
         {
-            if (_adjNode.navigability == navigabilityStates.enemySpawn)
+            if (_adjNode.navigability == nodeTypes.enemySpawn)
             {
                 return true;
             }
@@ -383,7 +381,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     {
         foreach (Node _adjNode in _targetNode.adjecant)
         {
-            if (_adjNode.navigability == navigabilityStates.gem)
+            if (_adjNode.navigability == nodeTypes.gem)
             {
                 return true;
             }
@@ -401,7 +399,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         bool _result = true;
 
         //Assign the target node temporarily as a wall as to test the patfinding.
-        _targetNode.navigability = navigabilityStates.wall;
+        _targetNode.navigability = nodeTypes.wall;
 
         foreach(EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
         {
@@ -409,21 +407,12 @@ public class ValidateBuildingLocation : MonoBehaviour
 
             List<Node> _path = new List<Node>();
             var graph = GameBoardGeneration.Instance.Graph;
-            var search = new Search(GameBoardGeneration.Instance.Graph);
-            search.Start(graph[_spawnNode.x, _spawnNode.y], graph[GameManager.Instance.GameGemNode.x, GameManager.Instance.GameGemNode.y], 0.0f);
-            while (!search.finished)
-            {
-                search.Step();
-            }
-            Transform[] _pathPositions = new Transform[search.path.Count];
-            for (int i = 0; i < search.path.Count; i++)
-            {
-                _path.Add(search.path[i]);
-            }
+            var search = new Search();
+            search.StartSearch(graph[_spawnNode.x, _spawnNode.y], graph[GameManager.Instance.GameGemNode.x, GameManager.Instance.GameGemNode.y],SearchTypes.Passive);
             if (search.path.Count == 0)
             {
                 _result = false;
-                _targetNode.navigability = navigabilityStates.navigable;
+                _targetNode.navigability = nodeTypes.navigable;
                 return _result;
             }
         }
@@ -441,7 +430,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         bool _validLocation = true;
         foreach(Node _node in _targetNode.adjecant)
         {
-            if(_node.navigability == navigabilityStates.barracks)
+            if(_node.navigability == nodeTypes.barracks)
             {
                 _validLocation = false;
                 return _validLocation;

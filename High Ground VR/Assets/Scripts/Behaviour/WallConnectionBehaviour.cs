@@ -17,7 +17,7 @@ public class WallConnectionBehaviour : MonoBehaviour
         foreach(Node _node in thisNode.adjecant)
         {
             //If the adjacent node contains a building that is worth connecting to, place a connector.
-            if(_node.navigability == navigabilityStates.wall)
+            if(_node.navigability == nodeTypes.wall)
             {
                 //Create a connector
                 Vector3 _thisPos = thisNode.hex.transform.position;
@@ -28,7 +28,7 @@ public class WallConnectionBehaviour : MonoBehaviour
                 Quaternion _rotation = Quaternion.FromToRotation(transform.forward, _thisPos - _goalPos);
                 GameObject _wall = Instantiate(connectorObject,_spawnPos, _rotation,transform);
                 connectedWalls.Add(_wall);
-                if(_node.navigability == navigabilityStates.wall)
+                if(_node.navigability == nodeTypes.wall)
                 {
                     WallConnectionBehaviour _wallBehaviour = _node.hex.GetComponentInChildren<WallConnectionBehaviour>();
                     _wallBehaviour.connectedWalls.Add(_wall);

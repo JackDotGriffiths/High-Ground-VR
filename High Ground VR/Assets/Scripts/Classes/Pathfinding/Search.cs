@@ -2,234 +2,251 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+public enum SearchTypes {Aggressive,Passive};
 public class Search
 {
-    public Node[,] graph; //Graph of all nodes
-    public List<Node> reachable; //Complete list of reachable nodes
-    public List<Node> explored; //Complete list of explored nodes within the search
+    public Node[,] graph = GameBoardGeneration.Instance.Graph; //The entire game board representation as a 2D array of Nodes.
+    
+    
     public List<Node> path; //The Chosen path after the search has occured
-    public Node goalNode; //The end goal of the search
-    public int iterations; //Amount of Iterations taken to find the path
-    public bool finished; //Whether the search is finished
-    public float unitAggression;
+    private List<Node> openNodes;
+    private List<Node> closedNodes;
+    private int m_straightCost = 8;
+    private int m_diagonalCost = 10;
 
-    public Search(Node[,] _graph)
-    {
-        this.graph = _graph;
-    }
+    private int m_enemyInSiegeCost = 40; // This encourages enemies to go around those in siege. If a new route is open, they'll all notice it as it appears.
+    private int m_enemyInCombatCost = 10; //An enemy should try and avoid enemies in combat, possibly creating paths around them if possible.
+    private int m_enemyUnitCost = 5; // Cost of an enemy being in the way. Promotes moving around them if possible. 
+    private int m_adjacentToPlayerUnitCost = 20; //This is also definite combat, so should try and be avoided by the pathfinding.
+    private int m_playerUnitCost = 20; // The cost of navigating through a player. This means definite combat so the pathfinding may try and avoid that.
+    private int m_destructableBuildingCost = 5; // This is low because the only time it's used is by the tank, which needs to be destructive
 
-    public void Start(Node start, Node goal, float aggression)
+
+
+
+    //public float unitAggression;
+
+    //////////////////////////////////////////////////// NEW IMPLEMENTATION
+
+    public void StartSearch(Node _startNode, Node _endNode, SearchTypes _searchType)
     {
-        reachable = new List<Node>();
-        explored = new List<Node>();
         path = new List<Node>();
-        reachable.Add(start);
-        goalNode = goal;
-        unitAggression = aggression;
-        iterations = 0;
+        openNodes = new List<Node>();
+        closedNodes = new List<Node>();
 
-        //Clear all previously associated nodes
-        for (int i = 0; i < graph.GetLength(0); i++)
+        openNodes.Add(_startNode);
+        foreach(Node _adjacentNode in _startNode.adjecant)
         {
-            for (int j = 0; j < graph.GetLength(1); j++)
+            openNodes.Add(_adjacentNode);
+            _adjacentNode.searchData.parentNode = _startNode;
+        }
+
+        openNodes.Remove(_startNode);
+        closedNodes.Add(_startNode);
+        Node _currentNode;
+
+        while (openNodes.Count > 0)
+        {
+            //Lowest F cost out of all of the nodes in openNodes.
+            float _lowestF = Mathf.Infinity;
+            _currentNode = null;
+            foreach(Node _node in openNodes)
             {
-                graph[i, j].Clear();
-            }
-        }
-    }
-
-    public void Step()
-    {
-        //If either of these conditions are met, the search is over and it has either failed or completed.
-        if (path.Count > 0){return;}
-        if (reachable.Count == 0)
-        {
-            finished = true;
-            return;
-        }
-
-        iterations++;
-
-        //If the search has completed and was successfull, rebuild the path from the list of previous nodes from each node.
-        var node = ChooseNode();
-        if (node == goalNode)
-        {
-            while (node != null)
-            {
-                path.Insert(0, node);
-                node = node.previous;
-            }
-            finished = true;
-            return;
-        }
-
-        //If not, remove the current node from reachable, add it to explored and then continue to search for the goal.
-        reachable.Remove(node);
-        explored.Add(node);
-
-        for (int i = 0; i < node.adjecant.Count; i++)
-        {
-            AddAdjacent(node, node.adjecant[i]);
-        }
-    }
-
-    /// <summary>
-    /// Add adjecent nodes to search and also define reachable nodes.
-    /// </summary>
-    /// <param name="node">Current node</param>
-    /// <param name="adjacent">Adjecent nodes of current Node</param>
-    public void AddAdjacent(Node node, Node adjacent)
-    {
-        if (FindNode(adjacent, explored) || FindNode(adjacent, reachable))
-        {
-            return;
-        }
-
-        adjacent.previous = node;
-
-        //---Unit aggression
-        //1.0 = MAX anger
-        //0.0 = MIN anger
-
-
-        if (adjacent.navigability == navigabilityStates.navigable || adjacent.navigability == navigabilityStates.gem || adjacent.navigability == navigabilityStates.playerUnit || adjacent.navigability == navigabilityStates.enemyUnit)
-        {
-            reachable.Add(adjacent);
-        }
-
-        //Creates a decreasing value, meaning it's EASIER for a unit to be aggressive as the rounds go on.
-        float _aggressionChance = 1.0f - (GameManager.Instance.aggressionPercentage * (GameManager.Instance.RoundCounter/2.0f));
-        //If the aggression is 1, always add the destructible node. This is used for checking of pathfinding and super aggressive enemies.
-        if (unitAggression == 1.0f)
-        {
-            if (adjacent.navigability == navigabilityStates.wall || adjacent.navigability == navigabilityStates.mine )
-            {
-                reachable.Add(adjacent);
-            }
-        }
-        else if(unitAggression > _aggressionChance)
-        {
-            if (adjacent.navigability == navigabilityStates.wall || adjacent.navigability == navigabilityStates.mine)
-            {
-                reachable.Add(adjacent);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Returns true if the node is found within the passed in list.
-    /// </summary>
-    /// <param name="node">Search Node</param>
-    /// <param name="list">List to Search through</param>
-    /// <returns></returns>
-    public bool FindNode(Node node, List<Node> list)
-    {
-        return GetNodeIndex(node, list) >= 0;
-    }
-
-
-    /// <summary>
-    /// Get the Index of a node in the chosen list 
-    /// </summary>
-    /// <param name="node">Search Node</param>
-    /// <param name="list">List to search through</param>
-    /// <returns></returns>
-    public int GetNodeIndex(Node node, List<Node> list)
-    {
-        for (int i = 0; i < list.Count; i++)
-        {
-            if (node == list[i])
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /// <summary>
-    /// Chooses a node from associated adjecent nodes, and always picks the one that reduces the distance between the current node and the goal node the most.
-    /// </summary>
-    /// <returns></returns>
-    public Node ChooseNode()
-    {
-        //float _minDistance = Mathf.Infinity;
-        //for (int i = 0; i < reachable.Count - 1; i++)
-        //    Vector3 _nodePos = reachable[i].hex.transform.position;
-        //if (Vector3.Distance(_nodePos, _goalNodePos) < _minDistance)
-        //    _minDistance = Vector3.Distance(_nodePos, _goalNodePos);
-        //_closestNode = reachable[i];
-        //return _closestNode;
-
-        //Randomly chooses a node which is in the correct direction, giving some variety to enemy paths. The commented out section above is the perfect pathfinding.
-
-        //List of Nodes from reachable
-        List<Node> _searchNodes = reachable;
-
-        //If theres only one available
-        if (_searchNodes.Count == 1)
-        {
-            return _searchNodes[0];
-        }
-        else if (_searchNodes.Count == 2) //Randomly choose if there's two available
-        {
-            if (checkIfInCombat(_searchNodes[0])) // Check if it's in combat, if it is, avoid it.
-            {
-                return _searchNodes[1];
-            }
-            else
-            {
-                return _searchNodes[0];
-            }
-        }
-
-
-        Vector3 _goalNodePos = goalNode.hex.transform.position;
-        //Bubble Sort in distance from _it to the gem
-        Node _tempNode;
-        for (int j = 0; j < _searchNodes.Count - 2; j++)
-        {
-            for (int i = 0; i < _searchNodes.Count - 2; i++)
-            {
-                Vector3 _node1Pos = _searchNodes[i].hex.transform.position;
-                Vector3 _node2Pos = _searchNodes[i + 1].hex.transform.position;
-                float _distance1 = Vector3.Distance(_node1Pos, _goalNodePos);
-                float _distance2 = Vector3.Distance(_node2Pos, _goalNodePos);
-                if (_distance1 > _distance2)
+                if (_node.searchData.F < _lowestF)
                 {
-                    _tempNode = _searchNodes[i + 1];
-                    _searchNodes[i + 1] = _searchNodes[i];
-                    _searchNodes[i] = _tempNode;
+                    _currentNode = _node;
+                    _lowestF = _node.searchData.F;
                 }
             }
+            openNodes.Remove(_currentNode);
+            if (_currentNode == _endNode)
+            {
+                break;
+            }
+            closedNodes.Add(_currentNode);
+
+            foreach (Node _adjacentNode in _currentNode.adjecant)
+            {
+                if (!closedNodes.Contains(_adjacentNode) && isNavigable(_adjacentNode, _searchType))
+                {
+                   if (!openNodes.Contains(_adjacentNode))
+                    {
+                        openNodes.Add(_adjacentNode);
+                        _adjacentNode.searchData.parentNode = _currentNode;
+                        _adjacentNode.searchData.G = _adjacentNode.searchData.parentNode.searchData.G + calculateDirectionalCost(_currentNode, _adjacentNode) + nodeCost(_adjacentNode);
+                        _adjacentNode.searchData.H = hexagonalHeuristicCost(_adjacentNode, _endNode) * m_straightCost;
+                        _adjacentNode.searchData.F = _adjacentNode.searchData.G + _adjacentNode.searchData.H;
+                    }
+                    else if (openNodes.Contains(_adjacentNode))
+                    {
+                        //If G cost of adjacent is LOWER than G cost of current
+                        if (_adjacentNode.searchData.G < _currentNode.searchData.G + calculateDirectionalCost(_currentNode, _adjacentNode))
+                        {
+                            _adjacentNode.searchData.parentNode = _currentNode;
+                            _adjacentNode.searchData.G = _adjacentNode.searchData.parentNode.searchData.G + calculateDirectionalCost(_currentNode, _adjacentNode) + nodeCost(_adjacentNode); ;
+                            _adjacentNode.searchData.F = _adjacentNode.searchData.G + _adjacentNode.searchData.H;
+                        }
+                    }
+                }
+            }
+
         }
 
 
-        if (checkIfInCombat(_searchNodes[0])) // Check if it's in combat, if it is, avoid it.
+       if(openNodes.Count == 0)
+        {
+            Debug.Log("Pathfinding Failed");
+        }
+       else
+        {
+            //Work out the path now
+            _currentNode = _endNode;
+            Node _parentNode = _endNode.searchData.parentNode;
+            path.Add(_currentNode);
+            while (_currentNode != _startNode)
             {
-            return _searchNodes[1];
+                _parentNode = _currentNode.searchData.parentNode;
+                path.Add(_parentNode);
+                _currentNode = _parentNode;
+            }
+            path.Reverse();
+        }
+
+
+    }
+
+    private int calculateDirectionalCost(Node _fromNode, Node _toNode)
+    {
+        if(_fromNode.y == _toNode.y)
+        {
+            //Nodes are straight next to eachother.
+            return m_straightCost;
         }
         else
         {
-            return _searchNodes[0];
+            //Nodes are diagonal across from eachother.
+            return m_diagonalCost;
         }
+    }
+
+    private int hexagonalHeuristicCost(Node _fromNode, Node _endNode)
+    {
+        int _xDifference = Mathf.Abs(_fromNode.x - _endNode.x);
+        int _yDifference = Mathf.Abs(_fromNode.y - _endNode.y);
+        int _xyDifference = Mathf.Abs(_xDifference - _yDifference);
+
+
+        int _max = Mathf.Max(_xDifference, Mathf.Max(_yDifference, _xyDifference));
+
+        return _xDifference + _yDifference;
+
+        //return Mathf.RoundToInt(Vector3.Distance(_fromNode.hex.transform.position, _endNode.hex.transform.position));  //Absolute Distance between two nodes.
+
+
 
     }
 
-    /// <summary>
-    /// Checks whether a node has a unit that's in combat on it, if so, it will try and avoid creating a queue.
-    /// </summary>
-    /// <param name="_node">The node to check</param>
-    /// <returns>True if the node contains a unit in combat.</returns>
-    private bool checkIfInCombat(Node _node)
+    private bool isNavigable(Node _targetNode, SearchTypes _searchType)
     {
-        bool _nodeInCombat = false;
-        if(_node.navigability == navigabilityStates.enemyUnit)
+        if (_targetNode.navigability == nodeTypes.navigable || _targetNode.navigability == nodeTypes.gem || _targetNode.navigability == nodeTypes.enemyUnit || _targetNode.navigability == nodeTypes.playerUnit)
         {
-            if(_node.hex.GetComponentInChildren<EnemyBehaviour>().inCombat == true || _node.hex.GetComponentInChildren<EnemyBehaviour>().inSiege == true)
+            return true;
+        }
+        else if (_searchType== SearchTypes.Aggressive)
+        {
+            if(_targetNode.navigability == nodeTypes.mine || _targetNode.navigability == nodeTypes.wall || _targetNode.navigability == nodeTypes.navigable || _targetNode.navigability == nodeTypes.gem || _targetNode.navigability == nodeTypes.enemyUnit)
             {
-                _nodeInCombat = true;
+                return true;
             }
         }
-        return _nodeInCombat;
+        return false;
+    }
+
+    /// <summary>
+    /// Returns a cost for the a node. This is based on it's Type.
+    /// </summary>
+    /// <param name="_targetNode"></param>
+    /// <returns></returns>
+    private int nodeCost(Node _targetNode)
+    {
+        switch (_targetNode.navigability)
+        {
+            case nodeTypes.enemyUnit:
+                if (inCombat(_targetNode))
+                {
+                    return m_enemyInCombatCost;
+                }
+                else if (inSiege(_targetNode))
+                {
+                    return m_enemyInSiegeCost;
+                }
+                else
+                {
+                    return m_enemyUnitCost;
+                }
+            case nodeTypes.playerUnit:
+                return m_playerUnitCost;
+            case nodeTypes.mine:
+                return m_destructableBuildingCost;
+            case nodeTypes.wall:
+                return m_destructableBuildingCost;
+        }
+        foreach(Node _adjNode in _targetNode.adjecant)
+        {
+            if(_adjNode.navigability == nodeTypes.playerUnit)
+            {
+                return m_adjacentToPlayerUnitCost;
+            }
+        }
+        return 0; //0 Cost for empty navigable areas.
+    }
+
+    /// <summary>
+    /// Returns whether a node is in Combat currently.
+    /// </summary>
+    /// <param name="_targetNode"></param>
+    /// <returns></returns>
+    private bool inCombat(Node _targetNode)
+    {
+        if(_targetNode.hex.transform.GetChild(0).TryGetComponent(out EnemyBehaviour _enemyBehaviour)) //Get the enemyBehaviour of the target Hex
+        {
+            if(_enemyBehaviour.inCombat == true)
+            {
+                return true;
+            }
+        }
+        if (_targetNode.hex.transform.GetChild(0).TryGetComponent(out TankBehaviour _tankBehaviour)) //Alternatively, get the tankBehaviour
+        {
+            if (_tankBehaviour.inCombat == true)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Returns whether a node is in Siege currently.
+    /// </summary>
+    /// <param name="_targetNode"></param>
+    /// <returns></returns>
+    private bool inSiege(Node _targetNode)
+    {
+        if (_targetNode.hex.transform.GetChild(0).TryGetComponent(out EnemyBehaviour _enemyBehaviour)) //Get the enemyBehaviour of the target Hex
+        {
+            if (_enemyBehaviour.inSiege == true)
+            {
+                return true;
+            }
+        }
+        if (_targetNode.hex.transform.GetChild(0).TryGetComponent(out TankBehaviour _tankBehaviour)) //Alternatively, get the tankBehaviour
+        {
+            if (_tankBehaviour.inSiege == true)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

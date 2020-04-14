@@ -151,11 +151,10 @@ public class SiegeBehaviour : MonoBehaviour
                 AudioManager.Instance.PlaySound("weaponClash" + Random.Range(1, 2), AudioLists.Combat, AudioMixers.Effects, true, true, false, enemyUnits[i].unitComp.gameObject, 0.2f);
             }
             catch { }
-            yield return new WaitForSeconds(Random.Range(0, 0.5f));
+            yield return new WaitForSeconds(Random.Range(0, 0.05f));
             buildingHealth.takeDamage(enemyUnits[i].damage);
-            yield return new WaitForSeconds(Random.Range(0, 0.2f));
+            yield return new WaitForSeconds(Random.Range(0, 0.02f));
 
         }
-        yield return null;
     }
 }

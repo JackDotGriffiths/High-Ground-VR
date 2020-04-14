@@ -70,14 +70,14 @@ public class PathfindingTest : MonoBehaviour
                 {
                     for (int j = 0; j < GameBoardGeneration.Instance.Graph.GetLength(1); j++)
                     {
-                        GameBoardGeneration.Instance.Graph[i, j].navigability =  navigabilityStates.navigable;
+                        GameBoardGeneration.Instance.Graph[i, j].navigability =  nodeTypes.navigable;
                     }
                 }
                 for (int i = 0; i < Random.Range(0, GameBoardGeneration.Instance.Graph.Length); i++)
                 {
                     int RandomX = Random.Range(0, GameBoardGeneration.Instance.Graph.GetLength(0));
                     int RandomY = Random.Range(0, GameBoardGeneration.Instance.Graph.GetLength(1));
-                    GameBoardGeneration.Instance.Graph[RandomX, RandomY].navigability = navigabilityStates.wall;
+                    GameBoardGeneration.Instance.Graph[RandomX, RandomY].navigability = nodeTypes.wall;
                 }
             }
 
@@ -91,19 +91,15 @@ public class PathfindingTest : MonoBehaviour
     {
         m_path = new List<Transform>();
         var graph = GameBoardGeneration.Instance.Graph;
-        var search = new Search(GameBoardGeneration.Instance.Graph);
-        search.Start(graph[startPosX, startPosY], graph[endPosX, endPosY],0.0f);
-        while (!search.finished)
-        {
-            search.Step();
-        }
+        var search = new Search();
+        search.StartSearch(graph[startPosX, startPosY], graph[endPosX, endPosY],SearchTypes.Aggressive);
+
 
         Transform[] _pathPositions = new Transform[search.path.Count];
         for (int i = 0; i < search.path.Count; i++)
         {
             m_path.Add(search.path[i].hex.transform);
         }
-        exploredPositions = search.explored;
 
         if (search.path.Count == 0)
         {
@@ -111,7 +107,7 @@ public class PathfindingTest : MonoBehaviour
             return;
         }
 
-        Debug.Log("Search " + m_testingCountIndex + " done. Path length : " + search.path.Count + ". Iterations : " + search.iterations);
+        Debug.Log("Search " + m_testingCountIndex + " done. Path length : " + search.path.Count);
     }
     void DrawPath(Transform[] _positions)
     {

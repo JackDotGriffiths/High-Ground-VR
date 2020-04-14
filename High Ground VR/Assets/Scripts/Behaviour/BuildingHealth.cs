@@ -100,7 +100,7 @@ public class BuildingHealth : MonoBehaviour
     /// </summary>
     void Die()
     {
-        this.GetComponentInParent<NodeComponent>().node.navigability = navigabilityStates.navigable;
+        this.GetComponentInParent<NodeComponent>().node.navigability = nodeTypes.navigable;
         AudioManager.Instance.PlaySound("destroyBuilding", AudioLists.Building, AudioMixers.Effects,true, true, false, this.gameObject, 0.1f);
         Destroy(this.gameObject);
     }
@@ -110,7 +110,7 @@ public class BuildingHealth : MonoBehaviour
     /// </summary>
     void GemDie()
     {
-        this.GetComponentInParent<NodeComponent>().node.navigability = navigabilityStates.navigable;
+        this.GetComponentInParent<NodeComponent>().node.navigability = nodeTypes.navigable;
         GameManager.Instance.GameOver = true;
         AudioManager.Instance.PlaySound("destroyBuilding", AudioLists.Building, AudioMixers.Effects, true, true, false, this.gameObject, 0.1f);
         AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
