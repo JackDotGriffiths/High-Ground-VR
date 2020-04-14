@@ -16,7 +16,7 @@ public class UIPointerBehaviour : MonoBehaviour
     [SerializeField] private RectTransform m_handednessButton, m_infoButton, m_musicButton, m_effectsButton; // Main Menu Buttons
     [SerializeField] private RectTransform m_restartButton;
     [SerializeField] private RectTransform m_quitButton;
-    [SerializeField] private RectTransform m_quitButton2;
+    [SerializeField] private RectTransform m_mainMenuButton;
 
 
 
@@ -36,7 +36,7 @@ public class UIPointerBehaviour : MonoBehaviour
         if(m_isUpdating == true)
         {
             m_cursor.gameObject.SetActive(true);
-            if (rectOverlap(m_cursor, m_playButton) || rectOverlap(m_cursor, m_handednessButton) || rectOverlap(m_cursor, m_infoButton) || rectOverlap(m_cursor, m_musicButton) || rectOverlap(m_cursor, m_effectsButton) || rectOverlap(m_cursor, m_restartButton) || rectOverlap(m_cursor, m_quitButton) || rectOverlap(m_cursor, m_quitButton2))
+            if (rectOverlap(m_cursor, m_playButton) || rectOverlap(m_cursor, m_handednessButton) || rectOverlap(m_cursor, m_infoButton) || rectOverlap(m_cursor, m_musicButton) || rectOverlap(m_cursor, m_effectsButton) || rectOverlap(m_cursor, m_restartButton) || rectOverlap(m_cursor, m_quitButton) || rectOverlap(m_cursor, m_mainMenuButton))
             {
                 m_cursorImage.color = m_highlightColour;
             }
@@ -47,6 +47,8 @@ public class UIPointerBehaviour : MonoBehaviour
 
             if (isClicked == true)
             {
+
+                //Main Menu Controls
                 if (rectOverlap(m_cursor, m_playButton) && m_playButton.gameObject.activeInHierarchy)
                 {
                     GameManager.Instance.playGame();
@@ -77,31 +79,20 @@ public class UIPointerBehaviour : MonoBehaviour
                     AudioManager.Instance.PlaySound("buttonClick", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.1f);
                     RumbleManager.Instance.lightVibration(InputManager.Instance.Handedness);
                 }
-
-
-
-
-
-
-
-
-
-
-
-
                 if (rectOverlap(m_cursor, m_quitButton) && m_quitButton.gameObject.activeInHierarchy)
                 {
                     GameManager.Instance.exitGame();
                     RumbleManager.Instance.lightVibration(InputManager.Instance.Handedness);
                 }
+                //Game Menu Controls
                 if (rectOverlap(m_cursor, m_restartButton) && m_restartButton.gameObject.activeInHierarchy)
                 {
                     GameManager.Instance.restartGame();
                     RumbleManager.Instance.lightVibration(InputManager.Instance.Handedness);
                 }
-                if (rectOverlap(m_cursor, m_quitButton2) && m_quitButton2.gameObject.activeInHierarchy)
+                if (rectOverlap(m_cursor, m_mainMenuButton) && m_mainMenuButton.gameObject.activeInHierarchy)
                 {
-                    GameManager.Instance.exitGame();
+                    GameManager.Instance.GoToMainMenu();
                     RumbleManager.Instance.lightVibration(InputManager.Instance.Handedness);
                 }
             }

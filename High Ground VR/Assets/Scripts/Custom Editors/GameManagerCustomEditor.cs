@@ -10,19 +10,23 @@ public class GameManagerCustomEditor : Editor
 {
     public override void OnInspectorGUI()
     {
-        GameManager gamManager = (GameManager)target;
+        GameManager gameManager = (GameManager)target;
         GUILayout.Space(10);
         if (GUILayout.Button("Play Game"))
         {
-            gamManager.playGame();
+            gameManager.playGame();
         }
         if (GUILayout.Button("Restart Game"))
         {
-            gamManager.restartGame();
+            gameManager.restartGame();
         }
         if (GUILayout.Button("Stop Game"))
         {
-            gamManager.exitGame();
+            gameManager.exitGame();
+        }
+        if (GUILayout.Button("Go To Main Menu"))
+        {
+            gameManager.GoToMainMenu();
         }
 
         GUILayout.Space(10);

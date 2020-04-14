@@ -118,8 +118,6 @@ public class GameManager : MonoBehaviour
             roundBookText.text = "Game Over";
             roundBookText2.text = "Game Over";
             m_roundUI.text = "Game Over";
-            submitData();
-            setPlayerPrefs();
             return;
         }
         else if (m_gameOver == false && GameStarted == true)
@@ -382,9 +380,8 @@ public class GameManager : MonoBehaviour
 
     public void playGame()
     {
-        setPlayerPrefs();
         AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
-
+        InputManager.Instance.SpawnBook();
         Debug.Log("Play Game");
         resetScore();
         m_mainMenu.SetActive(false);
@@ -412,13 +409,10 @@ public class GameManager : MonoBehaviour
         Debug.Log("Exit Game");
         Application.Quit();
     }
-
     public void restartGame()
     {
-        submitData();
-        setPlayerPrefs();
         AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
-
+        InputManager.Instance.SpawnBook();
         Debug.Log("Restart Game");
         resetScore();
         m_gameOver = false;
@@ -439,6 +433,21 @@ public class GameManager : MonoBehaviour
         Invoke("instantiateSpawns", 0.05f);
         StartBuildingPhase();
     }
+
+    public void GoToMainMenu()
+    {
+        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
+        InputManager.Instance.RemoveBook();
+        Debug.Log("Go To Main Menu");
+        resetScore();
+        m_mainMenu.SetActive(true);
+        m_gameMenu.SetActive(false);
+        m_gameOver = true;
+        GameStarted = false;
+        GameBoardGeneration.Instance.destroyAll();
+    }
+
+
     #endregion
 
     #region Pathfinding Control
@@ -557,81 +566,49 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
-    #region Usability Testing Control
-    private void setPlayerPrefs()
-    {
-        PlayerPrefs.SetInt("Score", 0);
-        PlayerPrefs.SetInt("Round Reached", 0);
-        PlayerPrefs.SetInt("Barracks Placed", 0);
-        PlayerPrefs.SetInt("Walls Placed", 0);
-        PlayerPrefs.SetInt("Mine Placed", 0);
-        PlayerPrefs.SetInt("Regular Spell", 0);
-        PlayerPrefs.SetInt("Speed Spell", 0);
-        PlayerPrefs.SetInt("Slow Spell", 0);
-    }
-    private void submitData()
-    {
-        if(currentScore == 0)
-        {
-            return;
-        }
-        PlayerPrefs.SetInt("Score", currentScore);
-        PlayerPrefs.SetInt("Round Reached", m_roundCounter);
-        StartCoroutine(Post(PlayerPrefs.GetInt("Score").ToString(), PlayerPrefs.GetInt("Round Reached").ToString(), PlayerPrefs.GetInt("Barracks Placed").ToString(), PlayerPrefs.GetInt("Walls Placed").ToString(),PlayerPrefs.GetInt("Mine Placed").ToString(), PlayerPrefs.GetInt("Regular Spell").ToString(), PlayerPrefs.GetInt("Speed Spell").ToString(), PlayerPrefs.GetInt("Slow Spell").ToString()));
+    #region Usability Testing Control - Removed for release
 
-    }
+    //private void setPlayerPrefs()
+    //{
+    //    PlayerPrefs.SetInt("Score", 0);
+    //    PlayerPrefs.SetInt("Round Reached", 0);
+    //    PlayerPrefs.SetInt("Barracks Placed", 0);
+    //    PlayerPrefs.SetInt("Walls Placed", 0);
+    //    PlayerPrefs.SetInt("Mine Placed", 0);
+    //    PlayerPrefs.SetInt("Regular Spell", 0);
+    //    PlayerPrefs.SetInt("Speed Spell", 0);
+    //    PlayerPrefs.SetInt("Slow Spell", 0);
+    //}
+    //private void submitData()
+    //{
+    //    if(currentScore == 0)
+    //    {
+    //        return;
+    //    }
+    //    PlayerPrefs.SetInt("Score", currentScore);
+    //    PlayerPrefs.SetInt("Round Reached", m_roundCounter);
+    //    StartCoroutine(Post(PlayerPrefs.GetInt("Score").ToString(), PlayerPrefs.GetInt("Round Reached").ToString(), PlayerPrefs.GetInt("Barracks Placed").ToString(), PlayerPrefs.GetInt("Walls Placed").ToString(),PlayerPrefs.GetInt("Mine Placed").ToString(), PlayerPrefs.GetInt("Regular Spell").ToString(), PlayerPrefs.GetInt("Speed Spell").ToString(), PlayerPrefs.GetInt("Slow Spell").ToString()));
 
-    IEnumerator Post(string score, string maxRound, string barracks, string walls, string mine, string regularSpell, string speedSpell, string slowSpell)
-    {
-        WWWForm form = new WWWForm();
-        form.AddField("entry.1404377732", score);
-        form.AddField("entry.224105009", maxRound);
-        form.AddField("entry.1340497501", barracks);
-        form.AddField("entry.938290357", walls);
-        form.AddField("entry.713143027", mine);
-        form.AddField("entry.705423035", regularSpell);
-        form.AddField("entry.1687568442", speedSpell);
-        form.AddField("entry.401115139", slowSpell);
-        byte[] rawData = form.data;
-        WWW www = new WWW("https://docs.google.com/forms/u/0/d/e/1FAIpQLSeC2ytHm1RVTDnlJAh8AeXjf0CJ2rnSVdRvqsENml7nAbsXbg/formResponse", rawData);
-        yield return www;
-    }
+    //}
+
+    //IEnumerator Post(string score, string maxRound, string barracks, string walls, string mine, string regularSpell, string speedSpell, string slowSpell)
+    //{
+    //    WWWForm form = new WWWForm();
+    //    form.AddField("entry.1404377732", score);
+    //    form.AddField("entry.224105009", maxRound);
+    //    form.AddField("entry.1340497501", barracks);
+    //    form.AddField("entry.938290357", walls);
+    //    form.AddField("entry.713143027", mine);
+    //    form.AddField("entry.705423035", regularSpell);
+    //    form.AddField("entry.1687568442", speedSpell);
+    //    form.AddField("entry.401115139", slowSpell);
+    //    byte[] rawData = form.data;
+    //    WWW www = new WWW("https://docs.google.com/forms/u/0/d/e/1FAIpQLSeC2ytHm1RVTDnlJAh8AeXjf0CJ2rnSVdRvqsENml7nAbsXbg/formResponse", rawData);
+    //    yield return www;
+    //}
 
 
     #endregion
-
-
-
-    //private void OnDrawGizmos()
-    //{
-    //    foreach (Node _node in GameBoardGeneration.Instance.Graph)
-    //    {
-    //        try
-    //        {
-    //            Gizmos.color = Color.grey;
-    //            Gizmos.DrawCube(newPos(_node.hex.transform.position,2), new Vector3(0.2f,0.2f,0.2f));
-    //            Gizmos.DrawCube(newPos(_node.searchData.parentNode.hex.transform.position,2), new Vector3(0.2f, 0.2f, 0.2f));
-    //            Gizmos.color = Color.green;
-    //            Gizmos.DrawLine(newPos(_node.hex.transform.position,2), newPos(_node.searchData.parentNode.hex.transform.position,2));
-    //        }
-    //        catch
-    //        {
-
-    //        }
-
-
-    //        foreach (Node _adjNode in _node.adjecant)
-    //        {
-    //            Gizmos.color = Color.red;
-    //            Gizmos.DrawLine(newPos(_node.hex.transform.position, 1), newPos(_adjNode.hex.transform.position, 1));
-    //        }
-    //    }
-    //}
-
-    //private Vector3 newPos(Vector3 _pos,int offset)
-    //{
-    //    return new Vector3(_pos.x, _pos.y + offset, _pos.z);
-    //}
 
 
 }
