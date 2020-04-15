@@ -94,19 +94,22 @@ public class GameBoardGeneration : MonoBehaviour
     {
         bool _offsetColumn = false;
 
+        //Generate game board based upon a desired lenth and width.
         for (int i = 0; i < m_length; i++)
         {
             m_currentZ = 0;
-            m_currentX = i * m_hexagonalWidth;
-
-            m_currentX = i * m_hexagonalWidth;
             for (int j = 0; j < m_width; j++)
             {
-                m_currentX = i * m_hexagonalWidth;
-                m_currentZ = j * m_hexagonalHeight;
-                if (_offsetColumn == true) { m_currentX += m_hexagonalWidth / 2; }
-                placeHex(i.ToString(), j.ToString());
-                _offsetColumn = !_offsetColumn;
+                m_currentX = i * m_hexagonalWidth; //The current X offset from the origin point. 
+                m_currentZ = j * m_hexagonalHeight; //The current Z offset from the origin point.
+                if (_offsetColumn == true) 
+                { 
+                    m_currentX += m_hexagonalWidth / 2; //Column number is odd, offset on the X by half the width.
+                }
+                _offsetColumn = !_offsetColumn; //Alternate Offset column so the hexes fit together.
+
+
+                placeHex(i.ToString(), j.ToString()); //Place a hexagon in the desired position.
             }
             _offsetColumn = false;
         }
