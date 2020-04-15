@@ -13,14 +13,14 @@ public class Search
     private List<Node> openNodes;
     private List<Node> closedNodes;
     private int m_straightCost = 8;
-    private int m_diagonalCost = 10;
+    private int m_diagonalCost = 8;
 
-    private int m_enemyInSiegeCost = 40; // This encourages enemies to go around those in siege. If a new route is open, they'll all notice it as it appears.
+    private int m_enemyInSiegeCost = 10; // This encourages enemies to go around those in siege. If a new route is open, they'll all notice it as it appears.
     private int m_enemyInCombatCost = 10; //An enemy should try and avoid enemies in combat, possibly creating paths around them if possible.
     private int m_enemyUnitCost = 5; // Cost of an enemy being in the way. Promotes moving around them if possible. 
-    private int m_adjacentToPlayerUnitCost = 20; //This is also definite combat, so should try and be avoided by the pathfinding.
-    private int m_playerUnitCost = 20; // The cost of navigating through a player. This means definite combat so the pathfinding may try and avoid that.
-    private int m_destructableBuildingCost = 5; // This is low because the only time it's used is by the tank, which needs to be destructive
+    private int m_adjacentToPlayerUnitCost = 10; //This is also definite combat, so should try and be avoided by the pathfinding.
+    private int m_playerUnitCost = 15; // The cost of navigating through a player. This means definite combat so the pathfinding may try and avoid that.
+    private int m_destructableBuildingCost = 1; // This is low because the only time it's used is by the tank, which needs to be destructive
 
 
 
@@ -53,7 +53,7 @@ public class Search
             _currentNode = null;
             foreach(Node _node in openNodes)
             {
-                if (_node.searchData.F < _lowestF)
+                if (_node.searchData.F < _lowestF && isNavigable(_node,_searchType))
                 {
                     _currentNode = _node;
                     _lowestF = _node.searchData.F;
@@ -149,7 +149,11 @@ public class Search
 
     private bool isNavigable(Node _targetNode, SearchTypes _searchType)
     {
-        if (_targetNode.navigability == nodeTypes.navigable || _targetNode.navigability == nodeTypes.gem || _targetNode.navigability == nodeTypes.enemyUnit || _targetNode.navigability == nodeTypes.playerUnit)
+        if(_targetNode.navigability == nodeTypes.barracks || _targetNode.navigability == nodeTypes.enemySpawn)
+        {
+            return false;
+        }
+        else if (_targetNode.navigability == nodeTypes.navigable || _targetNode.navigability == nodeTypes.gem || _targetNode.navigability == nodeTypes.enemyUnit || _targetNode.navigability == nodeTypes.playerUnit)
         {
             return true;
         }
@@ -216,13 +220,6 @@ public class Search
                 return true;
             }
         }
-        if (_targetNode.hex.transform.GetChild(0).TryGetComponent(out TankBehaviour _tankBehaviour)) //Alternatively, get the tankBehaviour
-        {
-            if (_tankBehaviour.inCombat == true)
-            {
-                return true;
-            }
-        }
         return false;
     }
 
@@ -236,13 +233,6 @@ public class Search
         if (_targetNode.hex.transform.GetChild(0).TryGetComponent(out EnemyBehaviour _enemyBehaviour)) //Get the enemyBehaviour of the target Hex
         {
             if (_enemyBehaviour.inSiege == true)
-            {
-                return true;
-            }
-        }
-        if (_targetNode.hex.transform.GetChild(0).TryGetComponent(out TankBehaviour _tankBehaviour)) //Alternatively, get the tankBehaviour
-        {
-            if (_tankBehaviour.inSiege == true)
             {
                 return true;
             }

@@ -131,16 +131,27 @@ public class EnemyBehaviour : MonoBehaviour
                 }
                 else if ((m_groupPath[currentStepIndex + 1].navigability == nodeTypes.wall || m_groupPath[currentStepIndex + 1].navigability == nodeTypes.mine) && inSiege == false)
                 {
-                    //Start combat with the building in the way.
-                    inSiege = true;
-                    List<Unit> _enemyUnits = new List<Unit>();
-                    foreach (GameObject _gameObj in m_units)
+                    //Start combat with the building in the way, if they're aggressive enough. Otherwise run pathfinding.
+                    float _currentAggressionBoundary = Mathf.Clamp(1.0f - (GameManager.Instance.RoundCounter / 8), 0.6f, 1.0f); //It becomes more likely a unit will get aggressive over time. By round 10, 40% of enemies will be aggressive instantly.
+                    if (groupAggression >= _currentAggressionBoundary)
                     {
-                        _enemyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
+                        //Start siege
+                        inSiege = true;
+                        List<Unit> _enemyUnits = new List<Unit>();
+                        foreach (GameObject _gameObj in m_units)
+                        {
+                            _enemyUnits.Add(_gameObj.GetComponent<UnitComponent>().unit);
+                        }
+                        SiegeBehaviour _siege = gameObject.AddComponent<SiegeBehaviour>();
+                        _siege.StartSiege(m_groupPath[currentStepIndex + 1].hex.GetComponentInChildren<BuildingHealth>(), _enemyUnits);
+                        _siege.enemyGroups.Add(this);
                     }
-                    SiegeBehaviour _siege = gameObject.AddComponent<SiegeBehaviour>();
-                    _siege.StartSiege(m_groupPath[currentStepIndex + 1].hex.GetComponentInChildren<BuildingHealth>(), _enemyUnits);
-                    _siege.enemyGroups.Add(this);
+                    else
+                    {
+                        //Pathfind
+                        RunPathfinding(groupAggression);
+                    }
+
                 }
                 else
                 {
@@ -179,7 +190,7 @@ public class EnemyBehaviour : MonoBehaviour
         inCombat = false;
         GameBoardGeneration.Instance.Graph[currentX,currentY].navigability = nodeTypes.enemyUnit;
 
-        RunPathfinding(enemyTargets.Gem, groupAggression);
+        RunPathfinding(groupAggression);
         m_targetPosition = new Vector3(m_groupPath[0].hex.transform.position.x, m_groupPath[0].hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, m_groupPath[0].hex.transform.position.z);
         m_unitInstantiated = true;
 
@@ -214,7 +225,7 @@ public class EnemyBehaviour : MonoBehaviour
     /// <summary>
     /// Run the A* pathfinding
     /// </summary>
-    public void RunPathfinding(enemyTargets _target, float _aggression)
+    public void RunPathfinding(float _aggression)
     {
         currentStepIndex = 0;
         m_groupPath = GameManager.Instance.RunPathfinding(GameBoardGeneration.Instance.Graph[currentX,currentY],GameManager.Instance.GameGemNode,_aggression);
@@ -288,7 +299,7 @@ public class EnemyBehaviour : MonoBehaviour
     {
         groupAggression = Mathf.Clamp(groupAggression + 0.02f, 0, 0.9f);
         yield return new WaitForSeconds(2.0f);
-        RunPathfinding(enemyTargets.Gem, groupAggression);
+        RunPathfinding(groupAggression);
         yield return null;
     }
 

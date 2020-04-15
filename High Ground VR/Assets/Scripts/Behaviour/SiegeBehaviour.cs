@@ -86,32 +86,8 @@ public class SiegeBehaviour : MonoBehaviour
             EnemyBehaviour _enemy = enemyGroups[i];
             _enemy.inSiege = false;
             _enemy.currentStepIndex = 0;
-            //Run pathfinding, randomly choosing how the unit navigates based on their aggression and some random factors.
-            float _aggressionChance = 1.0f - (GameManager.Instance.aggressionPercentage * (GameManager.Instance.RoundCounter / 2.0f));
-            if (_enemy.groupAggression > _aggressionChance)
-            {
-                float _rand = Random.Range(0.0f, 1.0f);
-                if (_rand < 0.3f)
-                {
-                    _enemy.RunPathfinding(enemyTargets.randomDestructableBuilding, _enemy.groupAggression);
-                }
-                else if (_rand > 0.3f && _rand < 0.5f)
-                {
-                    _enemy.RunPathfinding(enemyTargets.randomMine, _enemy.groupAggression);
-                }
-                else
-                {
-                    _enemy.RunPathfinding(enemyTargets.Gem, _enemy.groupAggression);
-                }
-            }
-            else
-            {
-                _enemy.RunPathfinding(enemyTargets.Gem, _enemy.groupAggression);
-            }
-
-
-
-
+            //Run pathfinding
+            _enemy.RunPathfinding( _enemy.groupAggression);
         }
         Destroy(this);
     }

@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/Scenes/HighGroundVR.unity
+- path: Assets/Scenes/TestingStuff.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0

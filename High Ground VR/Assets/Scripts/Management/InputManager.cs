@@ -348,6 +348,11 @@ public class InputManager : MonoBehaviour
                 m_currentSize = SizeOptions.small;
                 m_mainPointer.startWidth = 0.003f;
                 m_mainPointer.endWidth = 0.00f;
+                if (m_bookAttatched == false)
+                {
+                    toggleBookAttatched();
+                }
+                m_pointerHand.transform.localRotation = Quaternion.Euler(0, 0, 0); // Point the hand back up to match the laser.
             }
         }
 
@@ -356,7 +361,11 @@ public class InputManager : MonoBehaviour
         {
             //Debug.Log("Teleported");
             m_teleporterPrimed = false;
-
+            if (m_bookAttatched == false)
+            {
+                toggleBookAttatched();
+            }
+            m_pointerHand.transform.localRotation = Quaternion.Euler(36, 0, 0);// Point the hand down to match the laser.
             m_newPosition = new Vector3(0, 0, 0);
             m_vrRig.transform.localScale = m_largestScale;
 
@@ -484,13 +493,17 @@ public class InputManager : MonoBehaviour
             m_bookObject = Instantiate(m_bookPrefab, OffHandController.transform);
             if (Handedness == HandTypes.left)
             {
-                m_bookObject.transform.localEulerAngles = new Vector3(0, 0, 0);
+                //Book in the right hand.
+                m_bookObject.transform.localEulerAngles = new Vector3(0, 90, 0);
+                m_bookObject.transform.localPosition = new Vector3(-m_bookHandOffset, 0, 0.07f);
             }
             else
             {
+                //Book in the left hand
                 m_bookObject.transform.localEulerAngles = new Vector3(0, -90, 0);
+                m_bookObject.transform.localPosition = new Vector3(m_bookHandOffset, 0, 0.07f);
             }
-            m_bookObject.transform.localPosition = new Vector3(m_bookHandOffset, 0, 0.07f);
+            m_bookObject.transform.localScale = new Vector3(0.06f, 0.06f, 0.06f);
             GameManager.Instance.moneyBookText = m_bookObject.GetComponent<BookManager>().moneyText;
             GameManager.Instance.timerBookText = m_bookObject.GetComponent<BookManager>().timerText;
             GameManager.Instance.roundBookText = m_bookObject.GetComponent<BookManager>().roundText;
@@ -522,8 +535,19 @@ public class InputManager : MonoBehaviour
         {
             m_bookAttatched = true;
             m_bookObject.transform.SetParent(OffHandController.transform);
-            m_bookObject.transform.localEulerAngles = new Vector3(0, -90, 0);
-            m_bookObject.transform.localPosition = new Vector3(m_bookHandOffset, 0, 0.07f);
+            if (Handedness == HandTypes.left)
+            {
+                //Book in the right hand.
+                m_bookObject.transform.localEulerAngles = new Vector3(0, 90, 0);
+                m_bookObject.transform.localPosition = new Vector3(-m_bookHandOffset, 0, 0.07f);
+            }
+            else
+            {
+                //Book in the left hand
+                m_bookObject.transform.localEulerAngles = new Vector3(0, -90, 0);
+                m_bookObject.transform.localPosition = new Vector3(m_bookHandOffset, 0, 0.07f);
+            }
+            m_bookObject.transform.localScale = new Vector3(0.06f, 0.06f, 0.06f);
         } 
     }
     #endregion

@@ -28,7 +28,6 @@ public class GameManager : MonoBehaviour
     [Tooltip("Amount of spawns the game rounds should start with")] public int enemyStartingSpawns = 1;
     [Tooltip("Amount of enemies to spawn at the start of Round One.")] public int enemyAmount = 1;
     [Tooltip("Enemy Spawn Delay")] public int enemySpawnDelay = 10;
-    [Tooltip("Proportion of aggressive enemies. This is multiplied by the round number."), Range(0.0f, 1.0f)] public float aggressionPercentage = 0.1f;
     [Tooltip("Which round number to start spawning tank enemies after"), Space(10)] public int tankRoundStart = 5;
     [Tooltip("How many rounds have to pass before another one spawns")] public int tankRoundFrequency = 5;
 
@@ -462,7 +461,8 @@ public class GameManager : MonoBehaviour
     public List<Node> RunPathfinding(Node _currentNode, Node _goalNode, float _unitAggression)
     {
         SearchTypes _searchType;
-        float _currentAggressionBoundary = 1.0f - (aggressionPercentage * (RoundCounter / 2.0f));
+        float _currentAggressionBoundary = Mathf.Clamp(1.0f - (RoundCounter / 8),0.6f,1.0f); //It becomes more likely a unit will get aggressive over time. By round 10, 40% of enemies will be aggressive instantly.
+        //Debug.Log("Current Aggression Boundary is " + _currentAggressionBoundary);
         if (_unitAggression > _currentAggressionBoundary)
         {
             _searchType = SearchTypes.Aggressive;
@@ -492,7 +492,11 @@ public class GameManager : MonoBehaviour
     }
 
 
-
+    /// <summary>
+    /// Runs fully aggressive pathfinding for the tank. Navigates through destructable buildings.
+    /// </summary>
+    /// <param name="_currentNode"></param>
+    /// <returns></returns>
     public List<Node> RunTankPathfinding(Node _currentNode)
     {
         Node _goalNode = null;
