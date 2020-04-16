@@ -5194,7 +5194,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Slow \nUnits"
+  m_text: 'Slow
+
+    Units'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 91b92baa12f985c43854a415bc87386d, type: 2}
   m_sharedMaterial: {fileID: -4031749410696095477, guid: 91b92baa12f985c43854a415bc87386d,
@@ -5264,9 +5266,9 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0.0014701784, z: 0, w: 0}
   m_textInfo:
     textComponent: {fileID: 1606343617245162982}
-    characterCount: 11
+    characterCount: 10
     spriteCount: 0
-    spaceCount: 2
+    spaceCount: 1
     wordCount: 2
     linkCount: 0
     lineCount: 2
