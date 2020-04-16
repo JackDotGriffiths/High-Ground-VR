@@ -68,8 +68,8 @@ MonoBehaviour:
   m_healthRegenAmount: 0.04
   m_healthBar: {fileID: 6467922849017189747}
   m_idleColour: {r: 0.21176471, g: 0.6431373, b: 0.19607843, a: 0}
-  m_highHealthColour: {r: 0.21176471, g: 0.6431373, b: 0.19607843, a: 180}
-  m_mediumHealthColour: {r: 255, g: 185, b: 0, a: 180}
+  m_highHealthColour: {r: 0.02745098, g: 0.78431374, b: 0.68235296, a: 180}
+  m_mediumHealthColour: {r: 1, g: 1, b: 0, a: 180}
   m_lowHealthColour: {r: 255, g: 0, b: 0, a: 255}
   m_isGem: 0
   currentHealth: 0
