@@ -152,21 +152,22 @@ public class InputManager : MonoBehaviour
         Debug.DrawRay(m_pointerPosition.transform.position, (MainController.transform.forward - (MainController.transform.up * 0.5f)) * 1000);
       
 
-        //Raycast from the mainController forward.
+        //Raycast from the pointer position, out forwards and at a downwards angle. This is a different angle when the player is large.
         if (Physics.Raycast(m_pointerPosition.transform.position, MainController.transform.forward - (MainController.transform.up * 0.5f), out _hit, 1000) && m_currentSize == SizeOptions.large)
         {
             //If it hits an environment Hex, highlight.
             if (_hit.collider.gameObject.tag == "Environment")
             {
-                removeHighlight();
-                m_enlargePlayer = false;
-                MeshRenderer _hitMesh = _hit.collider.gameObject.GetComponent<MeshRenderer>();
-                m_currentlySelectedHex = _hit.collider.gameObject;
-                //Removes highlight from all objects not in the m_objectMeshes list
-                updateObjectList(_hitMesh);
+                removeHighlight(); //Remove the highlight from all objects.
+                m_enlargePlayer = false; //Player is not about to teleport and scale up.
+
+                m_currentlySelectedHex = _hit.collider.gameObject; //Keep track of the currently selected hex.
+
+                MeshRenderer _hitMesh = _hit.collider.gameObject.GetComponent<MeshRenderer>(); //Get the mesh of the _hit object. 
+                updateObjectList(_hitMesh);  //Update the list of hexagons to apply the default material to. Exludes the hex the player is pointing at.
 
 
-                //Show the laser
+                //Show the laser pointer
                 m_mainPointer.startWidth = 0.05f;
                 m_mainPointer.endWidth = 0.00f;
 
@@ -218,7 +219,6 @@ public class InputManager : MonoBehaviour
                     }
                 }
             }
-
 
             //Update the laser position so it continues to update.
             m_mainPointer.SetPosition(0, m_pointerPosition.transform.position);
