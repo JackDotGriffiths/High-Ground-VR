@@ -19,6 +19,8 @@ public class BarracksBehaviour : MonoBehaviour
     private bool m_respawning = false;
 
 
+    [Range (0,360)]public float m_testAngle;
+
     void Start()
     {
         m_units = new List<GameObject>();
@@ -273,4 +275,12 @@ public class BarracksBehaviour : MonoBehaviour
         EvaluateUnitPositions();
     }
 
+
+
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Debug.DrawRay(new Vector3(m_barracksPlacedNode.hex.transform.position.x, m_barracksPlacedNode.hex.transform.position.y + 3f, m_barracksPlacedNode.hex.transform.position.z), ((Quaternion.Euler(0, m_testAngle, 0) * m_barracksPlacedNode.hex.transform.forward) - (m_barracksPlacedNode.hex.transform.up * 1.4f))* 100f);
+    }
 }

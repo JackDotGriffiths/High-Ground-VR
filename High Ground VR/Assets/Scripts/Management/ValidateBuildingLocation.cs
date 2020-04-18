@@ -86,7 +86,9 @@ public class ValidateBuildingLocation : MonoBehaviour
         bool _validLocation = false;
         if (!nodeEmpty(_targetNode) || !checkAdjecentBarracks(_targetNode))
         {
-            return false ;
+            _validLocation = false;
+            playIncorrectSound(_targetNode);
+            return _validLocation;
         }
         if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode) && checkGemAccessible(_targetNode))
         {
@@ -97,18 +99,9 @@ public class ValidateBuildingLocation : MonoBehaviour
         Vector3 _raycastDir;
 
         //Raycast out of the door and downwards to find the correct node on which units should spawn.
-        _raycastDir = (Quaternion.Euler(0, _angle, 0) * _targetNode.hex.transform.forward - _targetNode.hex.transform.up) * 100;
+        _raycastDir = ((Quaternion.Euler(0, _angle, 0) * _targetNode.hex.transform.forward) - (_targetNode.hex.transform.up * 1.4f)) * 100f;
         RaycastHit _hit;
-
-        //Based on the size of the player (Small or large), change the position of which the raycast comes from.
-        if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
-        {
-            _raycastPos = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + 1f, _targetNode.hex.transform.position.z);
-        }
-        else
-        {
-            _raycastPos = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + InputManager.Instance.LargestScale.y + 20, _targetNode.hex.transform.position.z);
-        }
+        _raycastPos = new Vector3(_targetNode.hex.transform.position.x, _targetNode.hex.transform.position.y + 3f, _targetNode.hex.transform.position.z);
 
         //If the raycast hits a node, the location is valid, otherwise it isn't
         Debug.DrawRay(_raycastPos, _raycastDir, Color.green);
@@ -117,7 +110,13 @@ public class ValidateBuildingLocation : MonoBehaviour
             if (_hit.collider.tag == "Environment")
             {
                 Node _hitNode = _hit.collider.gameObject.GetComponent<NodeComponent>().node;
-                if(!nodeEmpty(_hitNode) && adjacentToEnemySpawn(_hitNode) && adjacentToGem(_targetNode))
+                if(nodeEmpty(_hitNode) && !adjacentToEnemySpawn(_hitNode) && !adjacentToGem(_targetNode))
+                {
+
+                       
+                    _validLocation = true;
+                }
+                else
                 {
                     _validLocation = false;
                     playIncorrectSound(_targetNode);
@@ -130,6 +129,12 @@ public class ValidateBuildingLocation : MonoBehaviour
                 playIncorrectSound(_targetNode);
                 return _validLocation;
             }
+        }
+        else
+        {
+            _validLocation = false;
+            playIncorrectSound(_targetNode);
+            return _validLocation;
         }
 
         foreach (Node _adjNode in _targetNode.adjecant)
@@ -397,26 +402,32 @@ public class ValidateBuildingLocation : MonoBehaviour
     private bool checkGemAccessible(Node _targetNode)
     {
         bool _result = true;
-
-        //Assign the target node temporarily as a wall as to test the patfinding.
-        _targetNode.navigability = nodeTypes.wall;
-
-        foreach(EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
+        if(_targetNode.navigability == nodeTypes.navigable)
         {
-            Node _spawnNode = _spawn.thisNode;
+            //Assign the target node temporarily as a wall as to test the patfinding.
+            _targetNode.navigability = nodeTypes.wall;
 
-            List<Node> _path = new List<Node>();
-            var graph = GameBoardGeneration.Instance.Graph;
-            var search = new Search();
-            search.StartSearch(graph[_spawnNode.x, _spawnNode.y], graph[GameManager.Instance.GameGemNode.x, GameManager.Instance.GameGemNode.y],SearchTypes.Passive);
-            if (search.path.Count == 0)
+            //Test pathfinding from every spawn 
+            foreach (EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
             {
-                _result = false;
-                _targetNode.navigability = nodeTypes.navigable;
-                return _result;
+                Node _spawnNode = _spawn.thisNode;
+
+                List<Node> _path = new List<Node>();
+                var graph = GameBoardGeneration.Instance.Graph;
+                var search = new Search();
+                search.StartSearch(graph[_spawnNode.x, _spawnNode.y], graph[GameManager.Instance.GameGemNode.x, GameManager.Instance.GameGemNode.y], SearchTypes.Passive);
+                if (search.path.Count == 0)
+                {
+                    _result = false;
+                    _targetNode.navigability = nodeTypes.navigable;
+                    return _result;
+                }
             }
         }
-
+        else
+        {
+            _result = false;
+        }
         return _result;
     }
 
