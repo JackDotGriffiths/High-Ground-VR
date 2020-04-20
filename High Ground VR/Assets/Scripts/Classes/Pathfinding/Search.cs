@@ -149,20 +149,20 @@ public class Search
 
     private bool isNavigable(Node _targetNode, SearchTypes _searchType)
     {
-        if(_targetNode.navigability == nodeTypes.barracks || _targetNode.navigability == nodeTypes.enemySpawn)
+        if (_searchType == SearchTypes.Aggressive)
+        {
+            if (_targetNode.navigability == nodeTypes.mine || _targetNode.navigability == nodeTypes.wall || _targetNode.navigability == nodeTypes.navigable || _targetNode.navigability == nodeTypes.gem || _targetNode.navigability == nodeTypes.enemyUnit)
+            {
+                return true;
+            }
+        }
+        if (_targetNode.navigability == nodeTypes.barracks || _targetNode.navigability == nodeTypes.enemySpawn)
         {
             return false;
         }
         else if (_targetNode.navigability == nodeTypes.navigable || _targetNode.navigability == nodeTypes.gem || _targetNode.navigability == nodeTypes.enemyUnit || _targetNode.navigability == nodeTypes.playerUnit)
         {
             return true;
-        }
-        else if (_searchType== SearchTypes.Aggressive)
-        {
-            if(_targetNode.navigability == nodeTypes.mine || _targetNode.navigability == nodeTypes.wall || _targetNode.navigability == nodeTypes.navigable || _targetNode.navigability == nodeTypes.gem || _targetNode.navigability == nodeTypes.enemyUnit)
-            {
-                return true;
-            }
         }
         return false;
     }

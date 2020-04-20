@@ -461,11 +461,16 @@ public class GameManager : MonoBehaviour
     public List<Node> RunPathfinding(Node _currentNode, Node _goalNode, float _unitAggression)
     {
         SearchTypes _searchType;
-        float _currentAggressionBoundary = Mathf.Clamp(1.0f - (RoundCounter / 8),0.6f,1.0f); //It becomes more likely a unit will get aggressive over time. By round 10, 40% of enemies will be aggressive instantly.
+        float _currentAggressionBoundary = 1.0f - (RoundCounter / 20.0f); //This delays the reaching of the minimum value in the following clamp to be round 8
+        _currentAggressionBoundary = Mathf.Clamp(_currentAggressionBoundary, 0.6f,1.0f); // After round 8, enemies will need to have above 0.6 aggression to destroy something.
         //Debug.Log("Current Aggression Boundary is " + _currentAggressionBoundary);
-        if (_unitAggression > _currentAggressionBoundary)
+        if (_unitAggression >= _currentAggressionBoundary)
         {
             _searchType = SearchTypes.Aggressive;
+            if (_unitAggression == 1.0f)//Unit is a tank enemy
+            {
+                return RunTankPathfinding(_currentNode);
+            }
         }
         else
         {
@@ -493,7 +498,7 @@ public class GameManager : MonoBehaviour
 
 
     /// <summary>
-    /// Runs fully aggressive pathfinding for the tank. Navigates through destructable buildings.
+    /// Runs fully aggressive pathfinding for the tank. Navigates to random destructable buildings.
     /// </summary>
     /// <param name="_currentNode"></param>
     /// <returns></returns>
