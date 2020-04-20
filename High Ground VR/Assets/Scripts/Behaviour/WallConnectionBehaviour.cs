@@ -13,7 +13,6 @@ public class WallConnectionBehaviour : MonoBehaviour
    void Start()
    {
         thisNode = this.GetComponentInParent<NodeComponent>().node;
-        Debug.Log("ThisNode is " + thisNode.hex.name);
         foreach(Node _node in thisNode.adjecant)
         {
             //If the adjacent node contains a building that is worth connecting to, place a connector.

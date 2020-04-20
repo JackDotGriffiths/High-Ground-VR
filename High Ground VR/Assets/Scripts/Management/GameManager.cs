@@ -28,7 +28,6 @@ public class GameManager : MonoBehaviour
     [Tooltip("Amount of spawns the game rounds should start with")] public int enemyStartingSpawns = 1;
     [Tooltip("Amount of enemies to spawn at the start of Round One.")] public int enemyAmount = 1;
     [Tooltip("Enemy Spawn Delay")] public int enemySpawnDelay = 10;
-    [Tooltip("Proportion of aggressive enemies. This is multiplied by the round number."), Range(0.0f, 1.0f)] public float aggressionPercentage = 0.1f;
     [Tooltip("Which round number to start spawning tank enemies after"), Space(10)] public int tankRoundStart = 5;
     [Tooltip("How many rounds have to pass before another one spawns")] public int tankRoundFrequency = 5;
 
@@ -462,10 +461,16 @@ public class GameManager : MonoBehaviour
     public List<Node> RunPathfinding(Node _currentNode, Node _goalNode, float _unitAggression)
     {
         SearchTypes _searchType;
-        float _currentAggressionBoundary = 1.0f - (aggressionPercentage * (RoundCounter / 2.0f));
-        if (_unitAggression > _currentAggressionBoundary)
+        float _currentAggressionBoundary = 1.0f - (RoundCounter / 20.0f); //This delays the reaching of the minimum value in the following clamp to be round 8
+        _currentAggressionBoundary = Mathf.Clamp(_currentAggressionBoundary, 0.6f,1.0f); // After round 8, enemies will need to have above 0.6 aggression to destroy something.
+        //Debug.Log("Current Aggression Boundary is " + _currentAggressionBoundary);
+        if (_unitAggression >= _currentAggressionBoundary)
         {
             _searchType = SearchTypes.Aggressive;
+            if (_unitAggression == 1.0f)//Unit is a tank enemy
+            {
+                return RunTankPathfinding(_currentNode);
+            }
         }
         else
         {
@@ -492,7 +497,11 @@ public class GameManager : MonoBehaviour
     }
 
 
-
+    /// <summary>
+    /// Runs fully aggressive pathfinding for the tank. Navigates to random destructable buildings.
+    /// </summary>
+    /// <param name="_currentNode"></param>
+    /// <returns></returns>
     public List<Node> RunTankPathfinding(Node _currentNode)
     {
         Node _goalNode = null;

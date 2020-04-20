@@ -7,6 +7,7 @@ public enum spellTypes { none, regularAttack, speedUpUnit, slowDownUnit};
 public class InteractionManager : MonoBehaviour
 {
     [SerializeField, Tooltip("Time before being able to attack again")] private float m_attackCooldown;
+    [SerializeField, Tooltip("Transform of the pointer object. Where the spell spawns from")] private Transform m_pointPosition;
     [SerializeField, Tooltip("Lightning Hit Effect")] private GameObject m_lightningHitEffect;
 
     [Header("Lightning Effect Config"), Space(10)]
@@ -30,9 +31,7 @@ public class InteractionManager : MonoBehaviour
     [SerializeField, Tooltip("Speed to speed the enemy up to."), Range(1.001f, 1.999f)] private float m_speedUpTargetTime = 1.5f;
     [SerializeField, Tooltip("How long the effect should last.")] private float m_speedUpDuration = 3;
 
-
-
-    private List<Vector3> m_breakPoints;
+    private List<Vector3> m_breakPoints; // Positions of the breakpoints within the lightning
     private bool m_currentlyAttacking; //Tracks whether an effect is currently happening.
 
     void Start()
@@ -89,7 +88,7 @@ public class InteractionManager : MonoBehaviour
         if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
         {
             RaycastHit _hit;
-            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - (_controller.transform.up * 0.5f), out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
+            if (Physics.Raycast(m_pointPosition.position, _controller.transform.forward - (_controller.transform.up * 0.5f), out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
             {
                 StartCoroutine(regularAttackEffect(0.7f, _controller, _hit.point));
 
@@ -137,7 +136,7 @@ public class InteractionManager : MonoBehaviour
         else
         {
             RaycastHit _hit;
-            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward, out _hit, 1000))
+            if (Physics.Raycast(m_pointPosition.position, _controller.transform.forward, out _hit, 1000))
             {
                 StartCoroutine(regularAttackEffect(0.1f, _controller, _hit.point));
                 //If it's a unit;
@@ -154,7 +153,7 @@ public class InteractionManager : MonoBehaviour
             else
             {
                 //Miss 
-                StartCoroutine(regularAttackEffect(0.2f, _controller, _controller.transform.position + _controller.transform.forward * 20f));
+                StartCoroutine(regularAttackEffect(0.2f, _controller, m_pointPosition.position + _controller.transform.forward * 20f));
             }
         }
 
@@ -193,16 +192,16 @@ public class InteractionManager : MonoBehaviour
         }
 
         ///Break the line down into positions, equally sized.
-        float _lineDistance = Vector3.Distance(_controller.transform.position, _hitPos);
+        float _lineDistance = Vector3.Distance(m_pointPosition.position, _hitPos);
         float _breakDistance = _lineDistance / m_lightningStrikeBreakPoints;
-        Vector3 _direction = _hitPos - _controller.transform.position;
+        Vector3 _direction = _hitPos - m_pointPosition.position;
         _direction.Normalize();
         List<Vector3> _breakPositions = new List<Vector3>();
         m_breakPoints = new List<Vector3>();
 
         for (int i = 0; i < m_lightningStrikeBreakPoints; i++)
         {
-            _breakPositions.Add(_controller.transform.position + _direction * (i * _breakDistance));
+            _breakPositions.Add(m_pointPosition.position + _direction * (i * _breakDistance));
             m_breakPoints.Add(_breakPositions[i]);
         }
 
@@ -214,7 +213,7 @@ public class InteractionManager : MonoBehaviour
             {
                 _line.positionCount = _breakPositions.Count;
                 Vector3[] _linePositions = new Vector3[_breakPositions.Count];
-                _linePositions[0] = _controller.transform.position;
+                _linePositions[0] = m_pointPosition.position;
                 for (int j = 1; j < _breakPositions.Count; j++)
                 {
                     _linePositions[j] = _breakPositions[j] + Random.insideUnitSphere * m_lightningWidth * _playerScale;
@@ -253,7 +252,7 @@ public class InteractionManager : MonoBehaviour
         if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
         {
             RaycastHit _hit;
-            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - (_controller.transform.up * 0.5f), out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
+            if (Physics.Raycast(m_pointPosition.position, _controller.transform.forward - (_controller.transform.up * 0.5f), out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
             {
 
                 StartCoroutine(slowDownAttackEffect(0.3f, _controller, _hit.point));
@@ -276,7 +275,7 @@ public class InteractionManager : MonoBehaviour
         else
         {
             RaycastHit _hit;
-            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward, out _hit, 1000))
+            if (Physics.Raycast(m_pointPosition.position, _controller.transform.forward, out _hit, 1000))
             {
                 StartCoroutine(slowDownAttackEffect(0.15f, _controller, _hit.point));
                 //If it's a unit;
@@ -292,7 +291,7 @@ public class InteractionManager : MonoBehaviour
             else
             {
                 //Miss 
-                StartCoroutine(slowDownAttackEffect(0.15f, _controller, _controller.transform.position + _controller.transform.forward * 20f));
+                StartCoroutine(slowDownAttackEffect(0.15f, _controller, m_pointPosition.position + _controller.transform.forward * 20f));
             }
         }
 
@@ -332,16 +331,16 @@ public class InteractionManager : MonoBehaviour
         }
 
         ///Break the line down into positions, equally sized.
-        float _lineDistance = Vector3.Distance(_controller.transform.position, _hitPos);
+        float _lineDistance = Vector3.Distance(m_pointPosition.position, _hitPos);
         float _breakDistance = _lineDistance / m_lightningStrikeBreakPoints;
-        Vector3 _direction = _hitPos - _controller.transform.position;
+        Vector3 _direction = _hitPos - m_pointPosition.position;
         _direction.Normalize();
         List<Vector3> _breakPositions = new List<Vector3>();
         m_breakPoints = new List<Vector3>();
 
         for (int i = 0; i < m_lightningStrikeBreakPoints; i++)
         {
-            _breakPositions.Add(_controller.transform.position + _direction * (i * _breakDistance));
+            _breakPositions.Add(m_pointPosition.position + _direction * (i * _breakDistance));
             m_breakPoints.Add(_breakPositions[i]);
         }
 
@@ -353,7 +352,7 @@ public class InteractionManager : MonoBehaviour
             {
                 _line.positionCount = _breakPositions.Count;
                 Vector3[] _linePositions = new Vector3[_breakPositions.Count];
-                _linePositions[0] = _controller.transform.position;
+                _linePositions[0] = m_pointPosition.position;
                 for (int j = 1; j < _breakPositions.Count; j++)
                 {
                     _linePositions[j] = _breakPositions[j] + Random.insideUnitSphere * m_lightningWidth * _playerScale;
@@ -392,7 +391,7 @@ public class InteractionManager : MonoBehaviour
         if (InputManager.Instance.CurrentSize == InputManager.SizeOptions.large)
         {
             RaycastHit _hit;
-            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward - (_controller.transform.up * 0.5f), out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
+            if (Physics.Raycast(m_pointPosition.position, _controller.transform.forward - (_controller.transform.up * 0.5f), out _hit, 1000, 1 << LayerMask.NameToLayer("Environment")))
             {
                 StartCoroutine(speedUpAttackEffect(0.3f, _controller, _hit.point));
 
@@ -414,7 +413,7 @@ public class InteractionManager : MonoBehaviour
         else
         {
             RaycastHit _hit;
-            if (Physics.Raycast(_controller.transform.position, _controller.transform.forward, out _hit, 1000))
+            if (Physics.Raycast(m_pointPosition.position, _controller.transform.forward, out _hit, 1000))
             {
                 StartCoroutine(speedUpAttackEffect(0.15f, _controller, _hit.point));
                 //If it's a unit;
@@ -430,7 +429,7 @@ public class InteractionManager : MonoBehaviour
             else
             {
                 //Miss 
-                StartCoroutine(speedUpAttackEffect(0.15f, _controller, _controller.transform.position + _controller.transform.forward * 20f));
+                StartCoroutine(speedUpAttackEffect(0.15f, _controller, m_pointPosition.position + _controller.transform.forward * 20f));
             }
         }
 
@@ -471,16 +470,16 @@ public class InteractionManager : MonoBehaviour
         }
 
         ///Break the line down into positions, equally sized.
-        float _lineDistance = Vector3.Distance(_controller.transform.position, _hitPos);
+        float _lineDistance = Vector3.Distance(m_pointPosition.position, _hitPos);
         float _breakDistance = _lineDistance / m_lightningStrikeBreakPoints;
-        Vector3 _direction = _hitPos - _controller.transform.position;
+        Vector3 _direction = _hitPos - m_pointPosition.position;
         _direction.Normalize();
         List<Vector3> _breakPositions = new List<Vector3>();
         m_breakPoints = new List<Vector3>();
 
         for (int i = 0; i < m_lightningStrikeBreakPoints; i++)
         {
-            _breakPositions.Add(_controller.transform.position + _direction * (i * _breakDistance));
+            _breakPositions.Add(m_pointPosition.position + _direction * (i * _breakDistance));
             m_breakPoints.Add(_breakPositions[i]);
         }
 
@@ -492,7 +491,7 @@ public class InteractionManager : MonoBehaviour
             {
                 _line.positionCount = _breakPositions.Count;
                 Vector3[] _linePositions = new Vector3[_breakPositions.Count];
-                _linePositions[0] = _controller.transform.position;
+                _linePositions[0] = m_pointPosition.position;
                 for (int j = 1; j < _breakPositions.Count; j++)
                 {
                     _linePositions[j] = _breakPositions[j] + Random.insideUnitSphere * m_lightningWidth * _playerScale;
@@ -533,10 +532,6 @@ public class InteractionManager : MonoBehaviour
         yield return new WaitForSeconds(_duration);
         _group.timePerception = _tempValue;
     }
-
-
-
-
 
     /// <summary>
     /// Destroys the passed in object after a set time.

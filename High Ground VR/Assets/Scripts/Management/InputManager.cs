@@ -152,21 +152,22 @@ public class InputManager : MonoBehaviour
         Debug.DrawRay(m_pointerPosition.transform.position, (MainController.transform.forward - (MainController.transform.up * 0.5f)) * 1000);
       
 
-        //Raycast from the mainController forward.
+        //Raycast from the pointer position, out forwards and at a downwards angle. This is a different angle when the player is large.
         if (Physics.Raycast(m_pointerPosition.transform.position, MainController.transform.forward - (MainController.transform.up * 0.5f), out _hit, 1000) && m_currentSize == SizeOptions.large)
         {
             //If it hits an environment Hex, highlight.
             if (_hit.collider.gameObject.tag == "Environment")
             {
-                removeHighlight();
-                m_enlargePlayer = false;
-                MeshRenderer _hitMesh = _hit.collider.gameObject.GetComponent<MeshRenderer>();
-                m_currentlySelectedHex = _hit.collider.gameObject;
-                //Removes highlight from all objects not in the m_objectMeshes list
-                updateObjectList(_hitMesh);
+                removeHighlight(); //Remove the highlight from all objects.
+                m_enlargePlayer = false; //Player is not about to teleport and scale up.
+
+                m_currentlySelectedHex = _hit.collider.gameObject; //Keep track of the currently selected hex.
+
+                MeshRenderer _hitMesh = _hit.collider.gameObject.GetComponent<MeshRenderer>(); //Get the mesh of the _hit object. 
+                updateObjectList(_hitMesh);  //Update the list of hexagons to apply the default material to. Exludes the hex the player is pointing at.
 
 
-                //Show the laser
+                //Show the laser pointer
                 m_mainPointer.startWidth = 0.05f;
                 m_mainPointer.endWidth = 0.00f;
 
@@ -218,7 +219,6 @@ public class InputManager : MonoBehaviour
                     }
                 }
             }
-
 
             //Update the laser position so it continues to update.
             m_mainPointer.SetPosition(0, m_pointerPosition.transform.position);
@@ -348,6 +348,11 @@ public class InputManager : MonoBehaviour
                 m_currentSize = SizeOptions.small;
                 m_mainPointer.startWidth = 0.003f;
                 m_mainPointer.endWidth = 0.00f;
+                if (m_bookAttatched == false)
+                {
+                    toggleBookAttatched();
+                }
+                m_pointerHand.transform.localRotation = Quaternion.Euler(0, 0, 0); // Point the hand back up to match the laser.
             }
         }
 
@@ -356,7 +361,11 @@ public class InputManager : MonoBehaviour
         {
             //Debug.Log("Teleported");
             m_teleporterPrimed = false;
-
+            if (m_bookAttatched == false)
+            {
+                toggleBookAttatched();
+            }
+            m_pointerHand.transform.localRotation = Quaternion.Euler(36, 0, 0);// Point the hand down to match the laser.
             m_newPosition = new Vector3(0, 0, 0);
             m_vrRig.transform.localScale = m_largestScale;
 
@@ -484,13 +493,17 @@ public class InputManager : MonoBehaviour
             m_bookObject = Instantiate(m_bookPrefab, OffHandController.transform);
             if (Handedness == HandTypes.left)
             {
-                m_bookObject.transform.localEulerAngles = new Vector3(0, 0, 0);
+                //Book in the right hand.
+                m_bookObject.transform.localEulerAngles = new Vector3(0, 90, 0);
+                m_bookObject.transform.localPosition = new Vector3(-m_bookHandOffset, 0, 0.07f);
             }
             else
             {
+                //Book in the left hand
                 m_bookObject.transform.localEulerAngles = new Vector3(0, -90, 0);
+                m_bookObject.transform.localPosition = new Vector3(m_bookHandOffset, 0, 0.07f);
             }
-            m_bookObject.transform.localPosition = new Vector3(m_bookHandOffset, 0, 0.07f);
+            m_bookObject.transform.localScale = new Vector3(0.06f, 0.06f, 0.06f);
             GameManager.Instance.moneyBookText = m_bookObject.GetComponent<BookManager>().moneyText;
             GameManager.Instance.timerBookText = m_bookObject.GetComponent<BookManager>().timerText;
             GameManager.Instance.roundBookText = m_bookObject.GetComponent<BookManager>().roundText;
@@ -522,8 +535,19 @@ public class InputManager : MonoBehaviour
         {
             m_bookAttatched = true;
             m_bookObject.transform.SetParent(OffHandController.transform);
-            m_bookObject.transform.localEulerAngles = new Vector3(0, -90, 0);
-            m_bookObject.transform.localPosition = new Vector3(m_bookHandOffset, 0, 0.07f);
+            if (Handedness == HandTypes.left)
+            {
+                //Book in the right hand.
+                m_bookObject.transform.localEulerAngles = new Vector3(0, 90, 0);
+                m_bookObject.transform.localPosition = new Vector3(-m_bookHandOffset, 0, 0.07f);
+            }
+            else
+            {
+                //Book in the left hand
+                m_bookObject.transform.localEulerAngles = new Vector3(0, -90, 0);
+                m_bookObject.transform.localPosition = new Vector3(m_bookHandOffset, 0, 0.07f);
+            }
+            m_bookObject.transform.localScale = new Vector3(0.06f, 0.06f, 0.06f);
         } 
     }
     #endregion
