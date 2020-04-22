@@ -113,10 +113,15 @@ public class GameManager : MonoBehaviour
 
         if (m_gameOver == true)
         {
-            m_gameSpeed = 0;
-            roundBookText.text = "Game Over";
-            roundBookText2.text = "Game Over";
-            m_roundUI.text = "Game Over";
+            if( m_gameSpeed != 0)
+            {
+                m_gameSpeed = 0;
+                roundBookText.text = "Game Over";
+                roundBookText2.text = "Game Over";
+                m_roundUI.text = "Game Over";
+                AudioManager.Instance.PlaySound("gameOver", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.1f);
+                AudioManager.Instance.fadeMusic(MusicArrangements.CombatToIdle);
+            }
             return;
         }
         else if (m_gameOver == false && GameStarted == true)
@@ -145,11 +150,11 @@ public class GameManager : MonoBehaviour
     {
         CurrentPhase = Phases.Building;
         StartCoroutine(generateMineGold());
-
+        AudioManager.Instance.PlaySound("buildingPhaseStarted", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
         if (m_roundCounter != 1) //Stops this happening on the first round.
         {
             currentGold += 30;
-            AudioManager.Instance.PlaySound("buildingPhaseStarted", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
+            AudioManager.Instance.fadeMusic(MusicArrangements.CombatToIdle);
             addScore(300);
         }
 
@@ -160,6 +165,7 @@ public class GameManager : MonoBehaviour
     void StartAttackPhase()
     {
         CurrentPhase = Phases.Attack;
+        AudioManager.Instance.fadeMusic(MusicArrangements.IdleToCombat);
         //Set all adjecent nodes to the spawns to nonPlaceable, so the player cannot build around them.
         foreach (EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
         {
@@ -169,7 +175,7 @@ public class GameManager : MonoBehaviour
                 _node.navigability = nodeTypes.navigable;
             }
         }
-        AudioManager.Instance.PlaySound("buildingPhaseStarted", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
+        AudioManager.Instance.PlaySound("attackPhaseStarted", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
         StartCoroutine("spawnEnemies");
 
 
@@ -379,7 +385,7 @@ public class GameManager : MonoBehaviour
 
     public void playGame()
     {
-        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
+        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, true, true, true, this.gameObject, 0.1f);
         InputManager.Instance.SpawnBook();
         Debug.Log("Play Game");
         resetScore();
@@ -410,7 +416,8 @@ public class GameManager : MonoBehaviour
     }
     public void restartGame()
     {
-        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
+        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, true, true, true, this.gameObject, 0.1f);
+        AudioManager.Instance.fadeMusic(MusicArrangements.CombatToIdle);
         InputManager.Instance.SpawnBook();
         Debug.Log("Restart Game");
         resetScore();
@@ -435,7 +442,9 @@ public class GameManager : MonoBehaviour
 
     public void GoToMainMenu()
     {
-        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
+        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, true, true, true, this.gameObject, 0.1f);
+
+        AudioManager.Instance.fadeMusic(MusicArrangements.CombatToIdle);
         InputManager.Instance.RemoveBook();
         Debug.Log("Go To Main Menu");
         resetScore();
