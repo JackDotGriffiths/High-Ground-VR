@@ -7,7 +7,7 @@ public class EnemyBehaviour : MonoBehaviour
 {
 
     [SerializeField, Tooltip("Unit Prefab")] private GameObject m_unitPrefab;
-    [SerializeField, Tooltip("Enemy Group Size in number of units")] private int m_groupSize;
+    [SerializeField, Tooltip("Starting Group Size. Group Size of 1 will not change through rounds."),Range(1,5)] private int m_groupSize;
     [SerializeField,Tooltip("Time between each tick of the enemy group.")] private float m_tickTimer = 3.0f;
     [SerializeField, Tooltip("Movement Speed Between Nodes")] private float m_movementSpeed = 0.4f;
     [Range(0.2f,1.8f),Tooltip("multiplier on the timer. This can be used to speed up/slow down the enemy.")]public float timePerception = 1.0f; //Timeperception is a value that is changed to impact either slowness or speedyness on a player or enemy unit.
@@ -36,6 +36,11 @@ public class EnemyBehaviour : MonoBehaviour
         if (m_fullAggression)
         {
             groupAggression = 1.0f;
+        }
+        else if(m_groupSize != 1)
+        {
+            //Determine the group size from this linear equation y = mx + c +(Range -0.1x,+0.1x) - Visible as a graph here http://prntscr.com/s4poda
+            m_groupSize = Mathf.RoundToInt((m_groupSize - 0.4f) + 0.4f * GameManager.Instance.RoundCounter + Random.Range(-0.1f * GameManager.Instance.RoundCounter, 0.1f * GameManager.Instance.RoundCounter));
         }
         List<GameObject> m_units = new List<GameObject>();
         m_unitInstantiated = false;
