@@ -36,6 +36,11 @@ public class BookManager : MonoBehaviour
 
 
 
+    [Header("Time Skip Text Objects"), Space(5)]
+    [SerializeField] private TextMeshPro m_timeButton1;
+    [SerializeField] private TextMeshPro m_timeButton2;
+
+
 
     private bool m_isShowingSpells;
 
@@ -65,6 +70,21 @@ public class BookManager : MonoBehaviour
         m_wallCost.text = GameManager.Instance.wallsCost.ToString();
         m_barracksCost.text = GameManager.Instance.barracksCost.ToString();
         m_mineCost.text = GameManager.Instance.mineCost.ToString();
+    }
+
+    void Update()
+    {
+        //Changes text based on the phase the game is in.
+        if(GameManager.Instance.CurrentPhase == Phases.Building)
+        {
+            m_timeButton1.text = "Skip Building";
+            m_timeButton2.text = "Skip Building";
+        }
+        else
+        {
+            m_timeButton1.text = "Double Speed";
+            m_timeButton2.text = "Double Speed";
+        }
     }
 
     /// <summary>
@@ -154,9 +174,19 @@ public class BookManager : MonoBehaviour
     /// <summary>
     /// Starts the coroutine that runs the game at double speed for a set amount of time.
     /// </summary>
-    public void runDoubleSpeed()
+    public void pressTimeButton()
     {
-        StartCoroutine(doubleSpeed());
+        if(GameManager.Instance.GameOver == false)
+        {
+            if (GameManager.Instance.CurrentPhase == Phases.Building)
+            {
+                GameManager.Instance.SkipBuildingPhase();
+            }
+            else
+            {
+                StartCoroutine(doubleSpeed());
+            }
+        }
     }
 
     IEnumerator doubleSpeed()

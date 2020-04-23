@@ -102,6 +102,7 @@ public class BuildingHealth : MonoBehaviour
     {
         this.GetComponentInParent<NodeComponent>().node.navigability = nodeTypes.navigable;
         AudioManager.Instance.PlaySound("destroyBuilding", AudioLists.Building, AudioMixers.Effects,true, true, false, this.gameObject, 0.1f);
+        Instantiate(GameManager.Instance.buildingDestructionEffect, transform.position,Quaternion.Euler(-90,0,0));
         Destroy(this.gameObject);
     }
 

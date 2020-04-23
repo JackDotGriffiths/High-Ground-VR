@@ -6400,6 +6400,8 @@ MonoBehaviour:
   m_wallCost: {fileID: 8093910400490643009}
   m_barracksCost: {fileID: 9083762793159588249}
   m_mineCost: {fileID: 503634418862706010}
+  m_timeButton1: {fileID: 9083664769235018315}
+  m_timeButton2: {fileID: 4969890590843549886}
 --- !u!95 &6923952872738669873
 Animator:
   serializedVersion: 3
@@ -7823,7 +7825,7 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressMethod.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: runDoubleSpeed
+      value: pressTimeButton
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
@@ -8955,7 +8957,7 @@ PrefabInstance:
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}
       propertyPath: m_buttonPressMethod.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: runDoubleSpeed
+      value: pressTimeButton
       objectReference: {fileID: 0}
     - target: {fileID: 2549027201484338360, guid: f56f2a61c7a97814b9285ca40acf4578,
         type: 3}

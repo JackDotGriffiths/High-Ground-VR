@@ -106,7 +106,7 @@ public class EnemySpawnBehaviour : MonoBehaviour
             if(m_orbRotationSpeed > 15.0f)
             {
                 m_orbRotationSpeed--;
-                yield return new WaitForSeconds(0.0015f);
+                yield return new WaitForSeconds(0.00001f);
             }
         }
 
