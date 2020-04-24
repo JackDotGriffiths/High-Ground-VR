@@ -41,6 +41,7 @@ public class EnemyBehaviour : MonoBehaviour
         {
             //Determine the group size from this linear equation y = mx + c +(Range -0.1x,+0.1x) - Visible as a graph here http://prntscr.com/s4poda
             m_groupSize = Mathf.RoundToInt((m_groupSize - 0.4f) + 0.4f * GameManager.Instance.RoundCounter + Random.Range(-0.1f * GameManager.Instance.RoundCounter, 0.1f * GameManager.Instance.RoundCounter));
+            m_groupSize = Mathf.Clamp(m_groupSize, 2, 6);
         }
         List<GameObject> m_units = new List<GameObject>();
         m_unitInstantiated = false;

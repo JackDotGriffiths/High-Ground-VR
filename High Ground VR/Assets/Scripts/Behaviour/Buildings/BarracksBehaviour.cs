@@ -1,15 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class BarracksBehaviour : MonoBehaviour
 {
     [SerializeField, Tooltip ("The Unit Prefab, used for spawning from the Barracks.")] private GameObject m_unitPrefab;
-    [SerializeField, Tooltip ("The maximum amount of Units allowed from this Barracks.")] private int m_unitCount;
+    [SerializeField, Tooltip("The minimum amount of Units allowed from a Barracks.")] private int m_minUnitCount;
+    [SerializeField, Tooltip ("The maximum amount of Units allowed from a Barracks.")] private int m_maxUnitCount;
     [SerializeField, Tooltip("Time between respawning units.")] private int m_unitRespawnDelay;
+    [SerializeField, Tooltip("Upgrade Display game Object.")] private Canvas m_upgradeDisplay;
+    [SerializeField, Tooltip("Price of Upgrade Text")] private TextMeshProUGUI m_upgradeCostText;
 
 
-    public bool inCombat;  //Tracks whether the unit is in combat or not.
+    [HideInInspector] public bool inCombat;  //Tracks whether the unit is in combat or not.
+    public bool isShowingUpgrade = false;
+
+
+
     public Node BarracksUnitNode; //The node on which the units are placed.
 
     private ValidateBuildingLocation m_buildingValidation; //Script used to validate a building position, it also stores the Y offset of all placed objects.
@@ -17,12 +25,11 @@ public class BarracksBehaviour : MonoBehaviour
     private List<GameObject> m_units; //A list of all units associated with this barracks.
     private int m_currentUnits;  //The current amount of units associated with this barracks.
     private bool m_respawning = false;
-
-
-    [Range (0,360)]public float m_testAngle;
+    private int m_unitCount;
 
     void Start()
     {
+        m_unitCount = m_minUnitCount;
         m_units = new List<GameObject>();
         //Assigning the node on which the barrack is placed. Try/Catch checks for any missed associations.
         try { 
@@ -104,6 +111,18 @@ public class BarracksBehaviour : MonoBehaviour
         {
             AddEnemyToBattle();
         }
+
+
+
+        if (m_upgradeDisplay != null)
+        {
+            m_upgradeDisplay.transform.LookAt(Camera.main.transform);
+            m_upgradeDisplay.transform.eulerAngles = new Vector3(m_upgradeDisplay.transform.eulerAngles.x, m_upgradeDisplay.transform.eulerAngles.y, m_upgradeDisplay.transform.eulerAngles.z);
+
+        }
+
+
+
     }
 
     /// <summary>
@@ -130,6 +149,7 @@ public class BarracksBehaviour : MonoBehaviour
 
     }
 
+    #region Battle
     /// <summary>
     /// Looks for enemies in adjecent nodes and creates a battle event if it finds any, adding the located enemies.
     /// </summary>
@@ -233,7 +253,9 @@ public class BarracksBehaviour : MonoBehaviour
             }
         }
     }
+    #endregion
 
+    #region Respawning
     /// <summary>
     /// Controls the respawn of units from a barracks.
     /// </summary>
@@ -275,12 +297,66 @@ public class BarracksBehaviour : MonoBehaviour
         EvaluateUnitPositions();
     }
 
+    #endregion
 
+    #region Upgrading
 
-
-    private void OnDrawGizmos()
+    /// <summary>
+    /// Shows the upgrade display above this barracks.
+    /// </summary>
+    public void showUpgradeDisplay()
     {
-        Gizmos.color = Color.red;
-        Debug.DrawRay(new Vector3(m_barracksPlacedNode.hex.transform.position.x, m_barracksPlacedNode.hex.transform.position.y + 3f, m_barracksPlacedNode.hex.transform.position.z), ((Quaternion.Euler(0, m_testAngle, 0) * m_barracksPlacedNode.hex.transform.forward) - (m_barracksPlacedNode.hex.transform.up * 1.4f))* 100f);
+        int _price = Mathf.RoundToInt(Mathf.Pow(m_unitCount, 2) * 50.0f);
+        m_upgradeCostText.text = _price.ToString();
+        m_upgradeDisplay.gameObject.GetComponent<Animator>().Play("ShowUpgradeDisplay");
+        isShowingUpgrade = true;
     }
+
+    /// <summary>
+    /// Hides the upgrade display above this barracks.
+    /// </summary>
+    public void hideUpgradeDisplay()
+    {
+        m_upgradeDisplay.gameObject.GetComponent<Animator>().Play("HideUpgradeDisplay");
+        isShowingUpgrade = false;
+    }
+
+
+
+    /// <summary>
+    /// Returns whether or not the barracks can be upgraded. This is based on a maximum unit Count.
+    /// </summary>
+    public bool canUpgradeBarracks()
+    {
+        if(m_unitCount < m_maxUnitCount)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Upgrades the barracks by increasing the amount of units allowed. This will only run if canUpgradeBarracks returns true.
+    /// </summary>
+    public void runUpgrade()
+    {
+
+        //Calculate price based on the minimum units and a maximum number of units.
+        int _price = Mathf.RoundToInt(Mathf.Pow(m_unitCount, 2) * 50.0f);
+
+
+
+        if (!GameManager.Instance.spendGold(_price))
+        {
+            Debug.Log("Not Enough Money");
+            AudioManager.Instance.PlaySound("incorrectSound", AudioLists.UI, AudioMixers.Effects, false, true, false, this.gameObject, 0.1f);
+            return;
+        }
+        AudioManager.Instance.PlaySound("barracksRespawn", AudioLists.Building, AudioMixers.Effects, false, true, false, this.gameObject, 0.1f);
+        m_unitCount++; //Upgrade the total amount of units that are associated with this barracks.
+    }
+    #endregion
 }
