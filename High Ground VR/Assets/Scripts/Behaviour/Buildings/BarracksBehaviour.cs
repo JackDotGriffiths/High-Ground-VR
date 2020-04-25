@@ -356,6 +356,7 @@ public class BarracksBehaviour : MonoBehaviour
             return;
         }
         AudioManager.Instance.PlaySound("barracksRespawn", AudioLists.Building, AudioMixers.Effects, false, true, false, this.gameObject, 0.1f);
+        GameManager.Instance.addScore(_price / 10);
         m_unitCount++; //Upgrade the total amount of units that are associated with this barracks.
     }
     #endregion
