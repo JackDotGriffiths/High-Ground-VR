@@ -119,7 +119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38259d2caaaff6c4387ffafae9a2a137, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_maxHealth: 400
+  m_maxHealth: 300
   m_cooldownTime: 20
   m_healthRegenAmount: 0.8
   m_healthBar: {fileID: 7897162722506635546}

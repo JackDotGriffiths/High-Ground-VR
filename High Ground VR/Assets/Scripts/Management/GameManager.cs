@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour
     [Tooltip("Amount of spawns the game rounds should start with")] public int enemyStartingSpawns = 1;
     [Tooltip("Amount of enemies to spawn at the start of Round One.")] public int enemyAmount = 1;
     [Tooltip("Enemy Spawn Delay")] public int enemySpawnDelay = 10;
+    [Tooltip("Building Destruction Prefab")] public GameObject buildingDestructionEffect;
     [Tooltip("Which round number to start spawning tank enemies after"), Space(10)] public int tankRoundStart = 5;
     [Tooltip("How many rounds have to pass before another one spawns")] public int tankRoundFrequency = 5;
 
@@ -58,6 +59,7 @@ public class GameManager : MonoBehaviour
     private int m_roundCounter = 1;
     private float m_buildingPhaseTimer; //Track the current value of the countdown timer.
     private bool m_menuVisible;
+    private string m_timerValue = "";
 
     private Phases m_currentPhase;
     private Node m_gameGemNode; // The Gem Gameobject, set by GameBoardGeneration.
@@ -113,10 +115,20 @@ public class GameManager : MonoBehaviour
 
         if (m_gameOver == true)
         {
-            m_gameSpeed = 0;
-            roundBookText.text = "Game Over";
-            roundBookText2.text = "Game Over";
-            m_roundUI.text = "Game Over";
+            if( m_gameSpeed != 0)
+            {
+                m_gameSpeed = 0;
+                roundBookText.text = "Game Over";
+                roundBookText2.text = "Game Over";
+                m_roundUI.text = "Game Over";
+                AudioManager.Instance.PlaySound("gameOver", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.1f);
+                AudioManager.Instance.fadeMusic(MusicArrangements.CombatToIdle); 
+
+                foreach(UnitComponent _unitComp in FindObjectsOfType<UnitComponent>())
+                {
+                    _unitComp.Die();
+                }
+            }
             return;
         }
         else if (m_gameOver == false && GameStarted == true)
@@ -124,9 +136,10 @@ public class GameManager : MonoBehaviour
             if (CurrentPhase == Phases.Building)
             {
                 m_buildingPhaseTimer -= Time.deltaTime * m_gameSpeed;
-                if (m_buildingPhaseTimer % 1.0f < 0.01f) // Plays a ticking sound with the timer.
+                if(m_timeUI.text != m_timerValue)// Plays a ticking sound with the timer.
                 {
                     AudioManager.Instance.PlaySound("clockTick", AudioLists.UI, AudioMixers.UI, false, true, true, this.gameObject, 0.1f);
+                    m_timerValue = m_timeUI.text;
                 }
             }
             if (m_currentEnemies <= 0 && CurrentPhase == Phases.Building && m_buildingPhaseTimer <= 0.0f)
@@ -145,21 +158,19 @@ public class GameManager : MonoBehaviour
     {
         CurrentPhase = Phases.Building;
         StartCoroutine(generateMineGold());
-
+        AudioManager.Instance.PlaySound("buildingPhaseStarted", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
         if (m_roundCounter != 1) //Stops this happening on the first round.
         {
             currentGold += 30;
-            AudioManager.Instance.PlaySound("buildingPhaseStarted", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
+            AudioManager.Instance.fadeMusic(MusicArrangements.CombatToIdle);
+            m_buildingPhaseTimer = m_buildingPhaseTime / 2;
             addScore(300);
         }
-
-
-
-        m_buildingPhaseTimer = m_buildingPhaseTime / 2;
     }
     void StartAttackPhase()
     {
         CurrentPhase = Phases.Attack;
+        AudioManager.Instance.fadeMusic(MusicArrangements.IdleToCombat);
         //Set all adjecent nodes to the spawns to nonPlaceable, so the player cannot build around them.
         foreach (EnemySpawnBehaviour _spawn in GameManager.Instance.enemySpawns)
         {
@@ -169,10 +180,19 @@ public class GameManager : MonoBehaviour
                 _node.navigability = nodeTypes.navigable;
             }
         }
-        AudioManager.Instance.PlaySound("buildingPhaseStarted", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
+        AudioManager.Instance.PlaySound("attackPhaseStarted", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
         StartCoroutine("spawnEnemies");
 
 
+    }
+
+    /// <summary>
+    /// Allows the player to skip to attack phase.
+    /// </summary>
+    public void SkipBuildingPhase()
+    {
+        m_buildingPhaseTimer = 0.0f;
+        StartAttackPhase();
     }
     #endregion
 
@@ -347,21 +367,28 @@ public class GameManager : MonoBehaviour
             //For each enemy to spawn, randomly choose a spawn and run spawnEnemy
             for (int i = 0; i < _roundEnemies.Count; i++)
             {
-                if (_roundEnemies[i] == enemyTypes.Regular)
+                if(m_gameOver == false)
                 {
-                    //Spawn a normal enemy;
-                    if (!enemySpawns[Random.Range(0, enemySpawns.Count)].spawnEnemy()) //If it fails to spawn an enemy, try again.
+                    if (_roundEnemies[i] == enemyTypes.Regular)
                     {
-                        i--;
+                        //Spawn a normal enemy;
+                        if (!enemySpawns[Random.Range(0, enemySpawns.Count)].spawnEnemy()) //If it fails to spawn an enemy, try again.
+                        {
+                            i--;
+                        }
+                    }
+                    else
+                    {
+                        //Spawn a tank
+                        if (!enemySpawns[Random.Range(0, enemySpawns.Count)].spawnTank()) //If it fails to spawn an enemy, try again.
+                        {
+                            i--;
+                        }
                     }
                 }
                 else
                 {
-                    //Spawn a tank
-                    if (!enemySpawns[Random.Range(0, enemySpawns.Count)].spawnTank()) //If it fails to spawn an enemy, try again.
-                    {
-                        i--;
-                    }
+                    break;
                 }
 
                 yield return new WaitForSeconds(Random.Range(enemySpawnDelay / 2, enemySpawnDelay)); //Random delay in spawning enemies, staggers them out.
@@ -379,7 +406,7 @@ public class GameManager : MonoBehaviour
 
     public void playGame()
     {
-        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
+        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, true, true, true, this.gameObject, 0.1f);
         InputManager.Instance.SpawnBook();
         Debug.Log("Play Game");
         resetScore();
@@ -410,7 +437,8 @@ public class GameManager : MonoBehaviour
     }
     public void restartGame()
     {
-        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
+        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, true, true, true, this.gameObject, 0.1f);
+        AudioManager.Instance.fadeMusic(MusicArrangements.CombatToIdle);
         InputManager.Instance.SpawnBook();
         Debug.Log("Restart Game");
         resetScore();
@@ -435,7 +463,9 @@ public class GameManager : MonoBehaviour
 
     public void GoToMainMenu()
     {
-        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, false, true, true, this.gameObject, 0.1f);
+        AudioManager.Instance.PlaySound("gameStarted/Over", AudioLists.Combat, AudioMixers.Music, true, true, true, this.gameObject, 0.1f);
+
+        AudioManager.Instance.fadeMusic(MusicArrangements.CombatToIdle);
         InputManager.Instance.RemoveBook();
         Debug.Log("Go To Main Menu");
         resetScore();
@@ -522,6 +552,7 @@ public class GameManager : MonoBehaviour
                 {
                     _goalNode = _chosenNode;
                 }
+                _count++;
             }
             if(_goalNode == null) //If it failed to find anything, set the goal to the gem.
             {

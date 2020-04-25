@@ -6,7 +6,7 @@ using Valve.VR.InteractionSystem;
 public enum HandTypes { left, right }; // Handedness
 public class InputManager : MonoBehaviour
 {
-    #region Variable Decleration
+    #region Variables
     private static InputManager s_instance;
     public enum SizeOptions { small, large }; //Whether the player is currently Large or Small.
 
@@ -56,6 +56,7 @@ public class InputManager : MonoBehaviour
     private LineRenderer m_mainPointer; //The Line Renderer used for pointing 
     private Vector3 m_pointerStartPos;
     private ValidateBuildingLocation m_buildingValidation; //The ValidateBuildingLocation script, which checks the position of a building before it's placed.
+    private BarracksBehaviour m_selectedBarracksForUpgrade;
     private List<MeshRenderer> m_objectMeshes = new List<MeshRenderer>(); //List of all of the meshrenderers of the hexagons in the environment.
     private SizeOptions m_currentSize;
     private bool m_bookAttatched = true;
@@ -183,13 +184,35 @@ public class InputManager : MonoBehaviour
                 _hitMesh.materials = _matList.ToArray();
 
                 //If the user is selecting a hex, and they have a building selected, verify it's location and then place the building if it's verified 
-                if (m_mainTrigger == true && m_currentlySelectedBuilding != null && m_currentSize == SizeOptions.large)
+                if (m_mainTrigger == true && m_currentlySelectedBuilding != null && m_currentlySelectedHex.GetComponent<NodeComponent>().node.navigability == nodeTypes.navigable)
                 {
                     float _angle = headsetToHexAngle();
                     if (m_buildingValidation.verifyBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node, _angle))
                     {
                         m_buildingValidation.placeBuilding(m_currentlySelectedBuilding, m_currentlySelectedHex.GetComponent<NodeComponent>().node, _angle);
                         RumbleManager.Instance.lightVibration(Handedness);
+                    }
+                }
+                else if (m_mainTrigger == true && m_currentlySelectedHex.GetComponent<NodeComponent>().node.navigability == nodeTypes.barracks)
+                {
+                    BarracksBehaviour _selectedBarracks = m_currentlySelectedHex.GetComponentInChildren<BarracksBehaviour>();
+                    if (_selectedBarracks.isShowingUpgrade)
+                    {
+                        if (_selectedBarracks.canUpgradeBarracks())
+                        {
+                            _selectedBarracks.runUpgrade();
+                            _selectedBarracks.hideUpgradeDisplay();
+                            _selectedBarracks.isShowingUpgrade = false;
+                        }
+                    }
+                    else
+                    {
+                        if (_selectedBarracks.canUpgradeBarracks())
+                        {
+                            m_selectedBarracksForUpgrade = _selectedBarracks;
+                            _selectedBarracks.showUpgradeDisplay();
+                            _selectedBarracks.isShowingUpgrade = true;
+                        }
                     }
                 }
             }
@@ -378,6 +401,9 @@ public class InputManager : MonoBehaviour
             m_mainPointer.endWidth = 0.00f;
         }
         #endregion
+
+
+
         //Lerp the Rig to it's new position - Teleportation
         m_vrRig.transform.position = Vector3.Lerp(m_vrRig.transform.position, m_newPosition, m_rigTeleportationSpeed);
 
@@ -439,6 +465,8 @@ public class InputManager : MonoBehaviour
                     }
                 }
             }
+
+            hideBarracksUpgradeDisplays();
         }
     }
 
@@ -460,6 +488,8 @@ public class InputManager : MonoBehaviour
                     m_objectMeshes.Add(_mesh);
                 }
             }
+
+            hideBarracksUpgradeDisplays();
         }
     }
 
@@ -475,6 +505,37 @@ public class InputManager : MonoBehaviour
                 List<Material> _matList = new List<Material>();
                 _matList.Add(m_grassMaterial);
                 _mesh.materials = _matList.ToArray();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Hides all of the upgrade displays.
+    /// </summary>
+    private void hideBarracksUpgradeDisplays()
+    {
+        //Turn off the displays for all the barracks
+        BarracksBehaviour _selectedBarracks = null;
+        try
+        {
+            _selectedBarracks = m_currentlySelectedHex.GetComponentInChildren<BarracksBehaviour>();
+        }
+        catch { }
+
+        foreach (BarracksBehaviour _barracks in FindObjectsOfType<BarracksBehaviour>())
+        {
+            if (_selectedBarracks != null)
+            {
+                if (_barracks != _selectedBarracks && _barracks.isShowingUpgrade == true)
+                {
+                    _barracks.hideUpgradeDisplay();
+                    _barracks.isShowingUpgrade = false;
+                }
+            }
+            else if (_barracks.isShowingUpgrade == true)
+            {
+                _barracks.hideUpgradeDisplay();
+                _barracks.isShowingUpgrade = false;
             }
         }
     }
@@ -551,8 +612,6 @@ public class InputManager : MonoBehaviour
         } 
     }
     #endregion
-
-
 
     /// <summary>
     /// Retrieve the angle of the headset to the selected hex.

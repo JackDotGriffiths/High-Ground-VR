@@ -5,6 +5,8 @@ using UnityEngine.Audio;
 
 public enum AudioLists { Combat, Building, UI }
 public enum AudioMixers {UI, Effects, Music}
+
+public enum MusicArrangements { IdleToCombat, CombatToIdle}
 public class AudioManager : MonoBehaviour
 {
 
@@ -16,9 +18,17 @@ public class AudioManager : MonoBehaviour
 
     //Sound List
     [Header ("Sound Lists")]
-    [SerializeField, Space(10)] public List<Sound> buildingSounds;
-    [SerializeField, Space(5)] public List<Sound> combatSounds;
-    [SerializeField, Space(5)] public List<Sound> userInterfaceSounds;
+    [Space(10)] public List<Sound> buildingSounds;
+    [Space(5)] public List<Sound> combatSounds;
+    [Space(5)] public List<Sound> userInterfaceSounds;
+
+
+    [Header("Music Audio Sources"), Space(10)]
+    [SerializeField] private AudioSource m_idleMusic;
+    [SerializeField] private AudioSource m_combatMusic;
+    [SerializeField, Range(0.1f, 1.0f)] private float m_musicVolume;
+    [SerializeField, Range(0.01f, 1.0f)] private float m_musicFadeSpeed;
+
 
 
     public static AudioManager Instance { get => _instance; set => _instance = value; }
@@ -179,4 +189,36 @@ public class AudioManager : MonoBehaviour
             }
         }
      }
+
+
+    #region Music Management
+    /// <summary>
+    /// Used to transition music between the 2 tracks between rounds.
+    /// </summary>
+    /// <param name="_arragement"></param>
+    public void fadeMusic(MusicArrangements _arragement)
+    {
+        if(_arragement == MusicArrangements.IdleToCombat)
+        {
+            StartCoroutine(fadeBetweenTracks(m_idleMusic, m_combatMusic));
+        }
+        else
+        {
+            StartCoroutine(fadeBetweenTracks(m_combatMusic, m_idleMusic));
+        }
+    }
+
+    IEnumerator fadeBetweenTracks(AudioSource _source1, AudioSource _source2)
+    {
+        do
+        {
+            _source1.volume = _source1.volume - m_musicFadeSpeed;
+            _source2.volume = _source2.volume + m_musicFadeSpeed;
+            yield return new WaitForSeconds(0.1f);
+        } while (_source2.volume <= m_musicVolume && _source1.volume >= 0);
+        yield return null;
+    }
+
+
+    #endregion
 }
