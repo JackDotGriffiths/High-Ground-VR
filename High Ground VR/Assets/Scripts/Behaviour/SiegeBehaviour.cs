@@ -55,13 +55,17 @@ public class SiegeBehaviour : MonoBehaviour
         if (m_siegeStarted == true)
         {
             float _totalTimePerception = 0;
+            //Get the average timePerception of all enemy groups in the siege
             for (int i = 0; i < enemyGroups.Count; i++)
             {
                 _totalTimePerception += enemyGroups[i].timePerception;
             }
             m_timePerception = _totalTimePerception / enemyGroups.Count;
-            drawDebugLines();
+            //Use timePerception as a multiplier when running the timer.
             m_currentTimer -= Time.deltaTime * GameManager.Instance.GameSpeed * m_timePerception;
+
+
+            drawDebugLines();
             if (buildingHealth == null)
             {
                 siegeOver();

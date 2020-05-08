@@ -22,15 +22,18 @@ public class EnemySpawnBehaviour : MonoBehaviour
     public bool spawnEnemy()
     {
         Vector3 _spawnPosition = Vector3.zero;
-        //Choose a random hex around the edge of the map.
         int _index = 0;
         Node _spawnNode = null;
+
+        //Check all of the adjacent nodes to the spawner.
         do
         {
-            _spawnNode = thisNode.adjecant[Random.Range(0, thisNode.adjecant.Count)];
-            if(_spawnNode.navigability == nodeTypes.navigable)
+            _spawnNode = thisNode.adjecant[Random.Range(0, thisNode.adjecant.Count)];//Pick a random adjacent node.
+            if (_spawnNode.navigability == nodeTypes.navigable)
             {
+                //Set spawnposition to the position of the chosen adjacent node.
                 _spawnPosition = new Vector3(_spawnNode.hex.transform.position.x, _spawnNode.hex.transform.position.y + GameBoardGeneration.Instance.BuildingValidation.CurrentHeightOffset, _spawnNode.hex.transform.position.z);
+                break;
             }
             _index++;
         } while (_index < thisNode.adjecant.Count);
@@ -39,13 +42,12 @@ public class EnemySpawnBehaviour : MonoBehaviour
         {
             return false; //Failed to spawn enemy, try again.
         }
-        if(_spawnNode.navigability == nodeTypes.navigable && _spawnNode.hex.transform.childCount == 0)
+        if(_spawnNode.navigability == nodeTypes.navigable && _spawnNode.hex.transform.childCount == 0) //Check that it's still navigable and there is nothing in the way of spawning.
         {
+            //Instantiate an enemy.
             GameObject _enemy = Instantiate(m_enemyUnit, _spawnPosition, Quaternion.identity, _spawnNode.hex.transform);
             _enemy.GetComponent<EnemyBehaviour>().currentX = _spawnNode.x;
             _enemy.GetComponent<EnemyBehaviour>().currentY = _spawnNode.y;
-            //AudioManager.Instance.Play3DSound(SoundLists.enemySpawning, false, 0, _enemy, true, false, true);
-            StartCoroutine(spinOrb());
             return true; //Succeeded spawning an enemy, continuing spawning.
         }
         else

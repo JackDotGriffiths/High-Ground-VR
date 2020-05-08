@@ -59,6 +59,12 @@ public class Search
                     _lowestF = _node.searchData.F;
                 }
             }
+
+            if(_currentNode == null) //If there is no node to move onto, return. This will increase aggression.
+            {
+                return;
+            }
+
             openNodes.Remove(_currentNode);
             if (_currentNode == _endNode)
             {

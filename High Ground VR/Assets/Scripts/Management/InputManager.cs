@@ -144,7 +144,6 @@ public class InputManager : MonoBehaviour
         if ((LeftTeleport == true && MainController == m_leftController) || (RightTeleport == true && MainController == m_rightController)) { m_mainTeleport = true; }
         else { m_mainTeleport = false; }
 
-
         #region Pointer Handling
 
         //Raycasting from the controllers
@@ -339,7 +338,6 @@ public class InputManager : MonoBehaviour
 
         #endregion
 
-
         #region Enemy Interaction Manager
         if (m_mainTrigger == true && m_currentlySelectedBuilding == null)
         {
@@ -402,8 +400,6 @@ public class InputManager : MonoBehaviour
         }
         #endregion
 
-
-
         //Lerp the Rig to it's new position - Teleportation
         m_vrRig.transform.position = Vector3.Lerp(m_vrRig.transform.position, m_newPosition, m_rigTeleportationSpeed);
 
@@ -440,7 +436,6 @@ public class InputManager : MonoBehaviour
         }
         m_gameEnvironment.transform.position = new Vector3(0, m_maxWorldHeight, 16);
     }
-
 
     #region Hexagon Highlighting
     /// <summary>
