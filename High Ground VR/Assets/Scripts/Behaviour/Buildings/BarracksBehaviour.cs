@@ -262,20 +262,20 @@ public class BarracksBehaviour : MonoBehaviour
     /// <returns></returns>
     IEnumerator RespawnUnits()
     {
+        //Wait for a set timer.
         yield return new WaitForSeconds(m_unitRespawnDelay);
         //If the target node is completely clear , Spawn a unit.
         if (BarracksUnitNode.hex.transform.childCount != 0)
         {
-            if (BarracksUnitNode.hex.transform.GetChild(0).GetComponent<EnemyBehaviour>() == null)
+            if (BarracksUnitNode.hex.transform.GetChild(0).GetComponent<EnemyBehaviour>() == null) //Ensure an enemy isn't in the way
             {
-                AudioManager.Instance.PlaySound("barracksRespawn", AudioLists.Building, AudioMixers.Effects, false, true, false, this.gameObject, 0.1f);
                 BarracksUnitNode.navigability = nodeTypes.playerUnit;
                 SpawnAUnit();
             }
         }
+        //If there is a player unit currently there, add another.
         else if (BarracksUnitNode.navigability == nodeTypes.navigable || BarracksUnitNode.navigability == nodeTypes.playerUnit)
         {
-            AudioManager.Instance.PlaySound("barracksRespawn", AudioLists.Building, AudioMixers.Effects, false, true, false, this.gameObject, 0.1f);
             BarracksUnitNode.navigability = nodeTypes.playerUnit;
             SpawnAUnit();
         }

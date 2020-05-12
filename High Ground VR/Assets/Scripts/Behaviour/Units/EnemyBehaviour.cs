@@ -138,7 +138,7 @@ public class EnemyBehaviour : MonoBehaviour
                 else if ((m_groupPath[currentStepIndex + 1].navigability == nodeTypes.wall || m_groupPath[currentStepIndex + 1].navigability == nodeTypes.mine) && inSiege == false)
                 {
                     //Start combat with the building in the way, if they're aggressive enough. Otherwise run pathfinding.
-                    float _currentAggressionBoundary = Mathf.Clamp(1.0f - (GameManager.Instance.RoundCounter / 8), 0.6f, 1.0f); //It becomes more likely a unit will get aggressive over time. By round 10, 40% of enemies will be aggressive instantly.
+                    float _currentAggressionBoundary = 1.0f - (GameManager.Instance.RoundCounter / 20.0f); //It becomes more likely a unit will get aggressive over time. By round 10, 40% of enemies will be aggressive instantly.
                     if (groupAggression >= _currentAggressionBoundary)
                     {
                         //Start siege
@@ -235,6 +235,15 @@ public class EnemyBehaviour : MonoBehaviour
     {
         currentStepIndex = 0;
         m_groupPath = GameManager.Instance.RunPathfinding(GameBoardGeneration.Instance.Graph[currentX,currentY],GameManager.Instance.GameGemNode,_aggression);
+        if(m_groupPath.Count == 0)
+        {
+            StartCoroutine("aggressionTimer");
+            m_validMove = false;
+        }
+        else
+        {
+            m_validMove = true;
+        }
     }
 
     /// <summary>
@@ -252,12 +261,12 @@ public class EnemyBehaviour : MonoBehaviour
             //Sin of the percentage creates a 'hop' like movement.
             _yOffset = 2 * Mathf.Pow(Mathf.Sin(_percentage),2);
         }
-        Vector3 _hopPosition = new Vector3(m_targetPosition.x, m_targetPosition.y + _yOffset, m_targetPosition.z);
-        transform.position = Vector3.Lerp(transform.position, _hopPosition, m_movementSpeed * GameManager.Instance.GameSpeed * timePerception);
+        Vector3 _hopPosition = new Vector3(m_targetPosition.x, m_targetPosition.y + _yOffset, m_targetPosition.z); //Position the enemy needs to move to.
+        transform.position = Vector3.Lerp(transform.position, _hopPosition, m_movementSpeed * GameManager.Instance.GameSpeed * timePerception); //Lerp the enemy towards it's target position. 
 
         try
         {
-            RotateEachUnit();
+            RotateEachUnit(); //Rotates each unit towards the next position, so they're facing where they're headed.
         }
         catch { }
     }
@@ -303,7 +312,17 @@ public class EnemyBehaviour : MonoBehaviour
     /// <returns></returns>
     IEnumerator aggressionTimer()
     {
-        groupAggression = Mathf.Clamp(groupAggression + 0.02f, 0, 0.9f);
+        if(m_groupPath.Count == 0)
+        {
+            //If the unit is completely stuck, get angry quicker
+            groupAggression = Mathf.Clamp(groupAggression + 0.5f, 0, 0.9f);
+        }
+        else
+        {
+            //Else increase anger gradually
+            groupAggression = Mathf.Clamp(groupAggression + 0.05f, 0, 0.9f);
+        }
+
         yield return new WaitForSeconds(2.0f);
         RunPathfinding(groupAggression);
         yield return null;

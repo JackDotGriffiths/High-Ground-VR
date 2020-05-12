@@ -2,13 +2,13 @@
   "source": "Unity",
   "applications": [
     {
-      "app_key": "application.generated.unity.highground.exe",
+      "app_key": "application.generated.unity.highgroundvr.exe",
       "launch_type": "url",
       "url": "steam://launch/",
       "action_manifest_path": "C:\\Users\\jack-\\Documents\\Current Repository\\PRCO304-High-Ground\\High Ground VR\\Assets\\StreamingAssets\\SteamVR\\actions.json",
       "strings": {
         "en_us": {
-          "name": "High Ground [Testing]"
+          "name": "High Ground VR [Testing]"
         }
       }
     }

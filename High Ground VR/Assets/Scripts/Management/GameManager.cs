@@ -55,7 +55,6 @@ public class GameManager : MonoBehaviour
 
     public int currentGold; //The current gold of the player.
     public int currentScore; //The current score of the player.
-    private int visibleScore;
     private int m_roundCounter = 1;
     private float m_buildingPhaseTimer; //Track the current value of the countdown timer.
     private bool m_menuVisible;
@@ -472,6 +471,7 @@ public class GameManager : MonoBehaviour
         m_mainMenu.SetActive(true);
         m_gameMenu.SetActive(false);
         m_gameOver = true;
+        m_gameSpeed = 0;
         GameStarted = false;
         GameBoardGeneration.Instance.destroyAll();
     }
@@ -493,6 +493,8 @@ public class GameManager : MonoBehaviour
         SearchTypes _searchType;
         float _currentAggressionBoundary = 1.0f - (RoundCounter / 20.0f); //This delays the reaching of the minimum value in the following clamp to be round 8
         _currentAggressionBoundary = Mathf.Clamp(_currentAggressionBoundary, 0.6f,1.0f); // After round 8, enemies will need to have above 0.6 aggression to destroy something.
+        Debug.Log("_currentAggressionBoundary is " + _currentAggressionBoundary);
+        
         //Debug.Log("Current Aggression Boundary is " + _currentAggressionBoundary);
         if (_unitAggression >= _currentAggressionBoundary)
         {
@@ -581,7 +583,7 @@ public class GameManager : MonoBehaviour
     public void addScore(int _amount)
     {
         currentScore += _amount;
-        StartCoroutine(updateScoreScreen());
+        m_scoreUI.text = currentScore.ToString("000000");
     }
 
     /// <summary>
@@ -593,17 +595,6 @@ public class GameManager : MonoBehaviour
         m_scoreUI.text = currentScore.ToString("000000");
     }
 
-
-    IEnumerator updateScoreScreen()
-    {
-        do
-        {
-            visibleScore++;
-            yield return new WaitForSeconds(0.03f);
-            m_scoreUI.text = visibleScore.ToString("000000");
-        } while (visibleScore != currentScore);
-        yield return null;
-    }
     #endregion
 
     #region Usability Testing Control - Removed for release
@@ -621,13 +612,13 @@ public class GameManager : MonoBehaviour
     //}
     //private void submitData()
     //{
-    //    if(currentScore == 0)
+    //    if (currentScore == 0)
     //    {
     //        return;
     //    }
     //    PlayerPrefs.SetInt("Score", currentScore);
     //    PlayerPrefs.SetInt("Round Reached", m_roundCounter);
-    //    StartCoroutine(Post(PlayerPrefs.GetInt("Score").ToString(), PlayerPrefs.GetInt("Round Reached").ToString(), PlayerPrefs.GetInt("Barracks Placed").ToString(), PlayerPrefs.GetInt("Walls Placed").ToString(),PlayerPrefs.GetInt("Mine Placed").ToString(), PlayerPrefs.GetInt("Regular Spell").ToString(), PlayerPrefs.GetInt("Speed Spell").ToString(), PlayerPrefs.GetInt("Slow Spell").ToString()));
+    //    StartCoroutine(Post(PlayerPrefs.GetInt("Score").ToString(), PlayerPrefs.GetInt("Round Reached").ToString(), PlayerPrefs.GetInt("Barracks Placed").ToString(), PlayerPrefs.GetInt("Walls Placed").ToString(), PlayerPrefs.GetInt("Mine Placed").ToString(), PlayerPrefs.GetInt("Regular Spell").ToString(), PlayerPrefs.GetInt("Speed Spell").ToString(), PlayerPrefs.GetInt("Slow Spell").ToString()));
 
     //}
 

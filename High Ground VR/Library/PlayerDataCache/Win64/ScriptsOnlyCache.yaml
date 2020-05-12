@@ -732,7 +732,7 @@ ScriptsOnlyBuild:
     className: PostProcessProfile
   - hash:
       serializedVersion: 2
-      Hash: cda4da3512fe942317efc5630ec62b72
+      Hash: 36f01c294102283f9a214bdf1a798c43
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: UIPointerBehaviour
@@ -2251,4 +2251,5 @@ ScriptsOnlyBuild:
   platform: 19
   scenePathNames:
   - Assets/Scenes/HighGroundVR.unity
-  playerPath: C:/Users/jack-/Desktop/HighGroundVR_V1.0/High Ground VR.exe
+  playerPath: "C:/Users/jack-/Documents/Current Repository/PRCO304-High-Ground/High
+    Ground VR \u2013 V1.0 Build/High Ground VR.exe"

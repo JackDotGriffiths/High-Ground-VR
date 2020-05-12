@@ -25,11 +25,12 @@ public class BattleBehaviour : MonoBehaviour
     /// <param name="_enemyUnits">List of enemy units to have in the battle.</param>
     public void StartBattle(List<Unit> _friendlyUnits, List<Unit> _enemyUnits)
     {
-        enemyGroups = new List<EnemyBehaviour>();
-        friendlyGroups = new List<BarracksBehaviour>();
-
+        enemyGroups = new List<EnemyBehaviour>(); //A list of enemy units within the battle
+        friendlyGroups = new List<BarracksBehaviour>(); //A list of friendly units within the battle.
         friendlyUnits = _friendlyUnits;
         enemyUnits = _enemyUnits;
+
+        //Seperate timers for enemies and friendly units, which is used later for spells effecting the time perception of an enemy.
         m_currentFriendlyTimer = m_battleTimer;
         m_currentEnemyTimer = m_battleTimer;
         m_battleOccuring = true;

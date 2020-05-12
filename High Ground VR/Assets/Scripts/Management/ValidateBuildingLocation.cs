@@ -34,7 +34,7 @@ public class ValidateBuildingLocation : MonoBehaviour
         }
         else if (_building.type == buildingTypes.Mine)
         {
-            return verifyMine(_targetNode, _buildingAngle);
+            return verifyMine(_targetNode);
         }
         else if (_building.type == buildingTypes.Wall)
         {
@@ -154,7 +154,7 @@ public class ValidateBuildingLocation : MonoBehaviour
     /// </summary>
     /// <param name="_targetNode">Node on which to place a Mine</param>
     /// <returns>True or false based on whether the targetNode can accept a Mine.</returns>
-    public bool verifyMine(Node _targetNode, float _angle)
+    public bool verifyMine(Node _targetNode)
     {
         bool _validLocation = false;
         if (nodeEmpty(_targetNode) && !adjacentToEnemySpawn(_targetNode) && !adjacentToGem(_targetNode) && checkGemAccessible(_targetNode))
@@ -423,6 +423,7 @@ public class ValidateBuildingLocation : MonoBehaviour
                     return _result;
                 }
             }
+            _targetNode.navigability = nodeTypes.navigable;
         }
         else
         {
